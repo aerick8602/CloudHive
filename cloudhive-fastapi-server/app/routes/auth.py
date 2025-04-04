@@ -12,7 +12,6 @@ async def provider_login(provider: str):
     auth_url = get_auth_url(provider)
     if not auth_url:
         return {"error": "Unsupported provider"}
-    
     return {"auth_url": auth_url}
 
 

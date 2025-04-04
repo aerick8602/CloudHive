@@ -1,13 +1,8 @@
 import os
 import json
 import time
-from dotenv import load_dotenv
 from boxsdk import OAuth2, Client
-
-# Load environment variables
-load_dotenv()
-BOX_CLIENT_ID = os.getenv("BOX_CLIENT_ID")
-BOX_CLIENT_SECRET = os.getenv("BOX_CLIENT_SECRET")
+from app.utils.config import BOX_CLIENT_ID, BOX_CLIENT_SECRET
 
 # Hardcoded static values
 BOX_REDIRECT_URI = "http://localhost:8000/auth/box/callback"

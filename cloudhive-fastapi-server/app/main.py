@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.routing import APIRouter
 from app.routes import auth
-from app.routes import file
 
 app = FastAPI(title="CloudHive FastAPI Server")
 
@@ -15,7 +14,6 @@ async def root():
 # routes
 app.include_router(router) 
 app.include_router(auth.router)
-app.include_router(file.router)
 
 if __name__ == "__main__":
     import uvicorn
