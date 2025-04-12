@@ -1,9 +1,9 @@
 import os
 import json
 import jwt as pyjwt 
-from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from app.utils.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+from app.utils.logger import logger  
 
 # Static values
 GOOGLE_AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
@@ -18,6 +18,7 @@ GOOGLE_SCOPES = [
 
 TOKEN_DIR = "app/token/google"
 os.makedirs(TOKEN_DIR, exist_ok=True)  
+
 
 def get_google_auth_url():
     """Generate Google OAuth URL"""
@@ -39,7 +40,9 @@ def get_google_auth_url():
         prompt="consent",
         access_type="offline",  # Ensure refresh token is received
     )
+
     return auth_url
+
 
 def handle_google_callback(code: str):
     """Exchange authorization code for token and save it"""
@@ -92,13 +95,16 @@ def handle_google_callback(code: str):
         with open(token_path, "w") as token_file:
             json.dump(creds_dict, token_file, indent=4)
 
-        print(f"✅ Token saved for {email} at {token_path}")
+        logger.info(f"Google token saved for {email}")
 
         return {"message": "Google account connected!", "email": email}
 
     except ValueError as ve:
+        logger.error(f"Google OAuth authentication failed: {ve}")
         return {"error": "OAuth authentication failed", "details": str(ve)}
     except KeyError as ke:
+        logger.error(f"Unexpected response format from Google: {ke}")
         return {"error": "Unexpected response format from Google", "details": str(ke)}
     except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
         return {"error": "An unexpected error occurred", "details": str(e)}
