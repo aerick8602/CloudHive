@@ -3,6 +3,7 @@ from fastapi.routing import APIRouter
 from app.routes import auth
 from app.routes import file
 from app.routes import upload
+from app.routes import logs
 from app.utils.logger import logger  
 from app.db.mongo import get_mongodb_stats
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,6 +35,7 @@ app.include_router(router)
 app.include_router(auth.router)
 app.include_router(file.router)
 app.include_router(upload.router)
+app.include_router(logs.router)
 
 if __name__ == "__main__":
     logger.info("Starting CloudHive FastAPI server...")

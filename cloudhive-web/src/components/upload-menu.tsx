@@ -28,18 +28,18 @@ export function UploadMenu() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <Plus className="size-4" />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight cursor-pointer">
                 <span className="truncate font-medium">New</span>
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="min-w-56 rounded-lg"
+            className="min-w-56 rounded-lg cursor-pointer"
             align="start"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
@@ -51,7 +51,7 @@ export function UploadMenu() {
 
             <DropdownMenuItem
               onClick={() => alert("Create New Folder")}
-              className="gap-2 p-2"
+              className="gap-2 p-2 cursor-pointer"
             >
               <FolderPlus className="size-4" />
               New Folder
@@ -60,7 +60,7 @@ export function UploadMenu() {
 
             <DropdownMenuItem
               onClick={() => alert("Upload File")}
-              className="gap-2 p-2"
+              className="gap-2 p-2 cursor-pointer"
             >
               <FileUp className="size-4" />
               File Upload
@@ -68,7 +68,7 @@ export function UploadMenu() {
 
             <DropdownMenuItem
               onClick={() => alert("Upload Folder")}
-              className="gap-2 p-2"
+              className="gap-2 p-2 cursor-pointer"
             >
               <FolderUp className="size-4" />
               Folder Upload

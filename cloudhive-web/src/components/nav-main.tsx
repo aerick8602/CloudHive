@@ -42,6 +42,7 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
+                  className="cursor-pointer"
                   tooltip={item.title}
                   onClick={() => alert(`Clicked: ${item.title}`)}
                 >

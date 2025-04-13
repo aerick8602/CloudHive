@@ -14,13 +14,22 @@ import {
   Star,
   Trash2,
   Cloudy,
+  Image,
+  Video,
+  AudioLines,
+  ArchiveIcon,
+  LetterTextIcon,
+  FileTerminalIcon,
+  Package,
+  Database,
+  CodeXmlIcon,
 } from "lucide-react";
 
 import { IconCloudCode } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
-import { NavUser } from "@/components/nav-user";
+import { NavProjects } from "@/components/nav-explorer";
+import { NavLog } from "@/components/nav-log";
 import {
   Sidebar,
   SidebarContent,
@@ -35,10 +44,10 @@ import { UploadMenu } from "./upload-menu";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+  log: {
+    title: "Dev Console",
+    info: "fastapi-server-logs",
+    icon: CodeXmlIcon,
   },
   navMain: [
     {
@@ -68,21 +77,49 @@ const data = {
       icon: Cloudy,
     },
   ],
-  projects: [
+  explorer: [
     {
-      name: "Design Engineering",
+      title: "Media",
       url: "#",
-      icon: Frame,
+      icon: SquareTerminal,
+      isActive: true,
+      items: [
+        {
+          title: "Images",
+          icon: Image,
+          url: "#",
+        },
+        {
+          title: "Videos",
+          icon: Video,
+          url: "#",
+        },
+        {
+          title: "Audio",
+          icon: AudioLines,
+          url: "#",
+        },
+        {
+          title: "Documents",
+          icon: FileTerminalIcon,
+          url: "#",
+        },
+        {
+          title: "Text",
+          icon: LetterTextIcon,
+          url: "#",
+        },
+        {
+          title: "Archives",
+          icon: Package,
+          url: "#",
+        },
+      ],
     },
     {
-      name: "Sales & Marketing",
+      title: "Database",
       url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      icon: Database,
     },
   ],
 };
@@ -97,7 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a className="flex items-center gap-2 no-underline text-gray-800 hover:bg-transparent hover:text-inherit">
+              <a className="pointer-events-none hover:bg-transparent hover:text-inherit">
                 <IconCloudCode className="!size-6" />
                 <span className="text-xl font-semibold">CloudHive</span>
               </a>
@@ -108,10 +145,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavProjects items={data.explorer} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavLog log={data.log} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
