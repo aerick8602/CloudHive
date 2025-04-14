@@ -4,8 +4,10 @@ from app.routes import auth
 from app.routes import file
 from app.routes import upload
 from app.routes import logs
+from app.routes import quota
+from app.routes import database
 from app.utils.logger import logger  
-from app.db.mongo import get_mongodb_stats
+
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -26,9 +28,6 @@ router = APIRouter(tags=["Default"])
 async def root():
     return {"message": "Welcome to CloudHive Server 🚀"}
 
-@router.get("/usage/mongodb")
-def fetch_mongo_usage_stats():
-    return get_mongodb_stats()
 
 # Register routes
 app.include_router(router)
@@ -36,6 +35,8 @@ app.include_router(auth.router)
 app.include_router(file.router)
 app.include_router(upload.router)
 app.include_router(logs.router)
+app.include_router(quota.router)
+app.include_router(database.router)
 
 if __name__ == "__main__":
     logger.info("Starting CloudHive FastAPI server...")

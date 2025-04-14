@@ -1,11 +1,12 @@
 import os
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
 from typing import List, Optional
 from app.provider.google_drive.google_drive_provider import GoogleDriveProvider
 from app.utils.logger import logger
 from app.db.mongo import metadata_collection
 
-router = APIRouter(prefix="/upload", tags=["Uploads"])
+router = APIRouter(prefix="/upload", tags=["Drive Uploads"])
+
 
 PROVIDERS = {
     "google": GoogleDriveProvider,
@@ -13,6 +14,7 @@ PROVIDERS = {
 
 @router.post("/")
 async def upload_to_cloud(
+    background_tasks: BackgroundTasks,
     email: str = Form(...),
     provider: str = Form(...),
     files: List[UploadFile] = File(...),
@@ -20,6 +22,7 @@ async def upload_to_cloud(
     is_folder: bool = Form(False),
     parent_id: Optional[str] = Form(None) 
 ):
+    """Upload a file to the specified cloud provider"""
     if parent_id:
             matched_metadata = metadata_collection.find_one({"id": parent_id})
             if matched_metadata:
@@ -62,6 +65,10 @@ async def upload_to_cloud(
                         parent_id=parent_id  # Include parent_id
                     )
                 uploaded_files.append(uploaded)
+        
+        # Use background task to update and get quota info without blocking the response
+        background_tasks.add_task(service.update_and_get_quota)
+
 
         logger.info(f"✅ Upload completed for {email}")
         return {"uploaded": uploaded_files}

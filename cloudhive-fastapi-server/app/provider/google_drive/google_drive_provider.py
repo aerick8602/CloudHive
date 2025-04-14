@@ -9,6 +9,9 @@ from app.db.mongo import save_metadata
 from typing import Optional
 import io
 from fastapi import UploadFile
+from pathlib import Path
+import json
+import os
 
 
 class GoogleDriveProvider:
@@ -237,3 +240,51 @@ class GoogleDriveProvider:
         except Exception as e:
             logger.error(f"Failed to upload file with path {file_path}: {str(e)}")
             raise ValueError(f"Failed to upload file: {str(e)}")
+        
+
+
+
+
+
+
+    def update_and_get_quota(self):
+        """Fetches Google Drive quota information and updates quotas.json in a single function."""
+        try:
+            # Fetch the quota information from Google Drive API
+            quota_data = self.client.about().get(fields="storageQuota").execute()
+            logger.info(f"Fetched quota for {self.email}: {quota_data}")
+
+            # Prepare the data in the desired format
+            quota_info = {
+                "limit": quota_data["storageQuota"]["limit"],
+                "usage": quota_data["storageQuota"]["usage"],
+                "usageInDrive": quota_data["storageQuota"]["usageInDrive"],
+                "usageInDriveTrash": quota_data["storageQuota"]["usageInDriveTrash"],
+            }
+
+            # Load existing quotas data if available
+            QUOTA_FILE_PATH = Path("app/data/quotas.json")
+            QUOTA_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            if os.path.exists(QUOTA_FILE_PATH):
+                with open(QUOTA_FILE_PATH, "r") as f:
+                    quotas = json.load(f)
+            else:
+                quotas = {}
+
+            # Key for the specific email provider
+            key = f"google_{self.email}"
+
+            # Update the quota information for the specific email
+            quotas[key] = quota_info
+
+            # Save the updated quotas back to the file
+            with open(QUOTA_FILE_PATH, "w") as f:
+                json.dump(quotas, f, indent=4)
+
+            logger.info(f"✅ Quota updated for {key}")
+
+            return quota_info
+
+        except Exception as e:
+            logger.error(f"❌ Failed to fetch and save quota for {self.email}: {str(e)}")
+            raise

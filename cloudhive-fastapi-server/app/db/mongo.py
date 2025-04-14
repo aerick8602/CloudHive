@@ -1,19 +1,28 @@
 from pymongo import MongoClient
 from app.utils.config import MONGODB_URI
 from app.utils.logger import logger
+from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure
 
 logger.info("Connecting to MongoDB...")
 
 try:
     client = MongoClient(
         MONGODB_URI,
-        serverSelectionTimeoutMS=5000
+        serverSelectionTimeoutMS=10000
     )
     client.server_info()
     logger.info("✅ Successfully connected to MongoDB")
+except ServerSelectionTimeoutError as e:
+    logger.error(f"❌ MongoDB connection timed out: {str(e)}")
+    raise
+except ConnectionFailure as e:
+    logger.error(f"❌ MongoDB server connection failed: {str(e)}")
+    raise
 except Exception as e:
     logger.error(f"❌ Failed to connect to MongoDB: {str(e)}")
     raise
+
+
 
 db = client.cloudhive
 metadata_collection = db.metadata
@@ -51,17 +60,18 @@ def save_metadata(metadata: dict):
 
 def get_mongodb_stats():
     try:
-        stats = db.command("dbStats")
+        db_stats = db.command("dbStats")
         return {
-            "db": stats["db"],
-            "collections": stats["collections"],
-            "objects": stats["objects"],
-            "avgObjSize": stats["avgObjSize"],
-            "dataSize": stats["dataSize"],
-            "storageSize": stats["storageSize"],
-            "indexes": stats["indexes"],
-            "indexSize": stats["indexSize"],
+                "db": db_stats["db"],
+                "collections": db_stats["collections"],
+                "objects": db_stats["objects"],
+                "avgObjSize": db_stats.get("avgObjSize"),
+                "dataSize": db_stats["dataSize"],  
+                "storageSize": db_stats["storageSize"],  
+                "indexes": db_stats["indexes"],
+                "indexSize": db_stats["indexSize"],
+            
         }
     except Exception as e:
-        logger.error(f"Failed to get MongoDB stats: {e}")
+        logger.error(f"❌ Failed to get MongoDB stats: {e}")
         return {"error": str(e)}

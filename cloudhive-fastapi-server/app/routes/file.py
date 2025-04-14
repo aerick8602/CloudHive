@@ -7,19 +7,20 @@ from app.db.mongo import metadata_collection
 
 router = APIRouter(prefix="/files", tags=["File Retrieval"])
 
-ROOT_FOLDER_PATH = os.path.join("app", "data", "root_folders.json")
-if not os.path.exists(ROOT_FOLDER_PATH):
-    raise FileNotFoundError(f"❌ root_folder.json not found at {ROOT_FOLDER_PATH}")
-
-with open(ROOT_FOLDER_PATH, "r") as f:
-    ROOT_FOLDER_MAP = json.load(f)
-
 @router.get("/")
 async def get_items(
     parent_id: Optional[str] = Query(None)
 ):
+    """Fetch items (files/folders) based on parent folder ID or from root folders"""
+    
+    ROOT_FOLDER_PATH = "app/data/root_folders.json"
+    if not os.path.exists(ROOT_FOLDER_PATH):
+        raise FileNotFoundError(f"❌ root_folder.json not found at {ROOT_FOLDER_PATH}")
+
+    with open(ROOT_FOLDER_PATH, "r") as f:
+        ROOT_FOLDER_MAP = json.load(f)
+
     try:
-        # Build the query depending on presence of parent_id
         if not parent_id:
             parent_ids = list(ROOT_FOLDER_MAP.values())
             query = { "p.0": { "$in": parent_ids } }

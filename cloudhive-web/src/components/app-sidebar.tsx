@@ -23,6 +23,10 @@ import {
   Package,
   Database,
   CodeXmlIcon,
+  Images,
+  Podcast,
+  GalleryVerticalEnd,
+  Clapperboard,
 } from "lucide-react";
 
 import { IconCloudCode } from "@tabler/icons-react";
@@ -51,7 +55,7 @@ const data = {
   },
   navMain: [
     {
-      title: "Home",
+      title: "Drive",
       url: "#",
       icon: HardDrive,
       isActive: true,
@@ -81,12 +85,12 @@ const data = {
     {
       title: "Media",
       url: "#",
-      icon: SquareTerminal,
-      isActive: true,
+      icon: Clapperboard,
+      isActive: false,
       items: [
         {
           title: "Images",
-          icon: Image,
+          icon: Images,
           url: "#",
         },
         {

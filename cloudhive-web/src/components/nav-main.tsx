@@ -30,7 +30,7 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>My Drive</SidebarGroupLabel>
+      <SidebarGroupLabel>My Clouds</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible

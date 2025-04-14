@@ -3,12 +3,15 @@ from fastapi.responses import JSONResponse
 import os
 import re
 
-LOG_FILE_PATH = "logs/app.log"
-router = APIRouter(prefix="/logs", tags=["Logs"])
+
+router = APIRouter(prefix="/logs", tags=["Server Logs"])
 
 
 @router.get("/", response_class=JSONResponse)
 async def get_app_logs():
+    """Fetch and return the application logs from the log file"""
+
+    LOG_FILE_PATH = "logs/app.log"
     if not os.path.exists(LOG_FILE_PATH):
         raise HTTPException(status_code=404, detail="Log file not found.")
 

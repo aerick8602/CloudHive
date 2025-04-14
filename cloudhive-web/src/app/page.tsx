@@ -31,7 +31,6 @@ import { useEffect, useState } from "react";
 export default function Page() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  // Avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -44,7 +43,6 @@ export default function Page() {
       <AppSidebar />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          {/* Left side: Sidebar + Search */}
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <Separator
@@ -66,8 +64,6 @@ export default function Page() {
     </Breadcrumb> */}
             <SearchForm className="w-full sm:ml-auto sm:w-auto" />
           </div>
-
-          {/* Right side: Theme Toggle */}
           <Button
             className="cursor-pointer"
             variant="outline"
@@ -82,7 +78,7 @@ export default function Page() {
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 overflow-hidden">
           <div className="bg-muted/100 max-h-[90vh] flex-1 rounded-xl overflow-y-auto ">
-            <div className="max-h-[88vh] overflow-y-auto rounded-xl py-4 ">
+            <div className="max-h-[88vh] overflow-y-auto rounded-xl ">
               {/* Content here */}
             </div>
           </div>

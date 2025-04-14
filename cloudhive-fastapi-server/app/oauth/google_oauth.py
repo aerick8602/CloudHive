@@ -1,5 +1,6 @@
 import os
 import json
+from app.routes.quota import refresh_all_quotas
 import jwt as pyjwt 
 from google_auth_oauthlib.flow import Flow
 from app.utils.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
@@ -96,6 +97,9 @@ def handle_google_callback(code: str):
             json.dump(creds_dict, token_file, indent=4)
 
         logger.info(f"Google token saved for {email}")
+
+        # Trigger quota refresh as a background task after OAuth success
+        refresh_all_quotas()
 
         return {"message": "Google account connected!", "email": email}
 
