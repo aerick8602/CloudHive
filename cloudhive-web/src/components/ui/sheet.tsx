@@ -112,7 +112,7 @@ function SheetTitle({
       data-slot="sheet-title"
       className={cn(
         "text-foreground font-semibold ",
-        isMobile ? "text-xs" : "text-sm",
+        isMobile ? "text-sm" : "text-base",
         className
       )}
       {...props}
