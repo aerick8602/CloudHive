@@ -136,10 +136,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-0"
             >
-              <a className="pointer-events-none hover:bg-transparent hover:text-inherit">
-                <IconCloudCode className="!size-6" />
+              <a className="pointer-events-none hover:bg-transparent hover:text-inherit ">
+                <IconCloudCode className="!size-7 flex items-center justify-center" />
                 <span className="text-xl font-semibold">CloudHive</span>
               </a>
             </SidebarMenuButton>

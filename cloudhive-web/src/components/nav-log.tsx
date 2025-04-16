@@ -90,7 +90,9 @@ export function NavLog({
         style={{ borderTopRightRadius: "15px", borderTopLeftRadius: "15px" }}
       >
         <SheetHeader>
-          <SheetTitle>Edit profile</SheetTitle>
+          <SheetTitle>
+            PS C:\CloudHive&gt; debug-console logs@latest --live-all
+          </SheetTitle>
           <SheetDescription className="max-h-[40vh] overflow-y-auto ">
             <p>
               Make changes to your profile here. Click save when you're done.

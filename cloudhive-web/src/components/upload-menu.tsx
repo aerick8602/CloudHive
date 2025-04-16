@@ -23,7 +23,7 @@ export function UploadMenu() {
 
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem className="p-0">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
