@@ -33,7 +33,7 @@ import { useUploader } from "@/hooks/use-uploder";
 
 export function UploadMenu() {
   const { isMobile } = useSidebar();
-  const [folderName, setFolderName] = React.useState("");
+  const [folderName, setFolderName] = React.useState("Untitled Folder");
   const { inputRef, triggerUpload, handleFiles } = useUploader();
 
   return (
@@ -94,27 +94,31 @@ export function UploadMenu() {
         {/* Dialog Content */}
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Folder</DialogTitle>
+            <DialogTitle>New Folder</DialogTitle>
             <DialogDescription>
-              Create your new folder in one-click.
+              Create new folder in just one-click.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex items-center">
-            <Label htmlFor="folder-name" className="w-16 text-right">
-              Name
-            </Label>
+          <div className="flex-col items-center gap-2">
             <Input
               id="folder-name"
-              placeholder="Name of your folder"
-              value={folderName}
+              placeholder="My new folder"
+              // value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
               className="flex-1"
             />
           </div>
-          <DialogFooter className="mt-4">
-            <DialogClose asChild>
-              <Button className="cursor-pointer">Create</Button>
-            </DialogClose>
+          <DialogFooter className="mt-4 w-full">
+            <div className="w-full flex justify-between">
+              <DialogClose asChild>
+                <Button className="cursor-pointer" variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button className="cursor-pointer">Create</Button>
+              </DialogClose>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

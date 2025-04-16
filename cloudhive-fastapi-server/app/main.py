@@ -24,6 +24,28 @@ app.add_middleware(
 
 router = APIRouter(tags=["Default"])
 
+# app/routes/google_drive.py
+from fastapi import APIRouter, HTTPException
+from app.provider.google_drive.google_drive_provider import GoogleDriveProvider
+
+router = APIRouter()
+
+
+@router.get("/google/files/{email}")
+def list_google_drive_files(email: str):
+    try:
+        provider = GoogleDriveProvider(email)
+
+        # You can tweak the fields to get just what you need
+        response = provider.client.files().list(
+            q="trashed = false",
+            fields="files(id, name, mimeType, parents, modifiedTime, createdTime, iconLink, thumbnailLink, webViewLink, webContentLink, starred, trashed, owners(emailAddress, photoLink), size)"
+        ).execute()
+
+        return response.get("files", [])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list files: {str(e)}")
+
 @router.get("/")
 async def root():
     return {"message": "Welcome to CloudHive Server 🚀"}

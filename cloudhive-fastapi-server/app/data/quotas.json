@@ -1,8 +1,14 @@
 {
     "google_katiyara089@gmail.com": {
         "limit": "16106127360",
-        "usage": "5923986",
-        "usageInDrive": "5923986",
-        "usageInDriveTrash": "14885"
+        "usage": "131598",
+        "usageInDrive": "131598",
+        "usageInDriveTrash": "0"
+    },
+    "google_maverick8602@gmail.com": {
+        "limit": "16106127360",
+        "usage": "12330",
+        "usageInDrive": "12330",
+        "usageInDriveTrash": "0"
     }
 }

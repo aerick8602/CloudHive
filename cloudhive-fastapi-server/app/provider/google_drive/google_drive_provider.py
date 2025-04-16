@@ -12,6 +12,7 @@ from fastapi import UploadFile
 from pathlib import Path
 import json
 import os
+import time
 
 
 class GoogleDriveProvider:
@@ -41,29 +42,38 @@ class GoogleDriveProvider:
             raise
 
     def ensure_root_folder(self):
+    # Get the folder_id from the external storage (database, cache, etc.)
         folder_id = get_root_folder("google", self.email)
+        
         if folder_id:
-            return folder_id
-
-        query = (
-            "name='CloudHive' and mimeType='application/vnd.google-apps.folder' "
-            "and trashed=false and 'root' in parents"
-        )
-        response = self.client.files().list(q=query, fields="files(id)").execute()
-        if response.get("files"):
-            folder_id = response["files"][0]["id"]
-        else:
+            try:
+                # Validate if the folder ID is still valid by making an API call
+                self.client.files().get(fileId=folder_id, fields="id").execute()
+                logger.info(f"Found valid root folder ID from storage: {folder_id}")
+                return folder_id  # Return the folder if valid
+            except Exception as e:
+                logger.warning(f"⚠️ Found invalid folder ID {folder_id}. Recreating root folder. Error: {str(e)}")
+        
+        # If the folder ID is invalid or not found, create a new folder
+        try:
             metadata = {"name": "CloudHive", "mimeType": "application/vnd.google-apps.folder"}
             folder = self.client.files().create(body=metadata, fields="id").execute()
             folder_id = folder["id"]
-            permission = {
-                "type": "anyone",
-                "role": "reader"
-            }
-            self.client.permissions().create(fileId=folder_id, body=permission).execute()
+            logger.info(f"Created new 'CloudHive' folder with ID: {folder_id}")
 
-        set_root_folder("google", self.email, folder_id)
-        return folder_id
+            # Set permissions for the folder to be publicly accessible (read-only)
+            permission = {"type": "anyone", "role": "reader"}
+            self.client.permissions().create(fileId=folder_id, body=permission).execute()
+            logger.info(f"Set public read-only permissions for 'CloudHive' folder")
+
+            # Store the folder ID in external storage for future use
+            set_root_folder("google", self.email, folder_id)
+            return folder_id
+
+        except Exception as e:
+            logger.error(f"Failed to ensure root folder: {str(e)}")
+            raise
+
 
     def create_folder(self, name: str, parent_id: str):
         metadata = {
@@ -91,10 +101,15 @@ class GoogleDriveProvider:
             uploaded = self.client.files().create(
                 body=file_metadata,
                 media_body=media,
-                fields="*"
+                fields="id"
             ).execute()
 
-            logger.info(f"File uploaded to Google Drive: {uploaded.get('id')}")
+            file_id = uploaded["id"]
+            logger.info(f"File uploaded to Google Drive: {file_id}")
+
+            # Wait briefly and refetch full metadata
+            time.sleep(1.5)  # You can adjust this if needed
+            uploaded = self.client.files().get(fileId=file_id, fields="*").execute()
 
             doc = {
                 "id": uploaded.get("id"),

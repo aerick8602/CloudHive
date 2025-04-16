@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Page() {
   const { theme, setTheme } = useTheme();
@@ -78,7 +79,12 @@ export default function Page() {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 overflow-hidden">
           <div className="bg-muted/100 max-h-[90vh] flex-1 rounded-xl overflow-y-auto ">
             <div className="max-h-[88vh] overflow-y-auto rounded-xl ">
-              {/* Content here */}
+              {/* <Image
+                src="https://lh3.googleusercontent.com/drive-storage/AJQWtBPJlPwnP9wUbF-VzcZNEebMpYt02cJ-qQgtKTbCT65CYXkVcee9Kumh5WdL_UgavyVGHpw6-k7vlNDrv9KruLmv0aZIkXhCugcxhnMnDHKSBuA=s220"
+                alt="File Thumbnail"
+                width="220" // Set the width
+                height="220" // Set the height
+              /> */}
             </div>
           </div>
         </div>
