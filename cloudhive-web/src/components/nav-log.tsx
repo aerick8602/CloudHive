@@ -91,7 +91,7 @@ export function NavLog({
       >
         <SheetHeader>
           <SheetTitle>
-            PS C:\CloudHive&gt; debug-console logs@latest --live-all
+            <pre>PS C:\CloudHive&gt; debug-console logs@latest --live-all</pre>
           </SheetTitle>
           <SheetDescription className="max-h-[40vh] overflow-y-auto ">
             <p>
