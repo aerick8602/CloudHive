@@ -1,43 +1,11 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  LucideIcon,
-  Sparkles,
-} from "lucide-react";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
+import { ChevronsUpDown, LucideIcon } from "lucide-react";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -46,9 +14,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import { title } from "process";
+import { Avatar } from "@/components/ui/avatar";
+
+// Define level-to-color mapping
+const levelColors: Record<string, string> = {
+  INFO: "text-blue-500",
+  ERROR: "text-red-500",
+  WARNING: "text-yellow-500",
+  DEBUG: "text-purple-500",
+  TRACE: "text-cyan-500",
+  FATAL: "text-pink-500",
+};
 
 export function NavLog({
   log,
@@ -59,7 +36,22 @@ export function NavLog({
     icon: LucideIcon;
   };
 }) {
-  const { isMobile } = useSidebar();
+  const [logs, setLogs] = useState<
+    { timestamp: string; level: string; message: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const res = await fetch("/api/logs");
+        const data = await res.json();
+        setLogs(data);
+      } catch (error) {
+        console.error("Failed to fetch logs", error);
+      }
+    };
+    fetchLogs();
+  }, []);
 
   return (
     <Sheet>
@@ -86,17 +78,64 @@ export function NavLog({
       </SheetTrigger>
       <SheetContent
         side="bottom"
-        className=" overflow-y-auto !rounded-t-r-xl"
+        className="overflow-y-auto !rounded-t-r-xl"
         style={{ borderTopRightRadius: "15px", borderTopLeftRadius: "15px" }}
       >
         <SheetHeader>
           <SheetTitle>
             <p>PS C:\CloudHive&gt; debug-console-logs@latest --all</p>
           </SheetTitle>
-          <SheetDescription className="max-h-[40vh] overflow-y-auto ">
-            <p>
-              Make changes to your profile here. Click save when you're done.
-            </p>
+          <SheetDescription className="max-h-[40vh] overflow-y-auto text-sm font-mono">
+            {logs.length === 0 ? (
+              <p className="text-muted-foreground">Loading logs...</p>
+            ) : (
+              logs
+                .slice()
+                .reverse()
+                .map((log, idx) => {
+                  return (
+                    <div
+                      key={idx}
+                      className="flex flex-col whitespace-pre-wrap break-words "
+                    >
+                      {/* Mobile layout */}
+                      <div className="flex sm:hidden text-xs  gap-1 py-1">
+                        <span>{log.timestamp}</span>
+                        <span>|</span>
+                        <span
+                          className={`font-semibold ${
+                            levelColors[log.level.toUpperCase()] || ""
+                          }`}
+                        >
+                          {log.level}
+                        </span>
+                      </div>
+                      <div className="sm:hidden text-sm pl-1">
+                        {log.message}
+                      </div>
+
+                      {/* Desktop layout */}
+                      <div className="hidden sm:flex gap-2 items-start w-full">
+                        <span className="w-[130px]  text-sm">
+                          {log.timestamp}
+                        </span>
+                        <span>|</span>
+                        <span
+                          className={`w-[60px] font-semibold text-xs ${
+                            levelColors[log.level.toUpperCase()] || ""
+                          }`}
+                        >
+                          {log.level}
+                        </span>
+                        <span>|</span>
+                        <span className="flex-1 break-words">
+                          {log.message}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+            )}
           </SheetDescription>
         </SheetHeader>
       </SheetContent>
