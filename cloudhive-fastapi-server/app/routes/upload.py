@@ -70,7 +70,7 @@ async def upload_to_cloud(
         background_tasks.add_task(service.update_and_get_quota)
 
 
-        logger.info(f"✅ Upload completed for {email}")
+        logger.info(f"📂 Upload completed for {email}")
         return {"uploaded": uploaded_files}
 
     except Exception as e:

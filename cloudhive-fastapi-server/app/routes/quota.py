@@ -7,7 +7,6 @@ import json
 
 router = APIRouter(prefix="/quota", tags=["Storage Quota"])
 
-
 TOKEN_BASE_DIR = Path("app/token")
 QUOTA_FILE_PATH = Path("app/data/quotas.json")
 QUOTA_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -38,15 +37,14 @@ def refresh_all_quotas():
 
                 provider = ProviderClass(email)
                 quota_data = provider.update_and_get_quota()
-                all_quotas[key] = quota_data  # Save latest data
+                all_quotas[key] = quota_data  
                 logger.info(f"✅ Quota fetched for {key}")
 
         return {"quotas": all_quotas}
 
     except Exception as e:
-        logger.exception("❌ Failed to process quota info")
+        logger.exception("🛑 Failed to process quota info")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
 
 @router.get("/cached")
 async def get_cached_quotas():
@@ -59,6 +57,8 @@ async def get_cached_quotas():
     try:
         with open(QUOTA_FILE_PATH, "r") as f:
             quotas = json.load(f)
+        logger.info(f"📊 Cached quota data loaded successfully")
+
         return {"quotas": quotas}
 
     except Exception as e:

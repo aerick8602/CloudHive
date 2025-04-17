@@ -20,7 +20,6 @@ GOOGLE_SCOPES = [
 TOKEN_DIR = "app/token/google"
 os.makedirs(TOKEN_DIR, exist_ok=True)  
 
-
 def get_google_auth_url():
     """Generate Google OAuth URL"""
     flow = Flow.from_client_config(
@@ -96,19 +95,25 @@ def handle_google_callback(code: str):
         with open(token_path, "w") as token_file:
             json.dump(creds_dict, token_file, indent=4)
 
-        logger.info(f"Google token saved for {email}")
+        logger.info(f"✅ Google token saved for {email} 📧")
 
         # Trigger quota refresh as a background task after OAuth success
         refresh_all_quotas()
 
-        return {"message": "Google account connected!", "email": email}
+        return {"message": "Google account connected! 🎉", "email": email}
 
     except ValueError as ve:
-        logger.error(f"Google OAuth authentication failed: {ve}")
+        logger.error(f"😞 Google OAuth authentication failed: {ve} ")
         return {"error": "OAuth authentication failed", "details": str(ve)}
     except KeyError as ke:
-        logger.error(f"Unexpected response format from Google: {ke}")
+        logger.error(f"⚠️ Unexpected response format from Google: {ke} ")
         return {"error": "Unexpected response format from Google", "details": str(ke)}
+    except pyjwt.ExpiredSignatureError as e:
+        logger.error(f"⏳ JWT signature expired during decoding: {e}")
+        return {"error": "JWT signature expired", "details": str(e)}
+    except pyjwt.DecodeError as e:
+        logger.fatal(f"❌ Failed to decode JWT token: {e} 🛠️")
+        return {"error": "Failed to decode JWT", "details": str(e)}
     except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
+        logger.critical(f"🚨 An unexpected error occurred: {e} ")
         return {"error": "An unexpected error occurred", "details": str(e)}

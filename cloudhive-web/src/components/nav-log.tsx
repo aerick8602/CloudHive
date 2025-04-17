@@ -22,7 +22,7 @@ const levelColors: Record<string, string> = {
   INFO: "text-blue-500",
   ERROR: "text-red-500",
   WARNING: "text-yellow-500",
-  DEBUG: "text-purple-500",
+  DEBUG: "text-green-500",
   TRACE: "text-cyan-500",
   FATAL: "text-pink-500",
 };
@@ -89,52 +89,33 @@ export function NavLog({
             {logs.length === 0 ? (
               <p className="text-muted-foreground">Loading logs...</p>
             ) : (
-              logs
-                .slice()
-                .reverse()
-                .map((log, idx) => {
-                  return (
-                    <div
-                      key={idx}
-                      className="flex flex-col whitespace-pre-wrap break-words "
-                    >
-                      {/* Mobile layout */}
-                      <div className="flex sm:hidden text-xs  gap-1 py-1">
-                        <span>{log.timestamp}</span>
-                        <span>|</span>
-                        <span
-                          className={`font-semibold ${
-                            levelColors[log.level.toUpperCase()] || ""
-                          }`}
-                        >
-                          {log.level}
-                        </span>
-                      </div>
-                      <div className="sm:hidden text-sm pl-1">
-                        {log.message}
-                      </div>
+              logs.slice().map((log, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    className="flex flex-col whitespace-pre-wrap break-words "
+                  >
+                    <div className="sm:hidden text-sm pl-1">{log.message}</div>
 
-                      {/* Desktop layout */}
-                      <div className="hidden sm:flex gap-2 items-start w-full">
-                        <span className="w-[130px]  text-sm">
-                          {log.timestamp}
-                        </span>
-                        <span>|</span>
-                        <span
-                          className={`w-[60px] font-semibold text-xs ${
-                            levelColors[log.level.toUpperCase()] || ""
-                          }`}
-                        >
-                          {log.level}
-                        </span>
-                        <span>|</span>
-                        <span className="flex-1 break-words">
-                          {log.message}
-                        </span>
-                      </div>
+                    {/* Desktop layout */}
+                    <div className="hidden sm:flex gap-2 items-start w-full">
+                      <span className="w-[130px]  text-sm">
+                        {log.timestamp}
+                      </span>
+                      <span>|</span>
+                      <span
+                        className={`w-[60px] font-semibold text-xs ${
+                          levelColors[log.level.toUpperCase()] || ""
+                        }`}
+                      >
+                        {log.level}
+                      </span>
+                      <span>|</span>
+                      <span className="flex-1 break-words">{log.message}</span>
                     </div>
-                  );
-                })
+                  </div>
+                );
+              })
             )}
           </SheetDescription>
         </SheetHeader>
