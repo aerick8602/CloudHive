@@ -16,7 +16,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-import { ImageDown, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 const dummyFile = {
   id: "1GEdkhlbg8FnW-MsBv6McRuGalT3DRFl3",
@@ -50,18 +50,14 @@ const dummyFile1 = {
 };
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { FaFileCsv, FaFolder, FaImage } from "react-icons/fa6";
 import { getIconForMimeType } from "./utils/icons";
+import { FileDropdown } from "@/components/file-dropdown";
 
 export default function Page() {
   const { theme, setTheme } = useTheme();
@@ -127,10 +123,7 @@ export default function Page() {
                       Ayushdddddddddddddddddddddddd
                     </span>
                   </div>
-                  <IoEllipsisVerticalSharp
-                    size={18}
-                    className="text-muted-foreground hover:text-foreground"
-                  />
+                  <FileDropdown />
                 </div>
               </div>
             ))}
@@ -152,11 +145,8 @@ export default function Page() {
                     <span className="text-sm font-medium text-muted-foreground truncate block flex-1">
                       Ayusddddddddddddddddddh.jpeg
                     </span>
+                    <FileDropdown />
                   </div>
-                  <IoEllipsisVerticalSharp
-                    size={18}
-                    className="text-muted-foreground hover:text-foreground"
-                  />
                 </div>
 
                 <div className="relative flex-1 rounded-md overflow-hidden bg-muted flex items-center justify-center">
