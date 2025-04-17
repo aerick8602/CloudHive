@@ -23,7 +23,7 @@ const levelColors: Record<string, string> = {
   ERROR: "text-red-500",
   WARNING: "text-yellow-500",
   DEBUG: "text-green-500",
-  TRACE: "text-cyan-500",
+  CRITICLE: "text-cyan-500",
   FATAL: "text-pink-500",
 };
 
@@ -85,19 +85,17 @@ export function NavLog({
           <SheetTitle>
             <p>PS C:\CloudHive&gt; debug-console-logs@latest --all</p>
           </SheetTitle>
-          <SheetDescription className="max-h-[40vh] overflow-y-auto text-sm font-mono">
-            {logs.length === 0 ? (
+          {/* <SheetDescription className="max-h-[40vh] overflow-y-auto text-sm font-mono">
+            {logs?.length === 0 ? (
               <p className="text-muted-foreground">Loading logs...</p>
             ) : (
-              logs.slice().map((log, idx) => {
+              logs?.slice().map((log, idx) => {
                 return (
                   <div
                     key={idx}
                     className="flex flex-col whitespace-pre-wrap break-words "
                   >
                     <div className="sm:hidden text-sm pl-1">{log.message}</div>
-
-                    {/* Desktop layout */}
                     <div className="hidden sm:flex gap-2 items-start w-full">
                       <span className="w-[130px]  text-sm">
                         {log.timestamp}
@@ -117,7 +115,7 @@ export function NavLog({
                 );
               })
             )}
-          </SheetDescription>
+          </SheetDescription> */}
         </SheetHeader>
       </SheetContent>
     </Sheet>

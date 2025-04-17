@@ -48,7 +48,7 @@ def is_google_token_expired(expiry):
 def get_valid_google_token(email):
     """Get a valid access token for a Google account (refresh if necessary) and return both the token and data."""
     try:
-        logger.trace(f"🔄 Attempting to retrieve a valid Google token for {email}...")
+        logger.info(f"🔄 Attempting to retrieve a valid Google token for {email}...")
         token_data = load_google_token(email)
 
         creds = Credentials(

@@ -27,11 +27,11 @@ async def get_items(
 
         # Trashed filter
         if filter == "trashed":
-            query = { "t": True }
+            query = {"p.0": parent_id, "t": True }
 
         # Starred filter
         elif filter == "starred":
-            query = { "s": True, "t": False }
+            query = {"p.0": parent_id, "s": True, "t": False }
 
         # Category filter
         elif filter == "category":
