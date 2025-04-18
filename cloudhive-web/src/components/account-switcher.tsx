@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, MailCheckIcon, Plus } from "lucide-react";
+import { ChevronsUpDown, MailCheckIcon, Plus, User } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -73,7 +73,8 @@ export function TeamSwitcher({
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
                   {/* <team.logo className="size-4 shrink-0" /> */}
-                  <MailCheckIcon />
+                  {/* <MailCheckIcon /> */}
+                  <User></User>
                 </div>
                 {team.email}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>

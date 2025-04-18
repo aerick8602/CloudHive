@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronsUpDown, CodeXmlIcon, LucideIcon } from "lucide-react";
+import { ChevronsUpDown, CodeXmlIcon } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
 import {
   AnimatedSpan,
   Terminal,
@@ -21,7 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar } from "@/components/ui/avatar";
 
-export function NavLog({}) {
+export function NavLog() {
   const [logs, setLogs] = useState<
     { timestamp: string; level: string; message: string }[]
   >([]);
@@ -31,9 +30,12 @@ export function NavLog({}) {
       try {
         const res = await fetch("/api/logs");
         const data = await res.json();
-        setLogs(data);
+
+        // Always fallback to an array
+        setLogs(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch logs", error);
+        setLogs([]);
       }
     };
     fetchLogs();
@@ -50,7 +52,7 @@ export function NavLog({}) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg flex items-center justify-center">
-                <CodeXmlIcon></CodeXmlIcon>
+                <CodeXmlIcon />
               </Avatar>
 
               <div className="grid flex-1 text-left text-sm leading-tight">

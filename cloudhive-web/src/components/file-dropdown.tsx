@@ -62,7 +62,15 @@ export function FileDropdown() {
           className="min-w-56 rounded-lg cursor-pointer"
           align="start"
         >
-          <DropdownMenuItem onClick={() => alert("Open")} className="gap-2">
+          <DropdownMenuItem
+            onClick={() =>
+              window.open(
+                "https://drive.google.com/file/d/1IuJVZy9TPnan0IT9r25tVA5IC84rLxQp",
+                "_blank"
+              )
+            }
+            className="gap-2"
+          >
             <ExternalLinkIcon className="size-4" />
             Open
             <DropdownMenuShortcut className="text-sm ">⌘O</DropdownMenuShortcut>
