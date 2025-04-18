@@ -47,7 +47,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UploadMenu } from "./upload-menu";
-import { TeamSwitcher } from "./team-switcher";
+import { TeamSwitcher } from "./account-switcher";
 
 // This is sample data.
 const data = {

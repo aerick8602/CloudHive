@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ChevronsUpDown, CodeXmlIcon, LucideIcon } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   AnimatedSpan,
@@ -90,7 +95,7 @@ export function NavLog({}) {
                   break;
                 case "CRITICAL":
                   icon = "☢";
-                  color = "text-pink-500";
+                  color = "text-black-800";
                   break;
                 default:
                   icon = "🛠";
@@ -103,7 +108,7 @@ export function NavLog({}) {
                   delay={500 + idx * 100}
                   className={color}
                 >
-                  <span className="break-words whitespace-pre-wrap">
+                  <span className="break-words whitespace-pre-wrap ">
                     {icon} {log.message}
                   </span>
                 </AnimatedSpan>
