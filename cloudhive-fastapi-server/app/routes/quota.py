@@ -38,12 +38,12 @@ def refresh_all_quotas():
                 provider = ProviderClass(email)
                 quota_data = provider.update_and_get_quota()
                 all_quotas[key] = quota_data  
-                logger.info(f"✅ Quota fetched for {key}")
+                logger.info(f"Quota fetched for {key}")
 
         return {"quotas": all_quotas}
 
     except Exception as e:
-        logger.exception("🛑 Failed to process quota info")
+        logger.error("Failed to process quota info")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/cached")
@@ -57,10 +57,10 @@ async def get_cached_quotas():
     try:
         with open(QUOTA_FILE_PATH, "r") as f:
             quotas = json.load(f)
-        logger.info(f"📊 Cached quota data loaded successfully")
+        logger.debug(f"Successfully loaded quota data from cache.")
 
         return {"quotas": quotas}
 
     except Exception as e:
-        logger.exception("❌ Failed to read stored quota info")
+        logger.error("Failed to read stored quota info")
         raise HTTPException(status_code=500, detail="Internal Server Error")

@@ -38,7 +38,7 @@ class GoogleDriveProvider:
             )
             return build("drive", "v3", credentials=creds, static_discovery=False)
         except Exception as e:
-            logger.error(f"❌ Failed to create Google Drive client: {str(e)}")
+            logger.error(f"Failed to create Google Drive client: {str(e)}")
             raise
 
     def ensure_root_folder(self):
@@ -49,17 +49,17 @@ class GoogleDriveProvider:
             try:
                 # Validate if the folder ID is still valid by making an API call
                 self.client.files().get(fileId=folder_id, fields="id").execute()
-                logger.info(f"✅ Found valid root folder ID from storage: {folder_id}")
                 return folder_id  # Return the folder if valid
             except Exception as e:
-                logger.warning(f"⚠️ Found invalid folder ID {folder_id}. Recreating root folder. Error: {str(e)}")
+                logger.warning(f"Invalid folder ID {folder_id}. Recreating root folder. Error: {str(e)}")
+
 
         # If the folder ID is invalid or not found, create a new folder
         try:
             metadata = {"name": "CloudHive", "mimeType": "application/vnd.google-apps.folder"}
             folder = self.client.files().create(body=metadata, fields="id").execute()
             folder_id = folder["id"]
-            logger.info(f"✅ Created new 'CloudHive' folder with ID: {folder_id}")
+            logger.debug(f"Created new 'CloudHive' folder with ID: {folder_id}")
 
             # Set permissions for the folder to be publicly accessible (read-only)
             permission = {"type": "anyone", "role": "reader"}
@@ -70,7 +70,7 @@ class GoogleDriveProvider:
             return folder_id
 
         except Exception as e:
-            logger.critical(f"❌ Failed to ensure root folder: {str(e)}")
+            logger.critical(f"Failed to create root folder: {str(e)}")
             raise
 
     def create_folder(self, name: str, parent_id: str):
@@ -80,7 +80,8 @@ class GoogleDriveProvider:
             "parents": [parent_id]
         }
         folder = self.client.files().create(body=metadata, fields="id").execute()
-        logger.debug(f"🔍 Created folder: {name} with ID: {folder['id']}")
+        logger.debug(f"Folder '{name}' created successfully with ID: {folder['id']}")
+
         return folder["id"]
 
     def upload_file(self, file_name: str, file_bytes: bytes, mime_type: str, parent_id: Optional[str] = None):
@@ -104,7 +105,9 @@ class GoogleDriveProvider:
             ).execute()
 
             file_id = uploaded["id"]
-            logger.info(f"✅ File uploaded to Google Drive: {file_id}")
+            logger.debug(f"{file_name} uploaded to Google Drive! File ID: {file_id}")
+
+
 
             # Wait briefly and refetch full metadata
             time.sleep(1.5)  # You can adjust this if needed
@@ -128,13 +131,13 @@ class GoogleDriveProvider:
                 "c": "google"
             }
             if save_metadata(doc):
-                logger.info(f"✅ Metadata saved successfully for file: {file_name}")
+                logger.debug(f"Metadata saved successfully for file: {file_name}")
             else:
-                logger.warning(f"⚠️ Failed to save metadata for file: {file_name}")
+                logger.error(f"Failed to save metadata for file: {file_name}")
 
             return uploaded
         except Exception as e:
-            logger.error(f"❌ Failed to upload file {file_name}: {str(e)}")
+            logger.error(f"Failed to upload file {file_name}: {str(e)}")
             raise
 
     def upload_folder(self, folder_name: str, files: dict, parent_id: Optional[str] = None):
@@ -158,7 +161,8 @@ class GoogleDriveProvider:
             folder = self.client.files().create(body=folder_metadata, fields="*").execute()
             folder_id = folder["id"]
 
-            logger.info(f"✅ Folder created in Google Drive: {folder_id}")
+            logger.debug(f"New folder created in Google Drive! Folder ID: {folder_id}")
+
 
             # Store folder metadata
             folder_doc = {
@@ -175,9 +179,9 @@ class GoogleDriveProvider:
             }
 
             if save_metadata(folder_doc):
-                logger.info(f"✅ Metadata saved successfully for folder: {folder_name}")
+                logger.debug(f"Metadata saved successfully for folder: {folder_name}")
             else:
-                logger.warning(f"⚠️ Failed to save metadata for folder: {folder_name}")
+                logger.error(f"Failed to save metadata for folder: {folder_name}")
 
             # Process each file in the folder
             for file_path, file_data in files.items():
@@ -187,7 +191,7 @@ class GoogleDriveProvider:
 
             return folder_id
         except Exception as e:
-            logger.error(f"❌ Failed to upload folder {folder_name}: {str(e)}")
+            logger.error(f"Failed to upload folder {folder_name}: {str(e)}")
             raise
 
     def upload_file_with_path(self, file_path: str, file: UploadFile, root_folder_id: Optional[str] = None):
@@ -235,11 +239,11 @@ class GoogleDriveProvider:
                         "e": self.email,
                         "c": "google"
                     }
-                    logger.info(f"🔍 Saving metadata for folder: {folder}")
+                    logger.info(f"Saving metadata for folder: {folder}")
                     save_metadata(folder_doc)
 
                 except Exception as e:
-                    logger.error(f"❌ Error creating/accessing folder {folder}: {str(e)}")
+                    logger.error(f"Error creating/accessing folder {folder}: {str(e)}")
                     raise
 
             # Read file content
@@ -249,7 +253,6 @@ class GoogleDriveProvider:
             # Upload the file
             return self.upload_file(file_name, file_bytes, mime_type, parent_id)
         except Exception as e:
-            logger.error(f"❌ Failed to upload file with path {file_path}: {str(e)}")
             raise ValueError(f"Failed to upload file: {str(e)}")
 
     def update_and_get_quota(self):
@@ -257,7 +260,8 @@ class GoogleDriveProvider:
         try:
             # Fetch the quota information from Google Drive API
             quota_data = self.client.about().get(fields="storageQuota").execute()
-            logger.info(f"✅ Fetched quota for {self.email}: {quota_data}")
+            logger.debug(f"Successfully fetched quota for {self.email}: {quota_data}")
+
 
             # Prepare the data in the desired format
             quota_info = {
@@ -286,8 +290,9 @@ class GoogleDriveProvider:
             with open(QUOTA_FILE_PATH, "w") as f:
                 json.dump(quotas, f, indent=4)
 
-            logger.info(f"✅ Updated quota information for {self.email} in quotas.json")
+            logger.debug(f"Successfully updated quota information for {self.email} in quotas.json")
+
 
         except Exception as e:
-            logger.error(f"❌ Failed to update quota for {self.email}: {str(e)}")
+            logger.error(f"Failed to update quota for {self.email}: {str(e)}")
             raise

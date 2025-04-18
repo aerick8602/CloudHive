@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronsUpDown, LucideIcon } from "lucide-react";
+import { ChevronsUpDown, CodeXmlIcon, LucideIcon } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation,
+} from "@/components/magicui/terminal";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -17,25 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar } from "@/components/ui/avatar";
 
-// Define level-to-color mapping
-const levelColors: Record<string, string> = {
-  INFO: "text-blue-500",
-  ERROR: "text-red-500",
-  WARNING: "text-yellow-500",
-  DEBUG: "text-green-500",
-  CRITICLE: "text-cyan-500",
-  FATAL: "text-pink-500",
-};
-
-export function NavLog({
-  log,
-}: {
-  log: {
-    title: string;
-    info: string;
-    icon: LucideIcon;
-  };
-}) {
+export function NavLog({}) {
   const [logs, setLogs] = useState<
     { timestamp: string; level: string; message: string }[]
   >([]);
@@ -59,17 +40,17 @@ export function NavLog({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip={log.title}
+              tooltip="Console"
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg flex items-center justify-center">
-                <log.icon />
+                <CodeXmlIcon></CodeXmlIcon>
               </Avatar>
 
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{log.title}</span>
-                <span className="truncate text-xs">{log.info}</span>
+                <span className="truncate font-medium">Dev Console</span>
+                <span className="truncate text-xs">fastapi-server-logs</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -78,45 +59,58 @@ export function NavLog({
       </SheetTrigger>
       <SheetContent
         side="bottom"
-        className="overflow-y-auto !rounded-t-r-xl"
+        className="overflow-y-auto !rounded-t-r-xl !w-screen"
         style={{ borderTopRightRadius: "15px", borderTopLeftRadius: "15px" }}
       >
-        <SheetHeader>
-          <SheetTitle>
-            <p>PS C:\CloudHive&gt; debug-console-logs@latest --all</p>
-          </SheetTitle>
-          {/* <SheetDescription className="max-h-[40vh] overflow-y-auto text-sm font-mono">
-            {logs?.length === 0 ? (
-              <p className="text-muted-foreground">Loading logs...</p>
-            ) : (
-              logs?.slice().map((log, idx) => {
-                return (
-                  <div
-                    key={idx}
-                    className="flex flex-col whitespace-pre-wrap break-words "
-                  >
-                    <div className="sm:hidden text-sm pl-1">{log.message}</div>
-                    <div className="hidden sm:flex gap-2 items-start w-full">
-                      <span className="w-[130px]  text-sm">
-                        {log.timestamp}
-                      </span>
-                      <span>|</span>
-                      <span
-                        className={`w-[60px] font-semibold text-xs ${
-                          levelColors[log.level.toUpperCase()] || ""
-                        }`}
-                      >
-                        {log.level}
-                      </span>
-                      <span>|</span>
-                      <span className="flex-1 break-words">{log.message}</span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </SheetDescription> */}
-        </SheetHeader>
+        <Terminal className="!w-screen">
+          {logs.length === 0 ? (
+            <TypingAnimation className="text-muted-foreground">
+              Loading logs...
+            </TypingAnimation>
+          ) : (
+            logs.map((log, idx) => {
+              let icon = "";
+              let color = "";
+              switch (log.level.toUpperCase()) {
+                case "DEBUG":
+                  icon = "✔";
+                  color = "text-green-500";
+                  break;
+                case "INFO":
+                  icon = "•";
+                  color = "text-blue-500";
+                  break;
+                case "ERROR":
+                  icon = "✘";
+                  color = "text-red-500";
+                  break;
+                case "WARNING":
+                  icon = "⚠";
+                  color = "text-yellow-500";
+                  break;
+                case "CRITICAL":
+                  icon = "☢";
+                  color = "text-pink-500";
+                  break;
+                default:
+                  icon = "🛠";
+                  color = "text-muted-foreground";
+              }
+
+              return (
+                <AnimatedSpan
+                  key={idx}
+                  delay={500 + idx * 100}
+                  className={color}
+                >
+                  <span className="break-words whitespace-pre-wrap">
+                    {icon} {log.message}
+                  </span>
+                </AnimatedSpan>
+              );
+            })
+          )}
+        </Terminal>
       </SheetContent>
     </Sheet>
   );

@@ -68,11 +68,8 @@ async def upload_to_cloud(
         
         # Use background task to update and get quota info without blocking the response
         background_tasks.add_task(service.update_and_get_quota)
-
-
-        logger.info(f"📂 Upload completed for {email}")
         return {"uploaded": uploaded_files}
 
     except Exception as e:
-        logger.exception("❌ Upload failed due to exception:")
+        logger.critical("Upload failed due to exception:")
         raise HTTPException(status_code=500, detail=str(e))

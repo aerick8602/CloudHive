@@ -27,6 +27,8 @@ import {
   Podcast,
   GalleryVerticalEnd,
   Clapperboard,
+  AudioWaveform,
+  Command,
 } from "lucide-react";
 
 import { IconCloudCode } from "@tabler/icons-react";
@@ -45,14 +47,27 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UploadMenu } from "./upload-menu";
+import { TeamSwitcher } from "./team-switcher";
 
 // This is sample data.
 const data = {
-  log: {
-    title: "Dev Console",
-    info: "fastapi-server-logs",
-    icon: CodeXmlIcon,
-  },
+  teams: [
+    {
+      name: "CloudHive",
+      logo: IconCloudCode,
+      email: "katiyara089@gmail.com",
+    },
+    {
+      name: "CloudHive",
+      logo: IconCloudCode,
+      email: "maverick8602@gmail.com",
+    },
+    {
+      name: "CloudHive",
+      logo: IconCloudCode,
+      email: "clashofclan080602@gmail.com",
+    },
+  ],
   navMain: [
     {
       title: "Drive",
@@ -132,7 +147,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
+        <TeamSwitcher teams={data.teams} />
+        <UploadMenu />
+        {/* <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
@@ -144,15 +161,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        </SidebarMenu>
-        <UploadMenu />
+        </SidebarMenu> */}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavProjects items={data.explorer} />
       </SidebarContent>
       <SidebarFooter>
-        <NavLog log={data.log} />
+        <NavLog />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

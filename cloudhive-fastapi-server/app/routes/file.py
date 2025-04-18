@@ -61,9 +61,9 @@ async def get_items(
         for item in items:
             item["_id"] = str(item["_id"])
 
-        logger.info(f"📦 Fetched {len(items)} items | filter={filter} | parent_id={parent_id} | category={category}")
+        logger.info(f"Fetched {len(items)} items | filter={filter} | parent_id={parent_id} | category={category}")
         return { "items": items }
 
     except Exception as e:
-        logger.exception("❌ Failed to fetch items")
+        logger.error("Failed to fetch items")
         raise HTTPException(status_code=500, detail=str(e))
