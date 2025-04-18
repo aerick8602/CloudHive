@@ -47,7 +47,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UploadMenu } from "./upload-menu";
-import { TeamSwitcher } from "./account-switcher";
+import { AccountSwitcher } from "./account-switcher";
 
 // This is sample data.
 const data = {
@@ -147,7 +147,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <AccountSwitcher teams={data.teams} />
         <UploadMenu />
         {/* <SidebarMenu>
           <SidebarMenuItem>

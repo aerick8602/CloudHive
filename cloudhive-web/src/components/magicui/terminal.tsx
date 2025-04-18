@@ -111,6 +111,11 @@ export const Terminal = ({ children, className }: TerminalProps) => {
           <div className="h-2 w-2 rounded-full bg-green-500"></div>
         </div>
       </div>
+      <code className="p-4">
+        <TypingAnimation>
+          &gt; npx status-cloudhive@latest logs --all
+        </TypingAnimation>
+      </code>
       <pre className="p-4 max-h-[350px] overflow-y-auto">
         <code className="grid gap-y-1 overflow-x-hidden">{children}</code>
       </pre>

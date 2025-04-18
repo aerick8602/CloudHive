@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function TeamSwitcher({
+export function AccountSwitcher({
   teams,
 }: {
   teams: {
@@ -45,7 +45,8 @@ export function TeamSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar text-sidebar-primary">
-                <activeTeam.logo className="size-6" />
+                {/* <activeTeam.logo className="size-6" /> */}
+                <img src="/icon/Google_Cloud.png"></img>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate text-lg font-semibold">

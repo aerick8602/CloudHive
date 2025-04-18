@@ -31,7 +31,6 @@ export function NavLog() {
         const res = await fetch("/api/logs");
         const data = await res.json();
 
-        // Always fallback to an array
         setLogs(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch logs", error);
