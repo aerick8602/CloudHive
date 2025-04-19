@@ -13,11 +13,11 @@ export default function Auth() {
   const handleChange = (value: string) => {
     setOtp(value);
 
-    if (value.length === 6 && value !== process.env.PASSWORD) {
+    if (value.length === 6 && value !== process.env.NEXT_PUBLIC_PASSWORD) {
       toast.error("Incorrect password. Please try again.");
     }
 
-    if (value.length === 6 && value === process.env.PASSWORD) {
+    if (value.length === 6 && value === process.env.NEXT_PUBLIC_PASSWORD) {
       const expiresAt = Date.now() + 1000 * 60 * 60; // 60 minutes
       const authData = { value: true, expiresAt };
       localStorage.setItem("authenticated", JSON.stringify(authData));
