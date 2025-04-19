@@ -39,8 +39,8 @@ export function DriveCard() {
                 <div className="h-full flex items-center justify-between text-center">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <FaFolder size={20} className="text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground truncate block flex-1 pl-1">
-                      Ayush Folder
+                    <span className="text-sm font-medium text-muted-foreground truncate block flex-1 text-start ">
+                      Assssssssssssssss
                     </span>
                   </div>
                   <FileDropdown />
@@ -69,7 +69,7 @@ export function DriveCard() {
                       style={{ color }}
                       className="text-md sm:text-base md:text-lg"
                     />
-                    <span className="text-sm font-medium text-muted-foreground truncate block flex-1">
+                    <span className="text-sm text-start font-medium text-muted-foreground truncate block flex-1">
                       Ayush File.jpeg
                     </span>
                     <FileDropdown />
