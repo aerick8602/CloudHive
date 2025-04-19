@@ -51,20 +51,14 @@ import { AccountSwitcher } from "./account-switcher";
 
 // This is sample data.
 const data = {
-  teams: [
+  account: [
     {
-      name: "CloudHive",
-      logo: IconCloudCode,
       email: "katiyara089@gmail.com",
     },
     {
-      name: "CloudHive",
-      logo: IconCloudCode,
       email: "maverick8602@gmail.com",
     },
     {
-      name: "CloudHive",
-      logo: IconCloudCode,
       email: "clashofclan080602@gmail.com",
     },
   ],
@@ -147,7 +141,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <AccountSwitcher teams={data.teams} />
+        <AccountSwitcher />
         <UploadMenu />
         {/* <SidebarMenu>
           <SidebarMenuItem>

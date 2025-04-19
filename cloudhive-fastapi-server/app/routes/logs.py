@@ -6,7 +6,7 @@ from datetime import datetime
 
 router = APIRouter(prefix="/logs", tags=["Server Logs"])
 
-@router.get("/", response_class=JSONResponse)
+@router.get("", response_class=JSONResponse)
 async def get_app_logs():
     """Fetch and return application logs from app.log and backups like app.log.1, sorted by timestamp"""
 

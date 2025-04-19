@@ -1,5 +1,5 @@
 from app.oauth.google_oauth import get_google_auth_url, handle_google_callback
-
+from fastapi import Request, BackgroundTasks
 
 def get_auth_url(provider: str):
     """ Return the OAuth URL for the given provider """
@@ -8,9 +8,9 @@ def get_auth_url(provider: str):
     else:
         return None
 
-def handle_callback(provider: str, code: str):
+def handle_callback(provider: str, code: str,request: Request, background_tasks: BackgroundTasks):
     """ Handle OAuth callback for each provider """
     if provider == "google":
-        return handle_google_callback(code)
+        return handle_google_callback(code,request,background_tasks)
     else:
         return {"error": "Unsupported provider"}

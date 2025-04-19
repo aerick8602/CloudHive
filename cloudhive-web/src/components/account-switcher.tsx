@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, MailCheckIcon, Plus, User } from "lucide-react";
+import { ChevronsUpDown, Plus, User } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -18,22 +18,41 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Skeleton } from "./ui/skeleton";
 
-export function AccountSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    email: string;
-  }[];
-}) {
+import { redirect } from "next/navigation";
+import { fetchAccounts, fetchAuthUrl } from "@/lib/axios/apis";
+
+export function AccountSwitcher() {
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const [accounts, setAccounts] = React.useState<{ email: string }[]>([]);
+  const [authUrl, setAuthUrl] = React.useState<string>("");
+  const [activeAccount, setActiveAccount] = React.useState<{ email?: string }>(
+    {}
+  );
 
-  if (!activeTeam) {
-    return null;
-  }
+  React.useEffect(() => {
+    const storedAccount = localStorage.getItem("activeAccount");
+    if (storedAccount) {
+      setActiveAccount(JSON.parse(storedAccount));
+    }
+    fetchAccounts(setAccounts, setActiveAccount);
+    fetchAuthUrl(setAuthUrl);
+  }, []);
+
+  React.useEffect(() => {
+    if (activeAccount?.email) {
+      localStorage.setItem("activeAccount", JSON.stringify(activeAccount));
+    }
+  }, [activeAccount]);
+
+  const addAccount = () => {
+    if (authUrl) {
+      redirect(authUrl);
+    } else {
+      console.warn("Auth URL not available");
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -45,14 +64,13 @@ export function AccountSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar text-sidebar-primary">
-                {/* <activeTeam.logo className="size-6" /> */}
-                <img src="/icon/Google_Cloud.png"></img>
+                <img src="/icon/Google_Cloud.png" alt="Cloud icon" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate text-lg font-semibold">
-                  {activeTeam.name}
+                  CloudHive
                 </span>
-                <span className="truncate text-xs">{activeTeam.email}</span>
+                <span className="truncate text-xs">{activeAccount.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -66,18 +84,16 @@ export function AccountSwitcher({
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Account
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {accounts.map((account, index) => (
               <DropdownMenuItem
-                key={team.email}
-                onClick={() => setActiveTeam(team)}
+                key={account.email}
+                onClick={() => setActiveAccount(account)}
                 className="gap-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  {/* <team.logo className="size-4 shrink-0" /> */}
-                  {/* <MailCheckIcon /> */}
-                  <User></User>
+                  <User className="size-4 shrink-0" />
                 </div>
-                {team.email}
+                {account.email}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
@@ -86,7 +102,10 @@ export function AccountSwitcher({
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                 <Plus className="size-4" />
               </div>
-              <div className="font-medium text-muted-foreground">
+              <div
+                className="font-medium text-muted-foreground"
+                onClick={addAccount}
+              >
                 Add account
               </div>
             </DropdownMenuItem>

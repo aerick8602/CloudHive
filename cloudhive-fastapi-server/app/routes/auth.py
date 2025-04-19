@@ -1,5 +1,7 @@
 import os
 from fastapi import APIRouter, Request, Query
+from fastapi.responses import RedirectResponse
+from fastapi import BackgroundTasks
 from app.manager.auth_manager import get_auth_url, handle_callback
 
 
@@ -16,14 +18,18 @@ async def provider_login(provider: str):
 
 
 @router.get("/{provider}/callback")
-async def provider_callback(provider: str, request: Request):
+async def provider_callback(provider: str, request: Request,background_tasks: BackgroundTasks):
     """ Handle OAuth callback for multiple providers """
     code = request.query_params.get("code")
     if not code:
         return {"error": "Authorization code not found"}
     
-    result = handle_callback(provider, code)
-    return result
+    result = handle_callback(provider, code,request,background_tasks)
+    if "error" in result:
+        return RedirectResponse(url="/error")
+
+    frontend_url = request.headers.get("origin", "http://localhost:3000")
+    return RedirectResponse(url=f"{frontend_url}/")
 
 
 @router.get("/accounts")

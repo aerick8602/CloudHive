@@ -1,6 +1,7 @@
 import os
 import json
 from app.routes.quota import refresh_all_quotas
+from fastapi import BackgroundTasks ,Request
 import jwt as pyjwt 
 from google_auth_oauthlib.flow import Flow
 from app.utils.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
@@ -44,7 +45,7 @@ def get_google_auth_url():
     return auth_url
 
 
-def handle_google_callback(code: str):
+def handle_google_callback(code: str,request: Request,background_tasks: BackgroundTasks):
     """Exchange authorization code for token and save it"""
     try:
         flow = Flow.from_client_config(
@@ -99,7 +100,10 @@ def handle_google_callback(code: str):
 
 
         # Trigger quota refresh as a background task after OAuth success
-        refresh_all_quotas()
+        # refresh_all_quotas()
+
+        # Trigger quota refresh as a background task
+        background_tasks.add_task(refresh_all_quotas)
 
         return {"message": "Google account connected! 🎉", "email": email}
 

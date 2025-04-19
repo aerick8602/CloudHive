@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InputOTP, InputOTPSlot } from "@/components/ui/input-otp";
 import RotatingText from "@/components/reactbits/RotatingText/RotatingText";
 import { toast } from "sonner";
@@ -9,6 +9,13 @@ import { Toaster } from "sonner";
 export default function Auth() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
+
+  useEffect(() => {
+    const authData = JSON.parse(localStorage.getItem("authenticated") || "{}");
+    if (authData?.value) {
+      router.replace("/");
+    }
+  }, []);
 
   const handleChange = (value: string) => {
     setOtp(value);
