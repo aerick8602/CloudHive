@@ -2,6 +2,7 @@ import os
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import RedirectResponse
 from fastapi import BackgroundTasks
+from typing import Optional
 from app.manager.auth_manager import get_auth_url, handle_callback
 
 
@@ -9,9 +10,9 @@ router = APIRouter(prefix="/auth",tags=["Authentication"])
 
 
 @router.get("/{provider}/login")
-async def provider_login(provider: str):
+async def provider_login(provider: str, primary: Optional[str] = None):
     """ Redirect user to OAuth login for the selected provider """
-    auth_url = get_auth_url(provider)
+    auth_url = get_auth_url(provider, primary)
     if not auth_url:
         return {"error": "Unsupported provider"}
     return {"auth_url": auth_url}
@@ -25,12 +26,12 @@ async def provider_callback(provider: str, request: Request,background_tasks: Ba
         return {"error": "Authorization code not found"}
     
     result = handle_callback(provider, code,request,background_tasks)
-    if "error" in result:
-        return RedirectResponse(url="/error")
+    # if "error" in result:
+    #     return RedirectResponse(url="/error")
 
-    frontend_url = request.headers.get("origin", "http://localhost:3000")
-    return RedirectResponse(url=f"{frontend_url}/")
-
+    # frontend_url = request.headers.get("origin", "http://localhost:3000")
+    # return RedirectResponse(url=f"{frontend_url}/")
+    return result
 
 @router.get("/accounts")
 def list_all_accounts():

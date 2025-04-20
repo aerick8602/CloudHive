@@ -42,6 +42,8 @@ import { Input } from "./ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Label } from "@radix-ui/react-label";
 import { CopyWithTick } from "./copy-tick";
+import { Separator } from "./ui/separator";
+import ShareDialog from "./share-dialog";
 
 export function FileDropdown() {
   const [showRenameDialog, setShowRenameDialog] = React.useState(false);
@@ -131,7 +133,7 @@ export function FileDropdown() {
 
       {/* Rename Dialog */}
       <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
-        <DialogContent>
+        <DialogContent className="top-70 lg:top-88">
           <DialogHeader>
             <DialogTitle>Rename</DialogTitle>
             <DialogDescription>
@@ -159,7 +161,7 @@ export function FileDropdown() {
       </Dialog>
 
       {/* Share Dialog */}
-      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+      {/* <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Share link</DialogTitle>
@@ -183,6 +185,8 @@ export function FileDropdown() {
               <CopyWithTick value="" />
             </Button>
           </div>
+          <Separator className="my-4" />
+          <div>People with access</div>
           <DialogFooter className="sm:justify-start">
             <DialogClose asChild>
               <Button type="button" variant="secondary">
@@ -191,7 +195,11 @@ export function FileDropdown() {
             </DialogClose>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+      ></ShareDialog>
 
       {/* Detail Sheet */}
       <Sheet open={showDetailSheet} onOpenChange={setShowDetailSheet}>

@@ -92,7 +92,7 @@ export function UploadMenu() {
         </SidebarMenu>
 
         {/* Dialog Content */}
-        <DialogContent>
+        <DialogContent className="top-70 lg:top-88">
           <DialogHeader>
             <DialogTitle>New Folder</DialogTitle>
             <DialogDescription>

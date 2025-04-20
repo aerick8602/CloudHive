@@ -1,10 +1,10 @@
 from app.oauth.google_oauth import get_google_auth_url, handle_google_callback
 from fastapi import Request, BackgroundTasks
 
-def get_auth_url(provider: str):
+def get_auth_url(provider: str,primary:str):
     """ Return the OAuth URL for the given provider """
     if provider == "google":
-        return get_google_auth_url()
+        return get_google_auth_url(primary)
     else:
         return None
 
