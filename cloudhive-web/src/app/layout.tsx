@@ -17,7 +17,7 @@ export const metadata = {
   title: "CloudHive",
   description: "Seamlessly manage files across multiple Google accounts.",
   icons: {
-    icon: "/icon/Google_Cloud.png",
+    icon: "/cloud-code.svg",
   },
 };
 
