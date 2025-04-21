@@ -1,9 +1,9 @@
-import { GalleryVerticalEnd } from "lucide-react";
+"use client";
 
-import { LoginForm } from "@/components/login-form";
+import { SignUpForm } from "@/components/sign-up-form";
 import { IconCloudCode } from "@tabler/icons-react";
 
-export default function LoginPage() {
+export default function SignUp() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -23,11 +23,11 @@ export default function LoginPage() {
 
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <SignUpForm />
           </div>
         </div>
         <div className="text-balance text-center text-xs text-muted-foreground">
-          By clicking continue, you agree to our{" "}
+          By continuing, you agree to our{" "}
           <a
             href="#"
             className="underline underline-offset-4 hover:text-primary"
