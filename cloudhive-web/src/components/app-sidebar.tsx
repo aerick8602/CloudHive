@@ -48,6 +48,8 @@ import {
 } from "@/components/ui/sidebar";
 import { UploadMenu } from "./upload-menu";
 import { AccountSwitcher } from "./account-switcher";
+import { NavUser } from "./nav-user";
+import { NavSecondary } from "./nav-secondary";
 
 // This is sample data.
 const data = {
@@ -162,7 +164,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects items={data.explorer} />
       </SidebarContent>
       <SidebarFooter>
-        <NavLog />
+        {/* <NavLog /> */}
+        <NavSecondary className="mt-auto" />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

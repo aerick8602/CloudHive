@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { getFirebaseErrorMessage } from "@/app/firebase/error";
 import { PasswordResetDialog } from "./passwod-reset";
+import { browserLocalPersistence, setPersistence } from "firebase/auth";
+import { createSessionWithIdToken } from "@/app/firebase/creat-session";
 
 export function SignInForm({
   className,
@@ -26,26 +28,38 @@ export function SignInForm({
 
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(auth);
+
   const handleEmailAndPasswordSignIn = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
-
+    await setPersistence(auth, browserLocalPersistence);
     const result = await signInWithEmailAndPassword(email, password);
-    if (result) {
+    if (result?.user) {
+      toast.success("Login successful. Redirecting to your drive...", {
+        position: "top-right",
+      });
+      const idToken = await result.user.getIdToken();
+      console.log(idToken);
+      await createSessionWithIdToken(idToken);
       router.push("/");
     }
   };
 
   const [signInWithGoogle] = useSignInWithGoogle(auth);
   const handleGoogleSignIn = async () => {
+    await setPersistence(auth, browserLocalPersistence);
     const result = await signInWithGoogle();
-    if (!result) {
+    if (result?.user) {
+      const idToken = await result.user.getIdToken();
+      console.log(idToken);
+      await createSessionWithIdToken(idToken);
+      router.push("/");
+    } else {
       toast.error("An unexpected error occurred. Please try again shortly.", {
         position: "top-right",
       });
     }
-    router.push("/");
   };
 
   useEffect(() => {

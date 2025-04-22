@@ -1,69 +1,78 @@
+from fastapi import APIRouter, Request, Response, Depends, HTTPException
+from pydantic import BaseModel
+from firebase_admin import auth as firebase_auth, credentials
+import firebase_admin
 import os
-from fastapi import APIRouter, Request, Query
-from fastapi.responses import RedirectResponse
-from fastapi import BackgroundTasks
-from typing import Optional
-from app.manager.auth_manager import get_auth_url, handle_callback
 
+
+
+
+
+# Initialize Firebase Admin if not already initialized
+if not firebase_admin._apps:
+    cred = credentials.Certificate("app/firebase/cloudhive-e6fa5-firebase-adminsdk-fbsvc-d4e152d9a4.json")
+    firebase_admin.initialize_app(cred)
 
 router = APIRouter(prefix="/auth",tags=["Authentication"])
 
+# Models
+class TokenData(BaseModel):
+    idToken: str
 
-@router.get("/{provider}/login")
-async def provider_login(provider: str, primary: Optional[str] = None):
-    """ Redirect user to OAuth login for the selected provider """
-    auth_url = get_auth_url(provider, primary)
-    if not auth_url:
-        return {"error": "Unsupported provider"}
-    return {"auth_url": auth_url}
+# ---------------- Session Login ----------------
+@router.post("/creat-session")
+async def session_login(data: TokenData, response: Response):
+    try:
+        decoded_token = firebase_auth.verify_id_token(data.idToken)
+        expires_in = int(os.getenv("SESSION_COOKIE_MAX_AGE", 1209600))
+        session_cookie = firebase_auth.create_session_cookie(data.idToken, expires_in=expires_in)
 
+        response.set_cookie(
+            key="session",
+            value=session_cookie,
+            max_age=expires_in,
+            httponly=True,
+            secure=False,  # Change to True in production
+            samesite="Strict",
+        )
+        return {"message": "Session cookie set"}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid ID token")
 
-@router.get("/{provider}/callback")
-async def provider_callback(provider: str, request: Request,background_tasks: BackgroundTasks):
-    """ Handle OAuth callback for multiple providers """
-    code = request.query_params.get("code")
-    if not code:
-        return {"error": "Authorization code not found"}
-    
-    result = handle_callback(provider, code,request,background_tasks)
-    # if "error" in result:
-    #     return RedirectResponse(url="/error")
+# ---------------- Session Validator (FAST) ----------------
+@router.get("/validate-session")
+async def validate_session(request: Request):
+    session_cookie = request.cookies.get("session")
+    if not session_cookie:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
-    # frontend_url = request.headers.get("origin", "http://localhost:3000")
-    # return RedirectResponse(url=f"{frontend_url}/")
-    return result
+    try:
+        # Fast validation (no revocation check)
+        firebase_auth.verify_session_cookie(session_cookie, check_revoked=False)
+        return Response(status_code=200)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid session cookie")
 
-@router.get("/accounts")
-def list_all_accounts():
-    """ List all linked accounts across all providers """
-    all_accounts = {}
+# ---------------- Current User Info ----------------
+def verify_session(request: Request):
+    session_cookie = request.cookies.get("session")
+    if not session_cookie:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
-    if os.path.exists("app/token"):
-        for provider in os.listdir("app/token"):
-            provider_dir = os.path.join("app/token", provider)
-            
-            if os.path.isdir(provider_dir):
-                accounts = []
-                
-                # Loop through token files and extract email/ID
-                for filename in os.listdir(provider_dir):
-                    if filename.endswith(".json"):
-                        accounts.append(filename.replace(".json", ""))  # Extract email/ID
-                
-                # Add to result only if accounts exist
-                if accounts:
-                    all_accounts[provider] = accounts
+    try:
+        decoded = firebase_auth.verify_session_cookie(session_cookie, check_revoked=True)
+        return decoded
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid session cookie")
 
-    return {"accounts": all_accounts}
-
-
-@router.delete("/remove")
-def remove_account(provider: str = Query(...), email: str = Query(...)):
-    """ Remove a specific account by provider & email """
-    token_path = os.path.join("app/token", provider, f"{email}.json")
-    
-    if os.path.exists(token_path):
-        os.remove(token_path)
-        return {"message": f"Removed {email} from {provider}"}
-    
-    return {"error": "Account not found"}
+# ---------------- Logout ----------------
+@router.post("/end-session")
+async def logout(request: Request, response: Response, user=Depends(verify_session)):
+    try:
+        if user:
+            response.delete_cookie("session")
+            return {"message": "Logged out successfully"}
+        else:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to logout: {str(e)}")

@@ -36,15 +36,8 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [user] = useAuthState(auth);
-  const router = useRouter();
-
-  if (!user) {
-    router.push("auth/sign-in");
-  }
 
   useEffect(() => {
-    console.log(user);
     setMounted(true);
   }, []);
 

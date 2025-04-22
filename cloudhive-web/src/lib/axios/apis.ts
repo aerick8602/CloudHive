@@ -7,10 +7,10 @@ const fetchAccounts = async (
   setActiveAccount: SetActiveAccountFunction
 ) => {
   try {
-    const res = await fetch("http://127.0.0.1:8000/auth/accounts");
-    if (!res.ok) {
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
+    const res = await fetch("http://127.0.0.1:8000/cloud/accounts");
+    // if (!res.ok) {
+    //   throw new Error(`HTTP error! Status: ${res.status}`);
+    // }
     const data = await res.json();
 
     const google_accounts: Account[] = Array.isArray(data.accounts.google)
@@ -33,7 +33,7 @@ const fetchAccounts = async (
 
 const fetchAuthUrl = async (setAuthUrl: (url: string) => void) => {
   try {
-    const res = await fetch("http://127.0.0.1:8000/auth/google/login");
+    const res = await fetch("http://127.0.0.1:8000/cloud/google/login");
 
     if (!res.ok) {
       throw new Error(`HTTP error! Status: ${res.status}`);

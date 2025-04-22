@@ -8,13 +8,18 @@ import {
   useSignInWithGoogle,
 } from "react-firebase-hooks/auth";
 
-import { sendPasswordResetEmail } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  sendPasswordResetEmail,
+  setPersistence,
+} from "firebase/auth";
 import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import { getFirebaseErrorMessage } from "@/app/firebase/error";
 import { PasswordResetDialog } from "./passwod-reset";
+import { createSessionWithIdToken } from "@/app/firebase/creat-session";
 
 export function SignUpForm({
   className,
@@ -31,22 +36,34 @@ export function SignUpForm({
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
+    await setPersistence(auth, browserLocalPersistence);
 
     const result = await createUserWithEmailAndPassword(email, password);
-    if (result) {
+    if (result?.user) {
+      toast.success("Login successful. Redirecting to your drive...", {
+        position: "top-right",
+      });
+      const idToken = await result.user.getIdToken();
+      console.log(idToken);
+      await createSessionWithIdToken(idToken);
       router.push("/");
     }
   };
 
   const [signInWithGoogle] = useSignInWithGoogle(auth);
   const handleGoogleSignIn = async () => {
+    await setPersistence(auth, browserLocalPersistence);
     const result = await signInWithGoogle();
-    if (!result) {
+    if (result?.user) {
+      const idToken = await result.user.getIdToken();
+      console.log(idToken);
+      await createSessionWithIdToken(idToken);
+      router.push("/");
+    } else {
       toast.error("An unexpected error occurred. Please try again shortly.", {
         position: "top-right",
       });
     }
-    router.push("/");
   };
 
   useEffect(() => {
