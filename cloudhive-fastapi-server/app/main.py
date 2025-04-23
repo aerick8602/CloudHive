@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter,Query
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import logger
 
@@ -9,7 +9,7 @@ from app.routes import logs
 from app.routes import quota
 from app.routes import database
 from app.routes import cloud
-
+from app.db.client import user_collection
 # from app.provider.google_drive.google_drive_provider import GoogleDriveProvider
 
 
@@ -35,6 +35,17 @@ router = APIRouter(tags=["Default"])
 async def root():
     return {"message": "Welcome to CloudHive Server 🚀"}
 
+@router.get("/get-user-id")
+def get_user_id(email: str = Query(...)):
+    try:
+        user = user_collection.find_one({"accounts.e": email})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"_id": str(user["_id"])}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
 # @router.get("/google/files/{email}")
 # def list_google_drive_files(email: str):
 #     try:
@@ -50,6 +61,9 @@ async def root():
 #         return response.get("files", [])
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=f"Failed to list files: {str(e)}")
+
+
+
 
 # Register route modules
 

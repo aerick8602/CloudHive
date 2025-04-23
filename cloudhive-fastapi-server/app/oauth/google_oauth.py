@@ -98,15 +98,16 @@ def handle_google_callback(code: str, request: Request, background_tasks: Backgr
             primary_email = None
 
         if primary_email:
-            is_new_user,user_id = register_user(name,primary_email)
-            connect_account(user_id, email)
+            is_new_user,_id = register_user(primary_email)
+            if not is_new_user:
+                connect_account(_id, email)
         else:
-            is_new_user,user_id = register_user(name,email)
+            is_new_user,_id = register_user(email)
 
 
-        background_tasks.add_task(save_token, user_id, "google", email, creds)
+        background_tasks.add_task(save_token, _id, "google", email, creds)
 
-        return {"message": "Google account connected!", "email": email, "user_id": user_id}
+        return {"message": "Google account connected!", "email": email, "_id": _id}
 
     except ValueError as ve:
         logger.critical(f"Google OAuth authentication failed: {ve}")

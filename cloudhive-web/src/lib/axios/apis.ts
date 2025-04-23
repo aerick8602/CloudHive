@@ -31,9 +31,14 @@ const fetchAccounts = async (
   }
 };
 
-const fetchAuthUrl = async (setAuthUrl: (url: string) => void) => {
+const fetchAuthUrl = async (
+  email: string | null | undefined,
+  setAuthUrl: (url: string) => void
+) => {
   try {
-    const res = await fetch("http://127.0.0.1:8000/cloud/google/login");
+    const res = await fetch(
+      `http://127.0.0.1:8000/cloud/google/login?primary=${email}`
+    );
 
     if (!res.ok) {
       throw new Error(`HTTP error! Status: ${res.status}`);

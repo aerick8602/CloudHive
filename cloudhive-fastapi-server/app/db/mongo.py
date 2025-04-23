@@ -7,10 +7,9 @@ from bson import ObjectId
 
 
 # Example usage:
-# name = "User Name"
 # email = "user@example.com"
-# user_id = register_user(name,email)
-def register_user(name: str, email: str) -> tuple[bool, str]:
+# _id = register_user(email)
+def register_user( email: str) -> tuple[bool, str]:
     try:
         user = user_collection.find_one({"accounts.e": email})
         if user:
@@ -18,7 +17,6 @@ def register_user(name: str, email: str) -> tuple[bool, str]:
 
 
         result = user_collection.insert_one({
-            "name": name,
             "accounts": [
                 {
                     "e": email,
@@ -38,15 +36,15 @@ def register_user(name: str, email: str) -> tuple[bool, str]:
 
 
 # Example usage:
-# user_id = "607c72ef6e38ed3f8f6b8b62"  # Example user_id
+# _id = "607c72ef6e38ed3f8f6b8b62"  # Example _id
 # email = "other@example.com"  # The new account's email
-# is_connected = connect_account(user_id, email)
-def connect_account(user_id: str, email: str):
+# is_connected = connect_account(_id, email)
+def connect_account(_id: str, email: str):
     try:
 
-        user = user_collection.find_one({"_id": ObjectId(user_id)})
+        user = user_collection.find_one({"_id": ObjectId(_id)})
         if not user:
-            logger.error(f"User not found: {user_id}")
+            logger.error(f"User not found: {_id}")
             return False
 
         existing_emails = [acc["e"] for acc in user.get("accounts", [])]
@@ -55,7 +53,7 @@ def connect_account(user_id: str, email: str):
             return True
 
         user_collection.update_one(
-            {"_id": ObjectId(user_id)},
+            {"_id": ObjectId(_id)},
             {"$addToSet": {"accounts": {
                 "e": email,  
                 "cp": "google",  
@@ -71,19 +69,19 @@ def connect_account(user_id: str, email: str):
 
 
 # Example usage:
-# user_id = "607c72ef6e38ed3f8f6b8b62"  # Example user_id
+# _id = "607c72ef6e38ed3f8f6b8b62"  # Example _id
 # email = "other@example.com"  # The account's email to be updated
 # updates = {
 #     "ic": False,  
 #     "sync": datetime.now(timezone.utc) 
 # }
-# was_updated = update_account_status(user_id, email, updates)
-def update_account_status(user_id: str, email: str, updates: dict):
+# was_updated = update_account_status(_id, email, updates)
+def update_account_status(_id: str, email: str, updates: dict):
     """Update fields in a specific connected account under a user."""
     try:
         result = user_collection.update_one(
             {
-                "_id": ObjectId(user_id),
+                "_id": ObjectId(_id),
                 "accounts.e": email
             },
             {
@@ -93,10 +91,10 @@ def update_account_status(user_id: str, email: str, updates: dict):
             }
         )
         if result.modified_count > 0:
-            logger.debug(f"Updated account {email} for user {user_id} with {updates}")
+            logger.debug(f"Updated account {email} for user {_id} with {updates}")
             return True
         else:
-            logger.warning(f"No updates applied for account {email} of user {user_id}")
+            logger.warning(f"No updates applied for account {email} of user {_id}")
             return False
     except Exception as e:
         logger.error(f"Failed to update account status: {e}")

@@ -24,12 +24,12 @@ async def provider_callback(provider: str, request: Request,background_tasks: Ba
         return {"error": "Authorization code not found"}
     
     result = handle_callback(provider, code,request,background_tasks)
-    # if "error" in result:
-    #     return RedirectResponse(url="/error")
+    if "error" in result:
+        return RedirectResponse(url="/error")
 
-    # frontend_url = request.headers.get("origin", "http://localhost:3000")
-    # return RedirectResponse(url=f"{frontend_url}/")
-    return result
+    frontend_url = request.headers.get("origin", "http://localhost:3000")
+    return RedirectResponse(url=f"{frontend_url}/")
+
 
 @router.get("/accounts")
 def list_all_accounts():

@@ -23,6 +23,9 @@ import { Skeleton } from "./ui/skeleton";
 import { redirect } from "next/navigation";
 import { fetchAccounts, fetchAuthUrl } from "@/lib/axios/apis";
 import { IconCloudCode } from "@tabler/icons-react";
+import { getAuth } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/app/firebase/config";
 
 export function AccountSwitcher() {
   const { isMobile } = useSidebar();
@@ -31,14 +34,14 @@ export function AccountSwitcher() {
   const [activeAccount, setActiveAccount] = React.useState<{ email?: string }>(
     {}
   );
-
+  const [user, userLoading, userError] = useAuthState(auth);
   React.useEffect(() => {
     const storedAccount = localStorage.getItem("activeAccount");
     if (storedAccount) {
       setActiveAccount(JSON.parse(storedAccount));
     }
     fetchAccounts(setAccounts, setActiveAccount);
-    fetchAuthUrl(setAuthUrl);
+    fetchAuthUrl(user?.email, setAuthUrl);
   }, []);
 
   React.useEffect(() => {

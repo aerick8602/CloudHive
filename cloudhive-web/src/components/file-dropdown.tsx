@@ -116,7 +116,7 @@ export function FileDropdown() {
             className="gap-2"
           >
             <Info className="size-4" />
-            Details
+            Info
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
