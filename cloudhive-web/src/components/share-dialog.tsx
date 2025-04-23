@@ -61,6 +61,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     setPeople([...people, { email: trimmed, permission: newPermission }]);
     setNewEmail("");
     setNewPermission("Can view");
+    setOpenSelect(null);
   };
 
   const handlePermissionChange = (email: string, newPerm: string) => {
@@ -119,28 +120,34 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 placeholder="Enter email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                className="flex-1"
+                className="flex-1 mr-2.5"
               />
-              <Select
-                value={newPermission}
-                onValueChange={(val: string) =>
-                  setNewPermission(val as Permission)
-                }
-              >
-                <SelectTrigger className="w-[110px] mr-2.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Can edit">Editor</SelectItem>
-                  <SelectItem value="Can view">Viewer</SelectItem>
-                </SelectContent>
-              </Select>
+              {isEmailInputFilled && (
+                <Select
+                  value={newPermission}
+                  open={openSelect === "new"}
+                  onOpenChange={(isOpen) =>
+                    setOpenSelect(isOpen ? "new" : null)
+                  }
+                  onValueChange={(val: string) =>
+                    setNewPermission(val as Permission)
+                  }
+                >
+                  <SelectTrigger className="w-[110px] mr-2.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Can edit">Editor</SelectItem>
+                    <SelectItem value="Can view">Viewer</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* List of People */}
             {people.length === 0 ? (
               <div className="text-sm pt-4 text-muted-foreground/90 flex items-center justify-center gap-1">
-                <UserCheck2 className="size-4"></UserCheck2>
+                <UserCheck2 className="size-4" />
                 No one&apos;s been invited yet — add an email above to get
                 started.
               </div>
@@ -192,12 +199,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             value="public"
             className="text-sm pt-4 pb-4 text-muted-foreground/90 flex items-center justify-center gap-1"
           >
-            <EarthIcon className="size-4"></EarthIcon>
+            <EarthIcon className="size-4" />
             This content is publicly available to anyone with the link.
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className="sm:justify-between ">
+        <DialogFooter className="sm:justify-between">
           <DialogClose asChild>
             <Button variant="outline" type="button">
               Cancel

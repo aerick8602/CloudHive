@@ -35,7 +35,7 @@ import { IconCloudCode } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-explorer";
-import { NavLog } from "@/components/nav-log";
+
 import {
   Sidebar,
   SidebarContent,
@@ -164,7 +164,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects items={data.explorer} />
       </SidebarContent>
       <SidebarFooter>
-        {/* <NavLog /> */}
         <NavSecondary className="mt-auto" />
         <NavUser />
       </SidebarFooter>

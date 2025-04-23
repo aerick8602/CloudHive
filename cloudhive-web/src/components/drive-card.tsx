@@ -58,7 +58,7 @@ export function DriveCard() {
                 className="aspect-square rounded-md sm:rounded-lg lg:rounded-xl p-2"
               />
             ))
-          : [...Array(6)].map((_, i) => (
+          : [...Array(27)].map((_, i) => (
               <div
                 key={i}
                 className="aspect-square rounded-md sm:rounded-lg lg:rounded-xl bg-muted/50 hover:bg-muted/100 transition-all duration-300 cursor-pointer p-2 flex flex-col justify-between"
