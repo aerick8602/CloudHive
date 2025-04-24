@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { getFirebaseErrorMessage } from "@/app/firebase/error";
 import { PasswordResetDialog } from "./passwod-reset";
-import { createSessionWithIdToken } from "@/app/firebase/creat-session";
+import { createSessionWithIdToken } from "@/app/firebase/create-session";
 
 export function SignUpForm({
   className,
@@ -44,7 +44,7 @@ export function SignUpForm({
         position: "top-right",
       });
       const idToken = await result.user.getIdToken();
-      console.log(idToken);
+      // console.log(idToken);
       await createSessionWithIdToken(idToken);
       router.push("/");
     }
@@ -56,7 +56,7 @@ export function SignUpForm({
     const result = await signInWithGoogle();
     if (result?.user) {
       const idToken = await result.user.getIdToken();
-      console.log(idToken);
+      // console.log(idToken);
       await createSessionWithIdToken(idToken);
       router.push("/");
     } else {

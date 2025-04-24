@@ -18,12 +18,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Skeleton } from "./ui/skeleton";
-
 import { redirect } from "next/navigation";
-import { fetchAccounts, fetchAuthUrl } from "@/lib/axios/apis";
 import { IconCloudCode } from "@tabler/icons-react";
-import { getAuth } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
 
@@ -35,15 +31,23 @@ export function AccountSwitcher() {
     {}
   );
   const [user, userLoading, userError] = useAuthState(auth);
+
+  // Load from localStorage on mount
   React.useEffect(() => {
-    const storedAccount = localStorage.getItem("activeAccount");
-    if (storedAccount) {
-      setActiveAccount(JSON.parse(storedAccount));
+    try {
+      const storedAccount = localStorage.getItem("activeAccount");
+      if (storedAccount) {
+        const parsed = JSON.parse(storedAccount);
+        if (parsed?.email) {
+          setActiveAccount(parsed);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to parse activeAccount from localStorage:", error);
     }
-    fetchAccounts(setAccounts, setActiveAccount);
-    fetchAuthUrl(user?.email, setAuthUrl);
   }, []);
 
+  // Save to localStorage when activeAccount changes
   React.useEffect(() => {
     if (activeAccount?.email) {
       localStorage.setItem("activeAccount", JSON.stringify(activeAccount));
