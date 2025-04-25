@@ -2,8 +2,9 @@ import os
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from pydantic import BaseModel
 from firebase_admin import auth, credentials, initialize_app, _apps
-from datetime import datetime, timedelta, timezone
-
+from datetime import datetime
+from fastapi.responses import JSONResponse
+from firebase_admin import auth, exceptions
 # Firebase initialization
 if not _apps:
     cred = credentials.Certificate("app/resources/firebase/cloudhive-e6fa5-firebase-adminsdk-fbsvc-d4e152d9a4.json")
@@ -53,40 +54,28 @@ def clear_session_cookie(response: Response):
 # ----------- Routes -----------
 
 @router.post("/create-session")
-async def login(data: TokenData, response: Response):
-    print("Received ID token:", data.idToken[:20], "...")
-
+async def session_login(data: TokenData):
+    # Get the ID token sent by the client
+    id_token = data.idToken
+    expires_in = datetime.timedelta(days=5)
+    
     try:
-        decoded_token = decode_id_token(data.idToken)
-        print("Decoded token email:", decoded_token.get("email"))
-    except Exception as e:
-        print("Token verification failed:", e)
-        raise HTTPException(status_code=401, detail="Invalid ID token")
+        # Create the session cookie. This will also verify the ID token in the process.
+        session_cookie = auth.create_session_cookie(id_token, expires_in=expires_in)
+        
+        # Set the expiration time for the session cookie
+        expires = datetime.datetime.utcnow() + expires_in
 
-    # Create session cookie
-    session_cookie = create_session_cookie(data.idToken)
-    print("Session cookie generated")
-
-    ENV = os.getenv("ENV", "development")
-    IS_PROD = ENV == "production"
-    SESSION_TTL = int(os.getenv("SESSION_TTL", 86400))
-
-    # Set expiration for the cookie based on TTL
-    expires = datetime.now(timezone.utc) + timedelta(seconds=SESSION_TTL)
-
-    # Set cookie
-    response.set_cookie(
-    key="CLOUDHIVE_SESSION", 
-    value=session_cookie,
-    max_age=SESSION_TTL,
-    expires=expires,
-    httponly=True,
-    secure=IS_PROD,
-    samesite="None" if IS_PROD else "Lax",
-    path="/"
-    )
-
-    return {"message": "Session cookie set"}
+        # Prepare the response
+        response = JSONResponse(content={'status': 'success'})
+        
+        # Set cookie policy for session cookie
+        response.set_cookie(
+            'session', session_cookie, expires=expires, httponly=True, secure=True, samesite='None'
+        )
+        return response
+    except exceptions.FirebaseError:
+        raise HTTPException(status_code=401, detail="Failed to create a session cookie")
 
 
 @router.get("/validate-session")
@@ -101,6 +90,6 @@ async def validate_session(request: Request):
         raise HTTPException(status_code=401, detail="Invalid or deleted session")
 
 @router.post("/end-session")
-async def logout(request: Request, response: Response, user=Depends(get_current_user)):
+async def session_logout(request: Request, response: Response, user=Depends(get_current_user)):
     clear_session_cookie(response)
     return {"message": "Logged out successfully"}
