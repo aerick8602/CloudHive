@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from pydantic import BaseModel
 from firebase_admin import auth, credentials, initialize_app, _apps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Firebase initialization
 if not _apps:
@@ -72,7 +72,7 @@ async def login(data: TokenData, response: Response):
     SESSION_TTL = int(os.getenv("SESSION_TTL", 86400))
 
     # Set expiration for the cookie based on TTL
-    expires = datetime.utcnow() + timedelta(seconds=SESSION_TTL)
+    expires = datetime.now(timezone.utc) + timedelta(seconds=SESSION_TTL)
 
     # Set cookie
     response.set_cookie(
