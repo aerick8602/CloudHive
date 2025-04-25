@@ -1,6 +1,11 @@
 export const endSession = async (): Promise<boolean> => {
   try {
-    const res = await fetch("http://localhost:8000/auth/end-session", {
+    const apiUrl =
+      process.env.ENV === "production"
+        ? process.env.NEXT_PUBLIC_API_URL
+        : "http://localhost:8000";
+
+    const res = await fetch(`${apiUrl}/auth/end-session`, {
       method: "POST",
       credentials: "include", // Important: send cookies
     });

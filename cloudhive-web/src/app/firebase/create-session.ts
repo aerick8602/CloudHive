@@ -1,7 +1,12 @@
 export const createSessionWithIdToken = async (idToken: string) => {
-  await fetch("http://localhost:8000/auth/create-session", {
+  const apiUrl =
+    process.env.ENV === "production"
+      ? process.env.NEXT_PUBLIC_API_URL
+      : "http://localhost:8000";
+
+  await fetch(`${apiUrl}/auth/create-session`, {
     method: "POST",
-    credentials: "include", // Important to set the cookie
+    credentials: "include", // Important to send the cookie
     headers: {
       "Content-Type": "application/json",
     },

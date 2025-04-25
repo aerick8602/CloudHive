@@ -1,8 +1,13 @@
 export const validateSession = async (
   sessionCookie: string
 ): Promise<boolean> => {
+  const apiUrl =
+    process.env.ENV === "production"
+      ? process.env.NEXT_PUBLIC_API_URL
+      : "http://localhost:8000";
+
   try {
-    const res = await fetch("http://localhost:8000/auth/validate-session", {
+    const res = await fetch(`${apiUrl}/auth/validate-session`, {
       headers: {
         Cookie: `session=${sessionCookie}`,
       },
