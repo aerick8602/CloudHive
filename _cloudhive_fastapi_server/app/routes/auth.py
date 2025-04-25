@@ -79,13 +79,16 @@ async def login(data: TokenData, response: Response):
     )
 
     return {"message": "Session cookie set"}
+
+
+
 @router.get("/validate-session")
 async def validate_session(request: Request):
     try:
         decoded = auth.verify_session_cookie(
             request.cookies.get("session"), check_revoked=False
         )
-        auth.get_user(decoded["user_id"])  # Check user existence
+        # auth.get_user(decoded["uid"])  # Check user existence
         return Response(status_code=200)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or deleted session")
