@@ -33,7 +33,7 @@ def create_session_cookie(id_token: str):
         raise HTTPException(status_code=401, detail="Could not create session cookie")
 
 def get_current_user(request: Request):
-    session_cookie = request.cookies.get("session")
+    session_cookie = request.cookies.get("CLOUDHIVE_SESSION")
     if not session_cookie:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
@@ -48,7 +48,7 @@ def get_current_user(request: Request):
         raise HTTPException(status_code=401, detail="Invalid or expired session")
 
 def clear_session_cookie(response: Response):
-    response.delete_cookie("CloudHive_Session")
+    response.delete_cookie("CLOUDHIVE_SESSION")
 
 # ----------- Routes -----------
 
@@ -76,7 +76,7 @@ async def login(data: TokenData, response: Response):
 
     # Set cookie
     response.set_cookie(
-    key="CloudHive_Session", 
+    key="CLOUDHIVE_SESSION", 
     value=session_cookie,
     max_age=SESSION_TTL,
     expires=expires,
@@ -93,7 +93,7 @@ async def login(data: TokenData, response: Response):
 async def validate_session(request: Request):
     try:
         decoded = auth.verify_session_cookie(
-            request.cookies.get("CloudHive_Session"), check_revoked=False
+            request.cookies.get("CLOUDHIVE_SESSION"), check_revoked=False
         )
         # auth.get_user(decoded["user_id"])  # Check user existence
         return Response(status_code=200)
