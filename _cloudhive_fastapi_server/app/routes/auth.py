@@ -2,6 +2,7 @@ import os
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from pydantic import BaseModel
 from firebase_admin import auth, credentials, initialize_app, _apps
+from datetime import datetime, timedelta
 
 # Firebase initialization
 if not _apps:
@@ -62,6 +63,7 @@ async def login(data: TokenData, response: Response):
         print("Token verification failed:", e)
         raise HTTPException(status_code=401, detail="Invalid ID token")
 
+    # Create session cookie
     session_cookie = create_session_cookie(data.idToken)
     print("Session cookie generated")
 
@@ -69,17 +71,22 @@ async def login(data: TokenData, response: Response):
     IS_PROD = ENV == "production"
     SESSION_TTL = int(os.getenv("SESSION_TTL", 86400))
 
+    # Set expiration for the cookie based on TTL
+    expires = datetime.utcnow() + timedelta(seconds=SESSION_TTL)
+
+    # Set cookie
     response.set_cookie(
         key="session",
         value=session_cookie,
-        max_age=SESSION_TTL,
+        max_age=SESSION_TTL,  # Set max_age in seconds (same as TTL)
+        expires=expires,  # Add expires for proper persistence
         httponly=True,
-        secure=IS_PROD,
-        samesite="None" if IS_PROD else "Lax"
+        secure=IS_PROD,  # Ensure cookie is secure in production
+        samesite="None" if IS_PROD else "Lax",  # Allow cross-site cookies in production
+        path="/"  # Ensure the cookie is valid for the entire site
     )
 
     return {"message": "Session cookie set"}
-
 
 
 @router.get("/validate-session")
@@ -88,7 +95,7 @@ async def validate_session(request: Request):
         decoded = auth.verify_session_cookie(
             request.cookies.get("session"), check_revoked=False
         )
-        # auth.get_user(decoded["uid"])  # Check user existence
+        # auth.get_user(decoded["user_id"])  # Check user existence
         return Response(status_code=200)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or deleted session")
