@@ -48,7 +48,7 @@ def get_current_user(request: Request):
         raise HTTPException(status_code=401, detail="Invalid or expired session")
 
 def clear_session_cookie(response: Response):
-    response.delete_cookie("session")
+    response.delete_cookie("CloudHive_Session")
 
 # ----------- Routes -----------
 
@@ -76,14 +76,14 @@ async def login(data: TokenData, response: Response):
 
     # Set cookie
     response.set_cookie(
-        key="session",
-        value=session_cookie,
-        max_age=SESSION_TTL,  # Set max_age in seconds (same as TTL)
-        expires=expires,  # Add expires for proper persistence
-        httponly=True,
-        secure=IS_PROD,  # Ensure cookie is secure in production
-        samesite="None" if IS_PROD else "Lax",  # Allow cross-site cookies in production
-        path="/"  # Ensure the cookie is valid for the entire site
+    key="CloudHive_Session", 
+    value=session_cookie,
+    max_age=SESSION_TTL,
+    expires=expires,
+    httponly=True,
+    secure=IS_PROD,
+    samesite="None" if IS_PROD else "Lax",
+    path="/"
     )
 
     return {"message": "Session cookie set"}
@@ -93,7 +93,7 @@ async def login(data: TokenData, response: Response):
 async def validate_session(request: Request):
     try:
         decoded = auth.verify_session_cookie(
-            request.cookies.get("session"), check_revoked=False
+            request.cookies.get("CloudHive_Session"), check_revoked=False
         )
         # auth.get_user(decoded["user_id"])  # Check user existence
         return Response(status_code=200)
