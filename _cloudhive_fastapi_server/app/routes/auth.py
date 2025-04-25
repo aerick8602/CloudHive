@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from pydantic import BaseModel
 from firebase_admin import auth, credentials, initialize_app, _apps
@@ -53,13 +54,17 @@ async def login(data: TokenData, response: Response):
     decoded_token = decode_id_token(data.idToken)
     session_cookie = create_session_cookie(data.idToken)
 
+    ENV = os.getenv("ENV", "development")
+    SESSION_TTL = int(os.getenv("SESSION_TTL", 23200))  # Default to 12 hours
+
     response.set_cookie(
         key="session",
         value=session_cookie,
-        max_age=86400,  # 24 hours (in seconds)
+        max_age=SESSION_TTL,
         httponly=True,
-        secure=False,  # Set to True in production
-        samesite="Strict"
+        secure=ENV == "production",
+        # samesite="Strict"
+        samesite="None"
     )
 
     return {"message": "Session cookie set"}
