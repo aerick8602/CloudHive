@@ -19,8 +19,10 @@ class TokenData(BaseModel):
 
 def decode_id_token(id_token: str):
     try:
-        return auth.verify_id_token(id_token)
-    except Exception:
+        decoded_token = auth.verify_id_token(id_token)
+        return decoded_token
+    except Exception as e:
+        print("Firebase token verification failed:", e)
         raise HTTPException(status_code=401, detail="Invalid ID token")
 
 def create_session_cookie(id_token: str):
@@ -51,24 +53,32 @@ def clear_session_cookie(response: Response):
 
 @router.post("/create-session")
 async def login(data: TokenData, response: Response):
-    decoded_token = decode_id_token(data.idToken)
+    print("Received ID token:", data.idToken[:20], "...")
+
+    try:
+        decoded_token = decode_id_token(data.idToken)
+        print("Decoded token email:", decoded_token.get("email"))
+    except Exception as e:
+        print("Token verification failed:", e)
+        raise HTTPException(status_code=401, detail="Invalid ID token")
+
     session_cookie = create_session_cookie(data.idToken)
+    print("Session cookie generated")
 
     ENV = os.getenv("ENV", "development")
-    SESSION_TTL = int(os.getenv("SESSION_TTL", 23200))  # Default to 12 hours
+    IS_PROD = ENV == "production"
+    SESSION_TTL = int(os.getenv("SESSION_TTL", 86400))
 
     response.set_cookie(
         key="session",
         value=session_cookie,
         max_age=SESSION_TTL,
         httponly=True,
-        secure=ENV == "production",
-        # samesite="Strict"
-        samesite="None"
+        secure=IS_PROD,
+        samesite="None" if IS_PROD else "Lax"
     )
 
     return {"message": "Session cookie set"}
-
 @router.get("/validate-session")
 async def validate_session(request: Request):
     try:
