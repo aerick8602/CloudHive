@@ -1,6 +1,6 @@
 export const createSessionWithIdToken = async (idToken: string) => {
   const apiUrl =
-    process.env.ENV === "production"
+    process.env.NEXT_PUBLIC_ENV === "production"
       ? process.env.NEXT_PUBLIC_API_URL
       : "http://localhost:8000";
 

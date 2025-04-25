@@ -1,7 +1,7 @@
 export const endSession = async (): Promise<boolean> => {
   try {
     const apiUrl =
-      process.env.ENV === "production"
+      process.env.NEXT_PUBLIC_ENV === "production"
         ? process.env.NEXT_PUBLIC_API_URL
         : "http://localhost:8000";
 
