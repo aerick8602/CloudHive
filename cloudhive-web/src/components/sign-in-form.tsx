@@ -11,10 +11,10 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { getFirebaseErrorMessage } from "@/firebase/error";
+import { getFirebaseErrorMessage } from "@/lib/firebase/error";
 import { PasswordResetDialog } from "./passwod-reset";
 import { browserLocalPersistence, setPersistence } from "firebase/auth";
-import { clientAuth } from "@/firebase/config/firebase-client";
+import { clientAuth } from "@/lib/firebase/firebase-client";
 
 export function SignInForm({
   className,
@@ -40,7 +40,7 @@ export function SignInForm({
       if (result?.user) {
         const idToken = await result.user.getIdToken();
 
-        const response = await fetch("/api/auth/set", {
+        const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export function SignInForm({
 
       if (result?.user) {
         const idToken = await result.user.getIdToken();
-        const response = await fetch("/api/auth/set", {
+        const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

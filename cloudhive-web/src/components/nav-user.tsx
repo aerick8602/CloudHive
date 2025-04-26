@@ -30,7 +30,7 @@ import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { clientAuth } from "@/firebase/config/firebase-client";
+import { clientAuth } from "@/lib/firebase/firebase-client";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -43,7 +43,7 @@ export function NavUser() {
       const success = await signOut(); // Your Firebase sign-out function
 
       if (success) {
-        const response = await fetch("/api/auth/clear", { method: "POST" });
+        const response = await fetch("/api/auth/logout", { method: "POST" });
 
         if (response.ok) {
           router.push("/auth/sign-in");

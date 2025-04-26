@@ -15,7 +15,7 @@ import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 
 import { toast } from "sonner";
-import { clientAuth } from "@/firebase/config/firebase-client";
+import { clientAuth } from "@/lib/firebase/firebase-client";
 
 export const PasswordResetDialog = ({
   open,

@@ -82,6 +82,7 @@ export function DriveCard() {
                     alt="thumbnail"
                     width={230}
                     height={230}
+                    unoptimized
                     className="object-cover w-full h-full"
                   />
                 </div>
