@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
 import { IconCloudCode } from "@tabler/icons-react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config";
 
 export function AccountSwitcher() {
   const { isMobile } = useSidebar();
@@ -30,7 +28,6 @@ export function AccountSwitcher() {
   const [activeAccount, setActiveAccount] = React.useState<{ email?: string }>(
     {}
   );
-  const [user, userLoading, userError] = useAuthState(auth);
 
   // Load from localStorage on mount
   React.useEffect(() => {

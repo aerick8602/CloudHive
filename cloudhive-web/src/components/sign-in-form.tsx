@@ -8,14 +8,13 @@ import {
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
 } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { getFirebaseErrorMessage } from "@/app/firebase/error";
+import { getFirebaseErrorMessage } from "@/firebase/error";
 import { PasswordResetDialog } from "./passwod-reset";
 import { browserLocalPersistence, setPersistence } from "firebase/auth";
-import { createSessionWithIdToken } from "@/app/firebase/create-session";
+import { clientAuth } from "@/firebase/config/firebase-client";
 
 export function SignInForm({
   className,
@@ -27,36 +26,79 @@ export function SignInForm({
   const router = useRouter();
 
   const [signInWithEmailAndPassword, user, loading, error] =
-    useSignInWithEmailAndPassword(auth);
+    useSignInWithEmailAndPassword(clientAuth);
 
   const handleEmailAndPasswordSignIn = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
-    await setPersistence(auth, browserLocalPersistence);
-    const result = await signInWithEmailAndPassword(email, password);
-    if (result?.user) {
-      toast.success("Login successful. Redirecting to your drive...", {
+
+    try {
+      await setPersistence(clientAuth, browserLocalPersistence);
+      const result = await signInWithEmailAndPassword(email, password);
+
+      if (result?.user) {
+        const idToken = await result.user.getIdToken();
+
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (response.ok) {
+          toast.success("Login successful. Redirecting to your drive...", {
+            position: "top-right",
+          });
+          router.push("/");
+        } else {
+          throw new Error("Failed to set session cookie");
+        }
+      } else {
+        toast.error("Failed to sign in. Please check your credentials.", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      console.error("Error during sign-in with email/password:", error);
+      toast.error("An error occurred during sign-in. Please try again.", {
         position: "top-right",
       });
-      const idToken = await result.user.getIdToken();
-      // console.log(idToken);
-      await createSessionWithIdToken(idToken);
-      router.push("/");
     }
   };
 
-  const [signInWithGoogle] = useSignInWithGoogle(auth);
+  const [signInWithGoogle] = useSignInWithGoogle(clientAuth);
+
   const handleGoogleSignIn = async () => {
-    await setPersistence(auth, browserLocalPersistence);
-    const result = await signInWithGoogle();
-    if (result?.user) {
-      const idToken = await result.user.getIdToken();
-      // console.log(idToken);
-      await createSessionWithIdToken(idToken);
-      router.push("/");
-    } else {
-      toast.error("An unexpected error occurred. Please try again shortly.", {
+    try {
+      await setPersistence(clientAuth, browserLocalPersistence);
+      const result = await signInWithGoogle();
+
+      if (result?.user) {
+        const idToken = await result.user.getIdToken();
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (response.ok) {
+          router.push("/");
+        } else {
+          throw new Error("Failed to set session cookie");
+        }
+      } else {
+        toast.error("An unexpected error occurred. Please try again shortly.", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+      toast.error("Sign-in failed. Please try again later.", {
         position: "top-right",
       });
     }

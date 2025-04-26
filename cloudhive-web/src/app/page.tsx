@@ -30,7 +30,7 @@ import { getIconForMimeType } from "./utils/icons";
 import { FileDropdown } from "@/components/file-dropdown";
 import { DriveCard } from "@/components/drive-card";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "./firebase/config";
+import { auth } from "../firebase/config";
 import { useRouter } from "next/navigation";
 
 export default function Page() {

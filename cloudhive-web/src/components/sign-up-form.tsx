@@ -13,13 +13,12 @@ import {
   sendPasswordResetEmail,
   setPersistence,
 } from "firebase/auth";
-import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { getFirebaseErrorMessage } from "@/app/firebase/error";
+import { getFirebaseErrorMessage } from "@/firebase/error";
 import { PasswordResetDialog } from "./passwod-reset";
-import { createSessionWithIdToken } from "@/app/firebase/create-session";
+import { clientAuth } from "@/firebase/config/firebase-client";
 
 export function SignUpForm({
   className,
@@ -31,38 +30,80 @@ export function SignUpForm({
   const router = useRouter();
 
   const [createUserWithEmailAndPassword, user, loading, error] =
-    useCreateUserWithEmailAndPassword(auth);
+    useCreateUserWithEmailAndPassword(clientAuth);
   const handleEmailAndPasswordSignUp = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
-    await setPersistence(auth, browserLocalPersistence);
 
-    const result = await createUserWithEmailAndPassword(email, password);
-    if (result?.user) {
-      toast.success("Login successful. Redirecting to your drive...", {
+    try {
+      await setPersistence(clientAuth, browserLocalPersistence);
+      const result = await createUserWithEmailAndPassword(email, password);
+
+      if (result?.user) {
+        const idToken = await result.user.getIdToken();
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (response.ok) {
+          toast.success("Sign-up successful. Redirecting to your drive...", {
+            position: "top-right",
+          });
+          router.push("/");
+        } else {
+          throw new Error("Failed to set session cookie");
+        }
+      } else {
+        toast.error("Failed to sign up. Please try again.", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      console.error("Error during sign-up:", error);
+      toast.error("An error occurred during sign-up. Please try again.", {
         position: "top-right",
       });
-      const idToken = await result.user.getIdToken();
-      // console.log(idToken);
-      await createSessionWithIdToken(idToken);
-      router.push("/");
     }
   };
 
-  const [signInWithGoogle] = useSignInWithGoogle(auth);
+  const [signInWithGoogle] = useSignInWithGoogle(clientAuth);
   const handleGoogleSignIn = async () => {
-    await setPersistence(auth, browserLocalPersistence);
-    const result = await signInWithGoogle();
-    if (result?.user) {
-      const idToken = await result.user.getIdToken();
-      // console.log(idToken);
-      await createSessionWithIdToken(idToken);
-      router.push("/");
-    } else {
-      toast.error("An unexpected error occurred. Please try again shortly.", {
-        position: "top-right",
-      });
+    try {
+      await setPersistence(clientAuth, browserLocalPersistence);
+      const result = await signInWithGoogle();
+
+      if (result?.user) {
+        const idToken = await result.user.getIdToken();
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (response.ok) {
+          toast.success("Login successful. Redirecting to your drive...", {
+            position: "top-right",
+          });
+          router.push("/");
+        } else {
+          throw new Error("Failed to set session cookie");
+        }
+      } else {
+        toast.error("Google sign-in failed. Please try again.", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+      toast.error(
+        "An error occurred during Google sign-in. Please try again.",
+        { position: "top-right" }
+      );
     }
   };
 

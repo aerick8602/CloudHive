@@ -25,30 +25,36 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { auth } from "@/app/firebase/config";
+
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
-import { endSession } from "@/app/firebase/end-session";
+
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { clientAuth } from "@/firebase/config/firebase-client";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const [user, userLoading, userError] = useAuthState(auth);
-  const [signOut, signOutLoading, signOutError] = useSignOut(auth);
+  const [user, userLoading, userError] = useAuthState(clientAuth);
+  const [signOut, signOutLoading, signOutError] = useSignOut(clientAuth);
 
   const handleSignOut = async () => {
-    const success = await signOut();
-    if (success) {
-      const sessionEnded = await endSession();
+    try {
+      const success = await signOut(); // Your Firebase sign-out function
 
-      if (sessionEnded) {
-        router.push("/auth/sign-in");
+      if (success) {
+        const response = await fetch("/api/auth/logout", { method: "POST" });
+
+        if (response.ok) {
+          router.push("/auth/sign-in");
+        } else {
+          console.error("Failed to clear session cookie on backend");
+        }
       } else {
-        console.error("Failed to clear session cookie on backend");
+        console.error("Firebase sign-out failed");
       }
-    } else {
-      console.error("Firebase sign-out failed:", signOutError);
+    } catch (error) {
+      console.error("Error during sign-out:", error);
     }
   };
 

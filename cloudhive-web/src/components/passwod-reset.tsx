@@ -13,8 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/app/firebase/config";
+
 import { toast } from "sonner";
+import { clientAuth } from "@/firebase/config/firebase-client";
 
 export const PasswordResetDialog = ({
   open,
@@ -31,7 +32,7 @@ export const PasswordResetDialog = ({
       handleCodeInApp: true,
     };
     try {
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      await sendPasswordResetEmail(clientAuth, email, actionCodeSettings);
       toast.success(
         "A password reset link has been sent to your email address.",
         {
