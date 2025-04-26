@@ -1,3 +1,4 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -5,11 +6,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "drive-thirdparty.googleusercontent.com",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**", // Allow all thumbnails
       },
       {
         protocol: "https",
-        hostname: "lh3.googleusercontent.com",
+        hostname: "drive-thirdparty.googleusercontent.com",
+        pathname: "/**", // Allow all third-party Drive images
       },
     ],
   },
