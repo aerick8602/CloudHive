@@ -1,27 +1,33 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { adminAuth } from "./firebase/config/firebase-admin";
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get("session")?.value;
+export async function middleware(request: NextRequest) {
+  const sessionCookie = request.cookies.get("session")?.value;
   const pathname = request.nextUrl.pathname;
 
   const isAuthPage = pathname.startsWith("/auth/sign-in");
 
-  if (isAuthPage) {
-    if (token) {
-      // Already authenticated, rewrite to home before hitting auth page
-      const url = new URL("/", request.url);
-      return NextResponse.redirect(url);
+  if (sessionCookie) {
+    try {
+      // Verify the Firebase session cookie
+      await adminAuth.verifySessionCookie(sessionCookie, true);
+
+      // Cookie is valid
+      if (isAuthPage) {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+      return NextResponse.next();
+    } catch (error) {
+      console.error("Invalid Firebase session cookie:", error);
+      // Invalid token, treat as unauthenticated
     }
-    // If not authenticated, allow to continue to auth page
-    return NextResponse.next();
   }
 
-  // If visiting other protected pages
-  if (!token && !pathname.startsWith("/api/auth/set")) {
-    const url = new URL("/auth/sign-in", request.url);
-    return NextResponse.redirect(url);
+  // If not authenticated and trying to access protected routes
+  if (!isAuthPage && !pathname.startsWith("/api/auth/set")) {
+    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }
 
   return NextResponse.next();
