@@ -42,7 +42,7 @@ export function SignUpForm({
 
       if (result?.user) {
         const idToken = await result.user.getIdToken();
-        const response = await fetch("/api/auth/login", {
+        const response = await fetch("/api/auth/login/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export function SignUpForm({
 
       if (result?.user) {
         const idToken = await result.user.getIdToken();
-        const response = await fetch("/api/auth/login", {
+        const response = await fetch("/api/auth/login/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken }),

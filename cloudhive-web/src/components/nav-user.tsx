@@ -43,7 +43,7 @@ export function NavUser() {
       const success = await signOut(); // Your Firebase sign-out function
 
       if (success) {
-        const response = await fetch("/api/auth/logout", { method: "POST" });
+        const response = await fetch("/api/auth/logout/", { method: "POST" });
 
         if (response.ok) {
           router.push("/auth/sign-in");
