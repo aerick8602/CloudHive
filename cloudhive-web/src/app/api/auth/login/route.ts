@@ -22,7 +22,7 @@ export async function POST(req: any) {
     // Set the session cookie in the response header
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Set secure flag in production
+      secure: process.env.ENV === "production", // Set secure flag in production
       maxAge: COOKIE_EXPIRES_IN,
       path: "/", // Available for the entire app
     };
