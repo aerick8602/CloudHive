@@ -1,16 +1,25 @@
-// middleware.ts (or middleware.js)
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("session")?.value;
 
-  // Skip public paths and the auth set route
-  const isPublicPath = ["/auth/sign-in", "/api/auth/set"].some((path) =>
+  const isAuthPage = ["/auth/sign-in"].some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
 
-  if (!token && !isPublicPath) {
+  // If user has token and tries to visit auth page, redirect to home
+  if (token && isAuthPage) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // If user doesn't have token and is visiting protected page, redirect to sign-in
+  if (
+    !token &&
+    !isAuthPage &&
+    !request.nextUrl.pathname.startsWith("/api/auth/set")
+  ) {
     return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }
 
