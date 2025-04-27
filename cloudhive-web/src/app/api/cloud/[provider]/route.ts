@@ -1,28 +1,32 @@
-// app/api/cloud/google/route.ts
 import { NextResponse } from "next/server";
+import { google } from "googleapis";
 
 export async function GET(req: Request) {
   const urlParams = new URL(req.url).searchParams;
-  const uid = urlParams.get("uid"); // Retrieve uid from query string
+  const uid = urlParams.get("uid");
 
   if (!uid) {
     return NextResponse.json({ error: "UID is required" }, { status: 400 });
   }
 
-  // Get the environment variables for client_id, redirect_uri, and scopes
-  const clientId = process.env.GOOGLE_CLIENT_ID!;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI!;
-  const scopes = process.env.GOOGLE_SCOPES!;
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID!,
+    process.env.GOOGLE_CLIENT_SECRET!,
+    process.env.GOOGLE_REDIRECT_URI!
+  );
 
-  if (!clientId || !redirectUri) {
-    return NextResponse.json(
-      { error: "Client ID and Redirect URI are required" },
-      { status: 400 }
-    );
+  const scopes = process.env.GOOGLE_SCOPES!;
+  if (!scopes) {
+    return NextResponse.json({ error: "Scopes are required" }, { status: 400 });
   }
 
-  // Generate the auth URL using environment variables
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scopes}&state=${uid}&access_type=offline`;
+  // Generate the auth URL with the necessary parameters
+  const authUrl = oauth2Client.generateAuthUrl({
+    access_type: "offline", // Request offline access to get refresh token
+    scope: scopes,
+    state: uid, // Pass the UID as state to keep track of user
+    prompt: "consent", // Force the consent screen every time
+  });
 
-  return NextResponse.json({ authUrl: authUrl });
+  return NextResponse.json({ authUrl });
 }

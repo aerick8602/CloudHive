@@ -1,5 +1,5 @@
 // app/api/cloud/google/accounts/route.ts
-import { connectToDatabase } from "@/lib/db/mongodb";
+import { connectToDatabase } from "@/lib/db/mongo.config";
 import { NextRequest, NextResponse } from "next/server";
 
 // Get a list of accounts linked to the current user

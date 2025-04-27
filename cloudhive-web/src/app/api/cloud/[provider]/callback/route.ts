@@ -1,5 +1,5 @@
 // app/api/cloud/google/callback/route.ts
-import { connectToDatabase } from "@/lib/db/mongodb";
+import { connectToDatabase } from "@/lib/db/mongo.config";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
