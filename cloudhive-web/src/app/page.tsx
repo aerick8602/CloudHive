@@ -36,12 +36,51 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isSessionValid, setIsSessionValid] = useState(true);
+  const router = useRouter();
+
+  const verifySession = async () => {
+    const response = await fetch("/api/auth/verify", { method: "GET" });
+
+    if (!response.ok) {
+      setIsSessionValid(false);
+      return false;
+    }
+
+    const data = await response.json();
+    setIsSessionValid(data.success);
+    return data.success;
+  };
+
+  const logoutUser = async () => {
+    const response = await fetch("/api/auth/logout", { method: "POST" });
+
+    if (response.ok) {
+      router.push("/auth/sign-in"); // Redirect to sign-in page after logging out
+    } else {
+      console.error("Error during logout");
+      // Handle logout error, maybe show a toast or log out anyway
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
+
+    const checkSession = async () => {
+      const sessionValid = await verifySession();
+      if (!sessionValid) {
+        await logoutUser(); // Log out the user if session is invalid
+      }
+    };
+
+    checkSession();
   }, []);
 
-  if (!mounted) return null;
+  useEffect(() => {
+    if (!mounted) return;
+  }, [mounted]);
+
+  if (!mounted || !isSessionValid) return null;
 
   const isDark = theme === "dark";
   return (

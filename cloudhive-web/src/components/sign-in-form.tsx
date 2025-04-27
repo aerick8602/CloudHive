@@ -11,10 +11,15 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { getFirebaseErrorMessage } from "@/lib/firebase/error";
+
 import { PasswordResetDialog } from "./passwod-reset";
-import { browserLocalPersistence, setPersistence } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  setPersistence,
+  signOut,
+} from "firebase/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
+import { getFirebaseErrorMessage } from "@/lib/firebase/firebase-error";
 
 export function SignInForm({
   className,
@@ -28,6 +33,8 @@ export function SignInForm({
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(clientAuth);
 
+  const [signInWithGoogle] = useSignInWithGoogle(clientAuth);
+
   const handleEmailAndPasswordSignIn = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
@@ -37,67 +44,84 @@ export function SignInForm({
       await setPersistence(clientAuth, browserLocalPersistence);
       const result = await signInWithEmailAndPassword(email, password);
 
-      if (result?.user) {
-        const idToken = await result.user.getIdToken();
-
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken }),
+      if (!result?.user) return; // if no user, just return, error toast will show via useEffect
+      if (!result.user.emailVerified) {
+        // Email not verified
+        toast.error("Please verify your email before signing in.", {
+          position: "top-right",
         });
+        await signOut(clientAuth); // Sign out the user to enforce the verification check
+        return;
+      }
+      const idToken = await result.user.getIdToken();
 
-        if (response.ok) {
-          toast.success("Login successful. Redirecting to your drive...", {
-            position: "top-right",
-          });
-          router.push("/");
-        } else {
-          throw new Error("Failed to set session cookie");
-        }
+      const redirectingToastId = toast.loading("Setting up your session...", {
+        position: "top-right",
+      });
+
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (response.ok) {
+        toast.success("Login successful! Redirecting to your drive...", {
+          id: redirectingToastId,
+          position: "top-right",
+        });
+        router.push("/");
       } else {
-        toast.error("Failed to sign in. Please check your credentials.", {
+        toast.error("Failed to set session cookie.", {
+          id: redirectingToastId,
           position: "top-right",
         });
       }
-    } catch (error) {
-      console.error("Error during sign-in with email/password:", error);
-      toast.error("An error occurred during sign-in. Please try again.", {
+    } catch (err) {
+      console.error("Error during email/password sign-in:", err);
+      toast.error("An unexpected error occurred. Please try again.", {
         position: "top-right",
       });
     }
   };
-
-  const [signInWithGoogle] = useSignInWithGoogle(clientAuth);
 
   const handleGoogleSignIn = async () => {
     try {
       await setPersistence(clientAuth, browserLocalPersistence);
       const result = await signInWithGoogle();
 
-      if (result?.user) {
-        const idToken = await result.user.getIdToken();
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken }),
-        });
+      if (!result?.user) return; // if no user, exit, error handled by hooks if any
 
-        if (response.ok) {
-          router.push("/");
-        } else {
-          throw new Error("Failed to set session cookie");
-        }
+      const idToken = await result.user.getIdToken();
+
+      const redirectingToastId = toast.loading("Setting up your session...", {
+        position: "top-right",
+      });
+
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (response.ok) {
+        toast.success("Login successful! Redirecting to your drive...", {
+          id: redirectingToastId,
+          position: "top-right",
+        });
+        router.push("/");
       } else {
-        toast.error("An unexpected error occurred. Please try again shortly.", {
+        toast.error("Failed to set session cookie.", {
+          id: redirectingToastId,
           position: "top-right",
         });
       }
-    } catch (error) {
-      console.error("Error during Google sign-in:", error);
+    } catch (err) {
+      console.error("Error during Google sign-in:", err);
       toast.error("Sign-in failed. Please try again later.", {
         position: "top-right",
       });
@@ -106,7 +130,7 @@ export function SignInForm({
 
   useEffect(() => {
     if (error) {
-      console.log(error.code);
+      console.error("Firebase sign-in error:", error.code);
       const msg = getFirebaseErrorMessage(error.code);
       toast.error(msg, {
         position: "top-right",

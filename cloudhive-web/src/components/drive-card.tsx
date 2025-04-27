@@ -77,14 +77,13 @@ export function DriveCard() {
                 </div>
 
                 <div className="relative flex-1 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                  <Image
+                  {/* <Image
                     src={dummyFile.thumbnailLink}
                     alt="thumbnail"
                     width={230}
                     height={230}
-                    unoptimized
                     className="object-cover w-full h-full"
-                  />
+                  /> */}
                 </div>
               </div>
             ))}

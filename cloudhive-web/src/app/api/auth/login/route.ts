@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 // Firebase session cookie name
-const SESSION_COOKIE_NAME = "_CLOUDHIVE_SESSION";
-// Session expiration time (2 weeks)
-const SESSION_EXPIRES_IN = 60 * 60 * 24 * 14 * 1000;
+const SESSION_COOKIE_NAME = "__SESSION";
+// Session expiration time (24 hours)
+const SESSION_EXPIRES_IN = 60 * 60 * 24 * 1000;
 
 // Sign In API handler
 export async function POST(request: NextRequest) {

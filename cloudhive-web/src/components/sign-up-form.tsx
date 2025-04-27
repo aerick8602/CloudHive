@@ -10,13 +10,14 @@ import {
 
 import {
   browserLocalPersistence,
+  sendEmailVerification,
   sendPasswordResetEmail,
   setPersistence,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { getFirebaseErrorMessage } from "@/lib/firebase/error";
+import { getFirebaseErrorMessage } from "@/lib/firebase/firebase-error";
 import { PasswordResetDialog } from "./passwod-reset";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 
@@ -37,32 +38,44 @@ export function SignUpForm({
     e.preventDefault();
 
     try {
-      await setPersistence(clientAuth, browserLocalPersistence);
+      // await setPersistence(clientAuth, browserLocalPersistence);
       const result = await createUserWithEmailAndPassword(email, password);
 
-      if (result?.user) {
-        const idToken = await result.user.getIdToken();
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken }),
-        });
+      // Send email verification
 
-        if (response.ok) {
-          toast.success("Sign-up successful. Redirecting to your drive...", {
-            position: "top-right",
-          });
-          router.push("/");
-        } else {
-          throw new Error("Failed to set session cookie");
-        }
-      } else {
-        toast.error("Failed to sign up. Please try again.", {
+      if (result?.user) {
+        await sendEmailVerification(result.user);
+        console.log("Verification email sent to:", result.user.email);
+
+        // Notify the user to verify their email
+        toast.info("Kindly verify your email to activate your account.", {
           position: "top-right",
         });
+
+        // const idToken = await result.user.getIdToken();
+        // const response = await fetch("/api/auth/login", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({ idToken }),
+        // });
+        // if (response.ok) {
+        //   toast.success("Sign-up successful. Redirecting to your drive...", {
+        //     position: "top-right",
+        //   });
+        //   router.push("/");
+        // } else {
+        //   throw new Error("Failed to set session cookie");
+        // }
+
+        router.push("/auth/sign-in");
       }
+      // else {
+      //   toast.error("Failed to sign up. Please try again.", {
+      //     position: "top-right",
+      //   });
+      // }
     } catch (error) {
       console.error("Error during sign-up:", error);
       toast.error("An error occurred during sign-up. Please try again.", {
@@ -77,33 +90,39 @@ export function SignUpForm({
       await setPersistence(clientAuth, browserLocalPersistence);
       const result = await signInWithGoogle();
 
-      if (result?.user) {
-        const idToken = await result.user.getIdToken();
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idToken }),
-        });
+      if (!result?.user) return; // if no user, exit, error handled by hooks if any
 
-        if (response.ok) {
-          toast.success("Login successful. Redirecting to your drive...", {
-            position: "top-right",
-          });
-          router.push("/");
-        } else {
-          throw new Error("Failed to set session cookie");
-        }
+      const idToken = await result.user.getIdToken();
+
+      const redirectingToastId = toast.loading("Setting up your session...", {
+        position: "top-right",
+      });
+
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (response.ok) {
+        toast.success("Login successful! Redirecting to your drive...", {
+          id: redirectingToastId,
+          position: "top-right",
+        });
+        router.push("/");
       } else {
-        toast.error("Google sign-in failed. Please try again.", {
+        toast.error("Failed to set session cookie.", {
+          id: redirectingToastId,
           position: "top-right",
         });
       }
-    } catch (error) {
-      console.error("Error during Google sign-in:", error);
-      toast.error(
-        "An error occurred during Google sign-in. Please try again.",
-        { position: "top-right" }
-      );
+    } catch (err) {
+      console.error("Error during Google sign-in:", err);
+      toast.error("Sign-in failed. Please try again later.", {
+        position: "top-right",
+      });
     }
   };
 
