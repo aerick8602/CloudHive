@@ -44,6 +44,9 @@ export function SignUpForm({
       // Send email verification
 
       if (result?.user) {
+        toast.info("Kindly verify your email to activate your account.", {
+          position: "top-right",
+        });
         await sendEmailVerification(result.user);
         console.log("Verification email sent to:", result.user.email);
 
