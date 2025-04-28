@@ -36,7 +36,7 @@ export function useUploader() {
     });
 
     try {
-      const res = await fetch("http://localhost:8000/upload", {
+      const res = await fetch("api/upload", {
         method: "POST",
         body: formData,
       });
