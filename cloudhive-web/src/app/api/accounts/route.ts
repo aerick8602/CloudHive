@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     // Map accounts to include email and accountId for deletion purposes
     const accountsList = accounts.map((account: any) => ({
-      email: account.email,
+      email: account.e,
     }));
 
     return NextResponse.json({ accounts: accountsList });
