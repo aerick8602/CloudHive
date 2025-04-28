@@ -1,111 +1,303 @@
-// lib/googleDrive.ts
+import { google, drive_v3 } from "googleapis";
+import { Readable } from "stream";
+import { createOAuthClient } from "./google.client";
 
-import { google } from "googleapis";
-import { createOAuthClient } from "./google.client"; // Import the createOAuthClient function
+import { updateAccount } from "@/model/account.model";
+import { DriveItem, saveDriveItem } from "@/model/drive.model";
 
-class GoogleDrive {
-  private client: any;
-  private rootFolderId: string;
+export class GoogleDrive {
   private email: string;
+  private drive: drive_v3.Drive;
+  private rootFolderId: string | null = null;
 
-  constructor(email: string, rootFolderId: string) {
+  constructor(email: string, rootFolderId?: string) {
     this.email = email;
-    this.rootFolderId = rootFolderId;
+    this.rootFolderId = rootFolderId ?? null;
+    this.drive = this.drive = {} as drive_v3.Drive;
   }
 
-  // Initialize the client using the access token
   async initializeClient() {
-    this.client = await createOAuthClient(this.email); // Create Google OAuth client
+    try {
+      this.drive = await createOAuthClient(this.email); // Await the OAuth client creation
+
+      //Ensure Root folder is Set Up
+
+      const { data } = await this.drive.files.list({
+        q: "name='CloudHive' and mimeType='application/vnd.google-apps.folder' and trashed=false",
+        fields: "files(id)",
+        spaces: "drive",
+      });
+
+      if (data.files?.length) {
+        this.rootFolderId = data.files[0].id!;
+      } else {
+        const { data: folder } = await this.drive.files.create({
+          requestBody: {
+            name: "CloudHive",
+            mimeType: "application/vnd.google-apps.folder",
+          },
+          fields: "id",
+        });
+        this.rootFolderId = folder.id!;
+      }
+
+      await updateAccount(this.email, { rf: this.rootFolderId });
+    } catch (error) {
+      console.error("Failed to initialize Google Drive client:", error);
+      throw error;
+    }
   }
 
-  async createFolder(name: string, parentId: string) {
-    const metadata = {
-      name,
-      mimeType: "application/vnd.google-apps.folder",
-      parents: [parentId],
-    };
+  private ensureDriveInitialized() {
+    if (!this.drive) {
+      throw new Error(
+        "Google Drive client not initialized. Call initializeClient() first."
+      );
+    }
+  }
 
-    const folder = await this.client.files.create({
-      requestBody: metadata,
-      fields: "id",
-    });
+  private async resolveFileBuffer(file: any): Promise<Buffer> {
+    if (file instanceof Buffer) return file;
+    if (file.buffer) return file.buffer;
+    if (file instanceof Readable) {
+      return new Promise((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        file.on("data", (chunk: Buffer) => chunks.push(chunk));
+        file.on("end", () => resolve(Buffer.concat(chunks)));
+        file.on("error", reject);
+      });
+    }
+    if (file instanceof File) {
+      const arrayBuffer = await file.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+    }
+    if (typeof file === "object") {
+      if (file.raw) return file.raw;
+      if (file.data) return Buffer.from(file.data);
+    }
+    throw new Error("Unsupported file type");
+  }
 
-    return folder.data.id;
+  private async storeFolderMetadata(folderId: string) {
+    try {
+      const { data } = await this.drive.files.get({
+        fileId: folderId,
+        fields: "*", // Attempt to fetch all available fields
+      });
+
+      // Log the entire response data
+      console.log("Folder Metadata:", data);
+
+      // Construct the folder document
+      const folderDoc: DriveItem = {
+        id: data.id!,
+        e: this.email,
+        n: data.name!,
+        m: data.mimeType!,
+        p: data.parents || [],
+        s: data.starred || false,
+        t: data.trashed || false,
+        ct: data.createdTime!,
+        mt: data.modifiedTime!,
+      };
+
+      // Save the folder metadata to the database
+      await saveDriveItem(folderDoc);
+    } catch (error) {
+      console.error("Failed to store folder metadata:", error);
+    }
+  }
+
+  private async waitForThumbnail(
+    fileId: string,
+    retries = 5,
+    delay = 2000
+  ): Promise<drive_v3.Schema$File | null> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const { data } = await this.drive.files.get({
+          fileId,
+          fields: "*",
+        });
+
+        if (data.thumbnailLink) {
+          console.log("Thumbnail found for file:", data);
+          return data;
+        }
+
+        // Wait before retrying
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } catch (error) {
+        console.error(`Thumbnail fetch failed (attempt ${i + 1}):`, error);
+      }
+    }
+
+    // Return null if no thumbnail found after retries
+    console.log("No thumbnail found after retries.");
+    return null;
+  }
+
+  private async storeFileMetadata(fileId: string) {
+    try {
+      const fileData = await this.waitForThumbnail(fileId);
+      if (!fileData) return;
+
+      const fileDoc: DriveItem = {
+        id: fileData.id!,
+        e: this.email!,
+        n: fileData.name!,
+        m: fileData.mimeType!,
+        p: fileData.parents || [],
+        tl: fileData.thumbnailLink || undefined,
+        wvl: fileData.webViewLink || undefined,
+        wcl: fileData.webContentLink || undefined,
+        s: fileData.starred || false,
+        t: fileData.trashed || false,
+        q: fileData.quotaBytesUsed
+          ? Number(fileData.quotaBytesUsed)
+          : undefined,
+        ct: fileData.createdTime!,
+        mt: fileData.modifiedTime!,
+      };
+
+      await saveDriveItem(fileDoc);
+    } catch (error) {
+      console.error("Failed to store file metadata:", error);
+    }
+  }
+
+  async createFolder(name: string, parentId?: string) {
+    try {
+      this.ensureDriveInitialized();
+
+      const { data } = await this.drive.files.create({
+        requestBody: {
+          name,
+          mimeType: "application/vnd.google-apps.folder",
+          parents: parentId ? [parentId] : undefined,
+        },
+        fields: "id",
+      });
+
+      const folderId = data.id!;
+      await this.storeFolderMetadata(folderId);
+
+      return folderId;
+    } catch (error) {
+      console.error("Failed to create folder:", error);
+      throw error;
+    }
   }
 
   async uploadFile(
-    fileName: string,
-    fileBytes: Buffer,
+    name: string,
+    file: any,
     mimeType: string,
-    parentId: string
+    parentId?: string
   ) {
-    const fileMetadata = {
-      name: fileName,
-      parents: [parentId],
-    };
+    try {
+      this.ensureDriveInitialized();
 
-    const media = {
-      mimeType,
-      body: fileBytes,
-    };
+      const fileBuffer = await this.resolveFileBuffer(file);
 
-    const uploaded = await this.client.files.create({
-      requestBody: fileMetadata,
-      media,
-      fields: "id",
-    });
+      const { data } = await this.drive.files.create({
+        requestBody: {
+          name,
+          parents: parentId ? [parentId] : undefined,
+        },
+        media: {
+          mimeType,
+          body: Readable.from(fileBuffer),
+        },
+        fields: "id",
+      });
 
-    const fileId = uploaded.data.id;
+      const fileId = data.id!;
+      this.storeFileMetadata(fileId).catch(console.error);
 
-    // Refetch metadata and save it (simulated here)
-    const uploadedMetadata = await this.client.files.get({
-      fileId,
-      fields: "*",
-    });
-
-    return uploadedMetadata.data;
+      return fileId;
+    } catch (error) {
+      console.error("Failed to upload file:", error);
+      throw error;
+    }
   }
 
   async uploadFolderWithFiles(
     folderName: string,
     files: Record<string, any>,
-    parentId: string
+    parentId: string,
+    onProgress?: (fileName: string, fileSize: string) => void
   ) {
-    const folderId = await this.createFolder(folderName, parentId);
+    try {
+      this.ensureDriveInitialized();
 
-    for (const [filePath, fileData] of Object.entries(files)) {
-      const relativePath = filePath.replace(`${folderName}/`, "");
-      await this.uploadFileWithPath(relativePath, fileData, folderId);
-    }
-
-    return folderId;
-  }
-
-  async uploadFileWithPath(filePath: string, file: any, parentId: string) {
-    const parts = filePath.split("/").filter((p) => p.trim());
-
-    let currentParentId = parentId;
-
-    for (const folder of parts.slice(0, -1)) {
-      const query = `name='${folder}' and mimeType='application/vnd.google-apps.folder' and trashed=false and '${currentParentId}' in parents`;
-      const res = await this.client.files.list({
-        q: query,
-        fields: "files(id, name)",
-      });
-
-      let folderId;
-      if (res.data.files?.length > 0) {
-        folderId = res.data.files[0].id;
-      } else {
-        folderId = await this.createFolder(folder, currentParentId);
+      const rootFolderId = this.rootFolderId;
+      if (!rootFolderId) {
+        throw new Error("CloudHive root folder not initialized");
       }
 
-      currentParentId = folderId;
-    }
+      const folderIds: Record<string, string> = { "": rootFolderId };
 
-    const fileName = parts[parts.length - 1];
-    await this.uploadFile(fileName, file, file.mimetype, currentParentId);
+      for (const filePath of Object.keys(files)) {
+        const parts = filePath.split(/[\\/]/).filter(Boolean);
+        let currentPath = "";
+
+        for (let i = 0; i < parts.length - 1; i++) {
+          const folderName = parts[i];
+          currentPath = currentPath
+            ? `${currentPath}/${folderName}`
+            : folderName;
+
+          if (!folderIds[currentPath]) {
+            const parentPath = currentPath.substring(
+              0,
+              currentPath.lastIndexOf("/")
+            );
+            const parentFolderId = folderIds[parentPath] || rootFolderId;
+
+            const folderId = await this.createFolder(
+              folderName,
+              parentFolderId
+            );
+            folderIds[currentPath] = folderId;
+          }
+        }
+      }
+
+      for (const [filePath, fileData] of Object.entries(files)) {
+        const parts = filePath.split(/[\\/]/).filter(Boolean);
+        const fileName = parts.pop()!;
+        const folderPath = parts.join("/");
+        const parentFolderId = folderIds[folderPath] || rootFolderId;
+
+        const fileBuffer = await this.resolveFileBuffer(fileData);
+
+        await this.uploadFile(
+          fileName,
+          fileBuffer,
+          fileData.mimetype,
+          parentFolderId
+        );
+
+        if (onProgress) {
+          onProgress(fileName, this.formatFileSize(fileBuffer.length));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to upload folder with files:", error);
+      throw error;
+    }
+  }
+
+  private formatFileSize(bytes: number): string {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  }
+
+  public getRootFolderId() {
+    return this.rootFolderId;
   }
 }
-
-export default GoogleDrive;

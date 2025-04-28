@@ -66,9 +66,11 @@ export async function GET(req: NextRequest) {
           { _id: account._id },
           {
             $set: {
-              accessToken: tokens.access_token,
-              refreshToken: tokens.refresh_token || account.refreshToken, // Use stored refresh token if not provided
-              expiryDate: tokens.expiry_date,
+              at: tokens.access_token,
+              rt: tokens.refresh_token || account.refreshToken,
+              v: tokens.expiry_date,
+              rf: null,
+              q: null,
               sync: Date.now(),
             },
             $addToSet: {
@@ -80,12 +82,14 @@ export async function GET(req: NextRequest) {
         // Create a new account if it doesn't exist
         console.log("Creating new account...");
         const result = await accountsCollection.insertOne({
-          email,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token, // Save the refresh token
-          expiryDate: tokens.expiry_date,
+          e: email,
+          at: tokens.access_token,
+          rt: tokens.refresh_token,
+          v: tokens.expiry_date,
+          rf: null,
+          q: null,
           sync: Date.now(),
-          userIds: [state], // Link the account to the user using UID
+          userIds: [state],
         });
         account = { _id: result.insertedId };
         console.log("New account created:", account);
