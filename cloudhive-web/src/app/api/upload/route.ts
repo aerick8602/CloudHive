@@ -3,7 +3,8 @@ import { GoogleDrive } from "@/lib/google/google.drive";
 import { writeFile, mkdir, rm } from "fs/promises";
 import { join, dirname } from "path";
 import { tmpdir } from "os";
-import { updateProgress, resetProgress } from "./progress/route";
+import { resetProgress, updateProgress } from "@/lib/progress";
+// import { updateProgress, resetProgress } from "./progress/route";
 
 export const config = {
   api: {
