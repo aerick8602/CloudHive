@@ -2,7 +2,7 @@ import { FaFolder } from "react-icons/fa6";
 import { FileDropdown } from "./file-dropdown";
 import { Icon } from "lucide-react";
 import Image from "next/image";
-import { getIconForMimeType } from "@/app/utils/icons";
+import { getIconForMimeType } from "@/utils/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const dummyFile = {
@@ -10,7 +10,7 @@ const dummyFile = {
   fileName: "AYUSH KATIYAR RESUME.pdf",
   mimeType: "video/x-flv",
   thumbnailLink:
-    "https://lh3.googleusercontent.com/drive-storage/AJQWtBOo7U7UuK-5yKKMwIQ-H1aW_Psa9PBHWv_XZ1MyVF8_2lnwtAeQn44AMxSsv4V8QK7de98PKYZMhCxoQKbthbFmsDCXXwm42nFurqFCZ8PcZQ=s220",
+    "https://lh3.googleusercontent.com/drive-storage/AJQWtBPF_UIyWJE3taYgFmwJ8WMuUosvLbmVq_GNQsM03P9KQaunwGau6bCTBGh-LaBJHKV0X9LT7Hvpz3Th6r7UkTMBDaaPDd--HsDeCnr0v_YIvg=s220",
 };
 
 export function DriveCard() {
@@ -63,7 +63,7 @@ export function DriveCard() {
                 key={i}
                 className="aspect-square rounded-md sm:rounded-lg lg:rounded-xl bg-muted/50 hover:bg-muted/100 transition-all duration-300 cursor-pointer p-2 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-2 p-1">
+                <div className="flex items-center justify-between mb-2 pl-1 md:p-1">
                   <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0">
                     <Icon
                       style={{ color }}
@@ -77,13 +77,20 @@ export function DriveCard() {
                 </div>
 
                 <div className="relative flex-1 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                  {/* <Image
-                    src={dummyFile.thumbnailLink}
-                    alt="thumbnail"
-                    width={230}
-                    height={230}
-                    className="object-cover w-full h-full"
-                  /> */}
+                  {dummyFile.thumbnailLink ? (
+                    <Image
+                      src={dummyFile.thumbnailLink}
+                      alt="thumbnail"
+                      width={230}
+                      height={230}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <Icon
+                      style={{ color }}
+                      className="size-15 md:size-18 xl:size-21"
+                    />
+                  )}
                 </div>
               </div>
             ))}

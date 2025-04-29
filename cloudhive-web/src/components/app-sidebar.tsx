@@ -140,11 +140,18 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [activeEmail, setActiveEmail] = React.useState<string | undefined>(
+    undefined
+  );
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <AccountSwitcher />
-        <UploadMenu />
+        <AccountSwitcher
+          activeEmail={activeEmail}
+          setActiveEmail={setActiveEmail}
+        />
+        <UploadMenu activeEmail={activeEmail} />
         {/* <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

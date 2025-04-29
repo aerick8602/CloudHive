@@ -1,30 +1,30 @@
-import { connectToDatabase } from "@/lib/db/mongo.config";
+import { Account } from "@/app/interface";
+import { connectToDatabase } from "./mongo.config";
+import { convertMillisToIST } from "@/utils/time";
 
-interface Token {
-  accessToken: string;
-  refreshToken: string;
-  expiryDate: number;
-  sync: number;
-}
-
-export async function getTokenFromMongo(email: string): Promise<Token | null> {
+export async function getTokenFromMongo(
+  email: string
+): Promise<Partial<Account> | null> {
   try {
+    console.log(
+      `[getTokenFromMongo] Connecting to DB to fetch token for: ${email}`
+    );
     const { db } = await connectToDatabase();
     const accountsCollection = db.collection("accounts");
 
-    // Fetch account data by email
-    const account = await accountsCollection.findOne({ email });
+    const account = await accountsCollection.findOne({ e: email });
+    console.log(`[getTokenFromMongo] Account fetched:`, account);
 
-    // Return null if no account is found
     if (!account) {
+      console.warn(`[getTokenFromMongo] No account found for email: ${email}`);
       return null;
     }
 
-    // Extract and return relevant token data
-    const { accessToken, refreshToken, expiryDate, sync } = account;
-    return { accessToken, refreshToken, expiryDate, sync };
+    const { at, rt, atv, rtv } = account;
+    console.log(`[getTokenFromMongo] Token details extracted for: ${email}`);
+    return { at, rt, atv, rtv };
   } catch (error) {
-    console.error("Error fetching token:", error);
+    console.error("[getTokenFromMongo] Error fetching token:", error);
     return null;
   }
 }
@@ -32,25 +32,31 @@ export async function getTokenFromMongo(email: string): Promise<Token | null> {
 export async function updateTokenToMongo(
   email: string,
   accessToken: string,
-  expiryDate: number
+  accessExpiry: string,
+  refreshExpiry: string
 ): Promise<void> {
   try {
+    console.log(
+      `[updateTokenToMongo] Connecting to DB to update token for: ${email}`
+    );
     const { db } = await connectToDatabase();
     const accountsCollection = db.collection("accounts");
 
-    // Update the token and expiry date for the given email
-    await accountsCollection.updateOne(
-      { email },
+    const result = await accountsCollection.updateOne(
+      { e: email },
       {
         $set: {
-          accessToken,
-          expiryDate,
-          sync: Date.now(),
+          at: accessToken,
+          atv: accessExpiry,
+          rtv: refreshExpiry,
+          sync: convertMillisToIST(Date.now()),
         },
       }
     );
+
+    console.log(`[updateTokenToMongo] Update result for ${email}:`, result);
   } catch (error) {
-    console.error("Error updating token:", error);
+    console.error("[updateTokenToMongo] Error updating token:", error);
     throw new Error("Failed to update token");
   }
 }

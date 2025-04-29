@@ -30,6 +30,6 @@ if (process.env.ENV === "development") {
 
 export async function connectToDatabase() {
   const client = await clientPromise;
-  const db = client.db(); // you can specify db name if needed, like client.db("mydbname")
+  const db = client.db("cloudhive"); //Specify db name if needed, like client.db("mydbname")
   return { client, db };
 }

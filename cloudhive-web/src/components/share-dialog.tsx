@@ -80,7 +80,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="w-full max-w-sm sm:max-w-lg px-4 sm:px-6">
         <DialogHeader>
           <DialogTitle>Share this document</DialogTitle>
           <DialogDescription>
@@ -115,12 +115,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
           <TabsContent value="people" className="pt-4">
             {/* Add Email Form */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-row sm:flex-row gap-2 sm:items-center mb-4">
               <Input
                 placeholder="Enter email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                className="flex-1 mr-2.5"
+                className="flex-1"
               />
               {isEmailInputFilled && (
                 <Select
@@ -133,7 +133,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                     setNewPermission(val as Permission)
                   }
                 >
-                  <SelectTrigger className="w-[110px] mr-2.5">
+                  <SelectTrigger className="w-full w-[110px] mr-2.5 ">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -152,19 +152,19 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 started.
               </div>
             ) : (
-              <div className="space-y-3 overflow-y-auto max-h-24 pr-1">
+              <div className="space-y-3 overflow-y-auto max-h-48 pr-1">
                 {people.map((person) => (
                   <div
                     key={person.email}
-                    className="flex items-center justify-between"
+                    className="flex items-center justify-between gap-2"
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
                       <Avatar>
                         <AvatarFallback>
                           {person.email[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="text-sm truncate max-w-[250px]">
+                      <div className="text-sm truncate max-w-[180px] sm:max-w-[250px]">
                         {person.email}
                       </div>
                     </div>
@@ -200,11 +200,11 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             className="text-sm pt-4 pb-4 text-muted-foreground/90 flex items-center justify-center gap-1"
           >
             <EarthIcon className="size-4" />
-            This content is publicly available to anyone with the link.
+            This content is publicly available to all via link.
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter className="sm:justify-between mt-4">
           <DialogClose asChild>
             <Button variant="outline" type="button">
               Cancel

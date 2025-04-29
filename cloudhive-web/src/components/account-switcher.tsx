@@ -24,46 +24,34 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import axiosInstance from "@/lib/axios";
 
-export function AccountSwitcher() {
+interface AccountSwitcherProps {
+  activeEmail?: string;
+  setActiveEmail: (email: string) => void;
+}
+
+export function AccountSwitcher({
+  activeEmail,
+  setActiveEmail,
+}: AccountSwitcherProps) {
   const { isMobile } = useSidebar();
   const [accounts, setAccounts] = React.useState<{ email: string }[]>([]);
   const [authUrl, setAuthUrl] = React.useState<string>("");
-  const [activeAccount, setActiveAccount] = React.useState<{ email?: string }>(
-    {}
-  );
+
   const [user] = useAuthState(clientAuth);
 
   // Fetch linked cloud accounts
   const fetchAccounts = async (uid: string) => {
-    try {
-      const res = await axiosInstance.get(`/accounts`, {
-        params: { uid },
-      });
-      return res.data.accounts as { email: string }[];
-    } catch (error: any) {
-      console.error("Failed to fetch accounts:", error);
-      // throw new Error(
-      //   error.response?.data?.error || "Failed to fetch accounts"
-      // );
-    }
+    const res = await axiosInstance.get(`/accounts`, { params: { uid } });
+    return res.data.accounts as { email: string }[];
   };
 
   // Fetch auth URL to add new account
   const fetchAuthUrl = async (uid: string) => {
-    try {
-      const res = await axiosInstance.get(`/cloud/google`, {
-        params: { uid },
-      });
-      return res.data.authUrl as string; // make sure backend sends { authUrl }
-    } catch (error: any) {
-      console.error("Failed to fetch auth URL:", error);
-      throw new Error(
-        error.response?.data?.error || "Failed to fetch auth URL"
-      );
-    }
+    const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
+    return res.data.authUrl as string;
   };
 
-  // Load accounts and active account on mount
+  // Load accounts and set active email
   React.useEffect(() => {
     const load = async () => {
       if (!user?.uid) return;
@@ -74,51 +62,32 @@ export function AccountSwitcher() {
           fetchAuthUrl(user.uid),
         ]);
 
-        // Set the authUrl regardless of accountsData being empty
         setAuthUrl(authUrlData);
-        console.log("Auth URL:", authUrlData); // Log the authUrl here
+        setAccounts(accountsData);
 
-        // If accountsData is not empty, set accounts and active account
-        if (accountsData && accountsData.length > 0) {
-          setAccounts(accountsData);
-
-          const stored = localStorage.getItem("activeAccount");
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (
-              parsed?.email &&
-              accountsData.some((acc) => acc.email === parsed.email)
-            ) {
-              setActiveAccount(parsed); // Restore previous if exists
-            } else {
-              setActiveAccount(accountsData[0]); // Pick first if not
-            }
-          } else {
-            setActiveAccount(accountsData[0]); // Set first account if no stored account
-          }
-        } else {
-          console.warn("No accounts found.");
-          // Handle the case when no accounts exist (optional)
-          // You can show a prompt to add an account or do something else here.
+        const storedEmail = localStorage.getItem("activeEmail");
+        if (storedEmail && accountsData.some((a) => a.email === storedEmail)) {
+          setActiveEmail(storedEmail);
+        } else if (accountsData.length > 0) {
+          setActiveEmail(accountsData[0].email);
         }
-      } catch (error) {
-        console.error("Failed to load accounts:", error);
+      } catch (err) {
+        console.error("Failed to load accounts:", err);
       }
     };
 
     load();
   }, [user]);
 
-  // Save active account to localStorage when it changes
+  // Save active email to localStorage
   React.useEffect(() => {
-    if (activeAccount?.email) {
-      localStorage.setItem("activeAccount", JSON.stringify(activeAccount));
+    if (activeEmail) {
+      localStorage.setItem("activeEmail", activeEmail);
     }
-  }, [activeAccount]);
+  }, [activeEmail]);
 
-  // Add a new account by redirecting
+  // Redirect to add account
   const addAccount = () => {
-    console.log(authUrl);
     if (authUrl) {
       redirect(authUrl);
     } else {
@@ -142,7 +111,7 @@ export function AccountSwitcher() {
                 <span className="truncate text-lg font-semibold">
                   CloudHive
                 </span>
-                <span className="truncate text-xs">{activeAccount.email}</span>
+                <span className="truncate text-xs">{activeEmail}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -161,7 +130,7 @@ export function AccountSwitcher() {
             {accounts.map((account, index) => (
               <DropdownMenuItem
                 key={account.email}
-                onClick={() => setActiveAccount(account)}
+                onClick={() => setActiveEmail(account.email)}
                 className="gap-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">

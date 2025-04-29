@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, FolderPlus, FileUp, FolderUp, Loader2, X } from "lucide-react";
+import { Plus, FolderPlus, FileUp, FolderUp, Loader2 } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -24,37 +24,123 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { useUploader } from "@/hooks/use-uploder";
-import { Progress } from "@/components/ui/progress";
+import { FileData } from "@/app/interface";
 
-export function UploadMenu() {
+interface ExtendedInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  webkitdirectory?: string;
+  directory?: string;
+}
+
+async function prepareUploadData(
+  files: FileList | null,
+  isFolder: boolean = false
+): Promise<FileData[]> {
+  const fileData: FileData[] = [];
+  if (files) {
+    const fileArray = Array.from(files);
+    for (const file of fileArray) {
+      const path = isFolder ? file.webkitRelativePath : file.name;
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      fileData.push({
+        path,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: base64,
+      });
+    }
+  }
+  return fileData;
+}
+
+interface UploadMenuProps {
+  activeEmail: string | undefined;
+}
+
+export function UploadMenu({ activeEmail }: UploadMenuProps) {
   const { isMobile } = useSidebar();
   const [folderName, setFolderName] = React.useState("Untitled Folder");
-  const {
-    inputRef,
-    triggerUpload,
-    handleFiles,
-    isOpen,
-    setIsOpen,
-    uploadType,
-    setUploadType,
-    isUploading,
-    setIsUploading,
-    uploadProgress,
-    setUploadProgress,
-    currentFile,
-    setCurrentFile,
-    totalFiles,
-    setTotalFiles,
-    uploadedFiles,
-    setUploadedFiles,
-    currentFileSize,
-    setCurrentFileSize,
-  } = useUploader();
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [files, setFiles] = React.useState<FileList | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const folderInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isFolder: boolean = false
+  ) => {
+    const selectedFiles = e.target.files;
+    if (selectedFiles) {
+      setFiles(selectedFiles);
+      setIsUploading(true);
+
+      try {
+        const fileData = await prepareUploadData(selectedFiles, isFolder);
+        const response = await fetch("/api/new/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: fileData,
+            isFolder,
+            email: activeEmail,
+            currentParentId: null,
+          }),
+        });
+
+        if (response.ok) {
+          console.log("Upload successful!");
+        } else {
+          console.error("Upload failed!");
+        }
+      } catch (error) {
+        console.error("Error during upload:", error);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const triggerFileInput = (isFolder: boolean = false) => {
+    if (isFolder) {
+      folderInputRef.current?.click();
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const createFolder = async () => {
+    if (!activeEmail) return;
+    setIsUploading(true);
+    try {
+      const res = await fetch("/api/new/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: activeEmail,
+          newFolderName: folderName,
+          currentParentId: "1CekjgADqdWGMayYat9SjKMaWlVQWlxlP", // Change if you're supporting nested folders
+        }),
+      });
+      if (res.ok) {
+        console.log("Folder created!");
+      } else {
+        console.error("Folder creation failed.");
+      }
+    } catch (err) {
+      console.error("Error creating folder:", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <>
@@ -85,7 +171,6 @@ export function UploadMenu() {
                 side={isMobile ? "bottom" : "right"}
                 sideOffset={4}
               >
-                {/* New Folder triggers dialog */}
                 <DialogTrigger asChild>
                   <DropdownMenuItem className="gap-2 p-2 cursor-pointer">
                     <FolderPlus className="size-4" />
@@ -96,36 +181,18 @@ export function UploadMenu() {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem
-                  onClick={() => {
-                    setUploadType("file");
-                    setIsUploading(false);
-                    setUploadProgress(0);
-                    setCurrentFile("");
-                    setTotalFiles(0);
-                    setUploadedFiles(0);
-                    setCurrentFileSize("");
-                    triggerUpload("file");
-                  }}
                   className="gap-2 p-2 cursor-pointer"
                   disabled={isUploading}
+                  onClick={() => triggerFileInput(false)}
                 >
                   <FileUp className="size-4" />
                   File Upload
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  onClick={() => {
-                    setUploadType("folder");
-                    setIsUploading(false);
-                    setUploadProgress(0);
-                    setCurrentFile("");
-                    setTotalFiles(0);
-                    setUploadedFiles(0);
-                    setCurrentFileSize("");
-                    triggerUpload("folder");
-                  }}
                   className="gap-2 p-2 cursor-pointer"
                   disabled={isUploading}
+                  onClick={() => triggerFileInput(true)}
                 >
                   <FolderUp className="size-4" />
                   Folder Upload
@@ -135,13 +202,11 @@ export function UploadMenu() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* Dialog Content */}
-        <DialogContent>
+        {/* New Folder Dialog */}
+        <DialogContent className="top-70 lg:top-88">
           <DialogHeader>
             <DialogTitle>New Folder</DialogTitle>
-            <DialogDescription>
-              Create new folder in just one-click.
-            </DialogDescription>
+            <DialogDescription>Create a new folder easily.</DialogDescription>
           </DialogHeader>
           <div className="flex-col items-center gap-2">
             <Input
@@ -160,69 +225,33 @@ export function UploadMenu() {
                 </Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button className="cursor-pointer">Create</Button>
+                <Button className="cursor-pointer" onClick={createFolder}>
+                  Create
+                </Button>
               </DialogClose>
             </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {isUploading && (
-        <div className="fixed bottom-4 right-4 w-96 bg-background p-4 rounded-lg shadow-lg border">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <FileUp className="size-4" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium">
-                  {uploadType === "folder"
-                    ? "Uploading folder"
-                    : "Uploading file"}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {uploadType === "folder"
-                    ? `${uploadedFiles} of ${totalFiles} files uploaded`
-                    : "Uploading to Google Drive"}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => {
-                setIsUploading(false);
-                setUploadProgress(0);
-                setCurrentFile("");
-                setTotalFiles(0);
-                setUploadedFiles(0);
-                setCurrentFileSize("");
-              }}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-          <Progress
-            value={uploadProgress}
-            fileName={currentFile}
-            fileSize={currentFileSize}
-            isComplete={uploadProgress === 100}
-            className="w-full"
-          />
-        </div>
-      )}
-
+      {/* Hidden input fields */}
       <input
-        ref={inputRef}
         type="file"
         className="hidden"
         multiple
-        onChange={(e) => {
-          if (e.target.files) {
-            handleFiles(e.target.files);
-          }
-        }}
+        ref={fileInputRef}
+        onChange={(e) => handleFileChange(e, false)}
+      />
+      <input
+        type="file"
+        className="hidden"
+        multiple
+        // @ts-ignore
+        webkitdirectory=""
+        // @ts-ignore
+        directory=""
+        ref={folderInputRef}
+        onChange={(e) => handleFileChange(e, true)}
       />
     </>
   );

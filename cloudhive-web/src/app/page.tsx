@@ -26,7 +26,7 @@ import Image from "next/image";
 
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { FaFileCsv, FaFolder, FaImage } from "react-icons/fa6";
-import { getIconForMimeType } from "./utils/icons";
+import { getIconForMimeType } from "../utils/icons";
 import { FileDropdown } from "@/components/file-dropdown";
 import { DriveCard } from "@/components/drive-card";
 import { useAuthState } from "react-firebase-hooks/auth";

@@ -1,22 +1,34 @@
-// app/api/cloud/google/callback/route.ts
 import { connectToDatabase } from "@/lib/db/mongo.config";
+import { convertMillisToIST } from "@/utils/time";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
+interface GoogleTokens {
+  access_token: string;
+  refresh_token: string;
+  scope: string;
+  token_type: string;
+  id_token: string;
+  refresh_token_expires_in?: number;
+  expiry_date?: number;
+}
+
 export async function GET(req: NextRequest) {
+  console.log("⚡ [Callback] Starting GET handler");
+
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
 
   if (!code || !state) {
-    console.log("Error: Missing code or state");
+    console.error("❌ Missing code or state");
     return NextResponse.json(
       { error: "Missing code or state" },
       { status: 400 }
     );
   }
 
-  console.log("Authorization code and state received:", { code, state });
+  console.log("✅ Authorization code and state received:", { code, state });
 
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID!,
@@ -25,99 +37,112 @@ export async function GET(req: NextRequest) {
   );
 
   try {
-    // Exchange the authorization code for tokens
     const { tokens } = await oauth2Client.getToken(code);
-    console.log("Tokens received:", tokens);
+    console.log("✅ Tokens received :", tokens);
 
-    oauth2Client.setCredentials(tokens);
+    const typedTokens = tokens as GoogleTokens;
+    oauth2Client.setCredentials(typedTokens);
 
-    // Get user information from Google
     const oauth2 = google.oauth2({ auth: oauth2Client, version: "v2" });
-    const userinfo = await oauth2.userinfo.get();
-    const email = userinfo.data.email;
+    const { data: userinfo } = await oauth2.userinfo.get();
+    const email = userinfo.email;
 
-    console.log("User info:", userinfo.data);
-
-    if (!email) {
-      console.log("Error: Unable to fetch email");
+    if (!email || typeof email !== "string") {
+      console.error("❌ Unable to fetch valid email");
       return NextResponse.json(
         { error: "Unable to fetch email" },
         { status: 400 }
       );
     }
 
-    // Asynchronously handle the database updates
-    async function handleDatabaseUpdates() {
-      const { db } = await connectToDatabase();
-      console.log("Connected to MongoDB");
+    console.log("✅ User info fetched:", { email });
 
-      const accountsCollection = db.collection("accounts");
-      const usersCollection = db.collection("users");
+    // 🚀 FIRE-AND-FORGET background DB task
+    // using await because ux is not ready yet
+    await (async () => {
+      console.log("🛠️ [Background] Starting database update task");
+      try {
+        const { db } = await connectToDatabase();
+        const accountsCollection = db.collection("accounts");
+        const usersCollection = db.collection("users");
 
-      // Check if the account already exists in the database
-      let account = await accountsCollection.findOne({ email });
+        console.log("✅ Database connected");
 
-      console.log("Found account:", account);
+        const drive = google.drive({ version: "v3", auth: oauth2Client });
+        const about = await drive.about.get({ fields: "storageQuota" });
+        const storageQuota = about.data.storageQuota;
 
-      if (account) {
-        // Update the tokens and add the user if the account exists
-        console.log("Updating existing account...");
-        await accountsCollection.updateOne(
-          { _id: account._id },
-          {
-            $set: {
-              at: tokens.access_token,
-              rt: tokens.refresh_token || account.refreshToken,
-              v: tokens.expiry_date,
-              rf: null,
-              q: null,
-              sync: Date.now(),
-            },
-            $addToSet: {
-              userIds: state, // Link the account to the user using the UID
-            },
+        const totalQuota = storageQuota?.limit ? Number(storageQuota.limit) : 0;
+        const usedQuota = storageQuota?.usage ? Number(storageQuota.usage) : 0;
+
+        console.log("✅ Storage quota fetched:", { totalQuota, usedQuota });
+
+        let account = await accountsCollection.findOne({ e: email });
+
+        if (account) {
+          console.log("🔄 Updating existing account:", account._id);
+          await accountsCollection.updateOne(
+            { _id: account._id },
+            {
+              $set: {
+                at: typedTokens.access_token,
+                rt: typedTokens.refresh_token || account.rt,
+                atv: convertMillisToIST(typedTokens.expiry_date!),
+                rtv: convertMillisToIST(
+                  Date.now() +
+                    (typedTokens.refresh_token_expires_in ?? 0) * 1000
+                ),
+                q: { l: totalQuota, u: usedQuota },
+                sync: convertMillisToIST(Date.now()),
+              },
+              $addToSet: { uids: state },
+            }
+          );
+          console.log("✅ Existing account updated");
+        } else {
+          console.log("➕ Creating new account for email:", email);
+          const result = await accountsCollection.insertOne({
+            e: email,
+            at: typedTokens.access_token,
+            rt: typedTokens.refresh_token,
+            atv: convertMillisToIST(typedTokens.expiry_date!),
+            rtv: convertMillisToIST(
+              Date.now() + (typedTokens.refresh_token_expires_in ?? 0) * 1000
+            ),
+            q: { l: totalQuota, u: usedQuota },
+            sync: convertMillisToIST(Date.now()),
+            uids: [state],
+          });
+          account = await accountsCollection.findOne({
+            _id: result.insertedId,
+          });
+          console.log("✅ New account created:", result.insertedId);
+        }
+
+        (async () => {
+          if (account) {
+            console.log("🔗 Linking account to user...");
+            await usersCollection.updateOne(
+              { uid: state },
+              { $addToSet: { aids: account._id } },
+              { upsert: true }
+            );
+            console.log("✅ User document updated/created");
+          } else {
+            console.error(
+              "❌ Failed to find or create account after insert/update"
+            );
           }
-        );
-      } else {
-        // Create a new account if it doesn't exist
-        console.log("Creating new account...");
-        const result = await accountsCollection.insertOne({
-          e: email,
-          at: tokens.access_token,
-          rt: tokens.refresh_token,
-          v: tokens.expiry_date,
-          rf: null,
-          q: null,
-          sync: Date.now(),
-          userIds: [state],
-        });
-        account = { _id: result.insertedId };
-        console.log("New account created:", account);
+        })();
+      } catch (dbError) {
+        console.error("❌ Background database task error:", dbError);
       }
+    })();
 
-      // Update or create the user and link the account
-      console.log("Updating user document...");
-      await usersCollection.updateOne(
-        { uid: state },
-        {
-          $addToSet: {
-            driveAccounts: account._id, // Add the account reference to the user's document
-          },
-        },
-        { upsert: true }
-      );
-      console.log("User document updated or created");
-    }
-
-    // Start background task to handle the database update
-    handleDatabaseUpdates().catch((error) => {
-      console.error("Background task error:", error);
-    });
-
-    // Redirect to the dashboard or any desired route after successful linking
-    return NextResponse.redirect(new URL("/", req.url)); // Change this as necessary
+    console.log("🚀 Redirecting user immediately");
+    return NextResponse.redirect(new URL("/", req.url));
   } catch (error) {
-    console.error("Callback error:", error);
+    console.error("❌ Callback processing error:", error);
     return NextResponse.json({ error: "Callback error" }, { status: 500 });
   }
 }
