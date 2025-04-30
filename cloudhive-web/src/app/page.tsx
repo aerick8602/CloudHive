@@ -149,6 +149,7 @@ export default function Page() {
   return (
     <SidebarProvider>
       <AppSidebar
+        variant="floating"
         authUrl={authUrl}
         accounts={accounts}
         activeEmail={activeEmail}

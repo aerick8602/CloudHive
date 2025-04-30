@@ -76,7 +76,7 @@ export function NavUser() {
   if (!user) return null;
 
   return (
-    <div className="ml-0.5">
+    <div className="ml-1">
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
