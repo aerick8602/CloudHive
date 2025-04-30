@@ -191,7 +191,7 @@ export default function Page() {
           </Button>
         </header>
 
-        <div className="flex-1 rounded-xl bg-muted/20 m-2 md:min-h-min h-[100vh] flex flex-col overflow-hidden">
+        <div className="flex-1 rounded-xl bg-muted/20 m-2 max-h-[88.5vh] flex flex-col overflow-hidden">
           {/* Inner scrollable content wrapper */}
           <div className="flex-1 overflow-y-auto">
             {/* MAIN DATA SHOWCASE CONTAINER */}

@@ -68,7 +68,15 @@ export const PasswordResetDialog = ({
           />
         </div>
         <DialogFooter className="mt-4 w-full">
-          <div className="w-full flex justify-between">
+          <DialogClose asChild>
+            <Button
+              className="cursor-pointer w-full"
+              onClick={handlePasswordReset}
+            >
+              Continue
+            </Button>
+          </DialogClose>
+          {/* <div className="w-full flex justify-between">
             <DialogClose asChild>
               <Button className="cursor-pointer" variant="outline">
                 Cancel
@@ -79,7 +87,7 @@ export const PasswordResetDialog = ({
                 Send
               </Button>
             </DialogClose>
-          </div>
+          </div> */}
         </DialogFooter>
       </DialogContent>
     </Dialog>
