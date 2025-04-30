@@ -60,7 +60,7 @@ export function DriveCard() {
           : [...Array(27)].map((_, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-lg  bg-muted/50 hover:bg-muted/100 transition-all duration-300 cursor-pointer p-0.5 flex flex-col justify-between"
+                className="aspect-square rounded-lg  bg-muted/60 hover:bg-muted/100 transition-all duration-300 cursor-pointer p-1 flex flex-col justify-between"
               >
                 <div className="flex items-center justify-between ">
                   <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0 p-2 md:p-3">

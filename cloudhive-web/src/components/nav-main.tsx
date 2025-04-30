@@ -20,6 +20,7 @@ import {
 
 export function NavMain({
   items,
+  setActiveTab,
 }: {
   items: {
     title: string;
@@ -27,6 +28,7 @@ export function NavMain({
     icon?: LucideIcon;
     isActive?: boolean;
   }[];
+  setActiveTab: (tab: string, title: string) => void;
 }) {
   return (
     <SidebarGroup>
@@ -44,7 +46,10 @@ export function NavMain({
                 <SidebarMenuButton
                   className="cursor-pointer"
                   tooltip={item.title}
-                  onClick={() => alert(`Clicked: ${item.title}`)}
+                  onClick={() => {
+                    setActiveTab("main", item.title);
+                    console.log("Clicked:", item.title);
+                  }}
                 >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>

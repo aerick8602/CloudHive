@@ -24,6 +24,18 @@ import axiosInstance from "@/lib/axios";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import { auth } from "firebase-admin";
 
+import { DriveContent } from "@/components/content/DriveContent";
+import { RecentContent } from "@/components/content/RecentContent";
+import { StarredContent } from "@/components/content/StarredContent";
+import { TrashContent } from "@/components/content/TrashContent";
+import { StorageContent } from "@/components/content/StorageContent";
+import { ImageContent } from "@/components/content/ImageContent";
+import { VideoContent } from "@/components/content/VideoContent";
+import { AudioContent } from "@/components/content/AudioContent";
+import { DocumentContent } from "@/components/content/DocumentContent";
+import { TextContent } from "@/components/content/TextContent";
+import { ArchiveContent } from "@/components/content/ArchiveContent";
+
 export default function Page() {
   const { theme, setTheme } = useTheme();
   const [user] = useAuthState(clientAuth);
@@ -35,6 +47,8 @@ export default function Page() {
   const [currentParendId, setCurrentParentId] = useState<string | undefined>(
     undefined
   );
+  const [activeTab, setActiveTab] = useState<string>("main");
+  const [activeItemTitle, setActiveItemTitle] = useState<string>("Drive");
 
   const router = useRouter();
 
@@ -124,6 +138,11 @@ export default function Page() {
     }
   }, [activeEmail]);
 
+  const handleTabChange = (tab: string, title: string) => {
+    setActiveTab(tab);
+    setActiveItemTitle(title);
+  };
+
   if (!mounted || !isSessionValid) return null;
 
   const isDark = theme === "dark";
@@ -132,9 +151,10 @@ export default function Page() {
       <AppSidebar
         authUrl={authUrl}
         accounts={accounts}
-        setActiveEmail={setActiveEmail}
         activeEmail={activeEmail}
+        setActiveEmail={setActiveEmail}
         currentParendId={currentParendId}
+        setActiveTab={handleTabChange}
       />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -173,8 +193,27 @@ export default function Page() {
 
         <div className="flex-1 rounded-xl bg-muted/20 m-2 md:min-h-min h-[100vh] flex flex-col overflow-hidden">
           {/* Inner scrollable content wrapper */}
-          <div className="flex-1 overflow-y-auto max-h-[88vh] flex flex-col gap-6 p-1 sm:p-3 md:p-5 lg:p-8 pt-0">
-            <DriveCard />
+          <div className="flex-1 overflow-y-auto">
+            {/* MAIN DATA SHOWCASE CONTAINER */}
+            {activeTab === "main" && (
+              <>
+                {activeItemTitle === "Drive" && <DriveContent />}
+                {activeItemTitle === "Recent" && <RecentContent />}
+                {activeItemTitle === "Starred" && <StarredContent />}
+                {activeItemTitle === "Trash" && <TrashContent />}
+                {activeItemTitle === "Storage" && <StorageContent />}
+              </>
+            )}
+            {activeTab === "explorer" && (
+              <>
+                {activeItemTitle === "Images" && <ImageContent />}
+                {activeItemTitle === "Videos" && <VideoContent />}
+                {activeItemTitle === "Audio" && <AudioContent />}
+                {activeItemTitle === "Documents" && <DocumentContent />}
+                {activeItemTitle === "Text" && <TextContent />}
+                {activeItemTitle === "Archives" && <ArchiveContent />}
+              </>
+            )}
           </div>
         </div>
       </SidebarInset>

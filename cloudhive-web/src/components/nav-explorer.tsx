@@ -20,6 +20,7 @@ import {
 
 export function NavProjects({
   items,
+  setActiveTab,
 }: {
   items: {
     title: string;
@@ -32,6 +33,7 @@ export function NavProjects({
       url: string;
     }[];
   }[];
+  setActiveTab: (tab: string, title: string) => void;
 }) {
   return (
     <SidebarGroup>
@@ -60,11 +62,14 @@ export function NavProjects({
                   <SidebarMenuSub>
                     {item.items.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
-                            {subItem.icon && <subItem.icon />}
-                            <span>{subItem.title}</span>
-                          </a>
+                        <SidebarMenuSubButton
+                          onClick={() => {
+                            setActiveTab("explorer", subItem.title);
+                            console.log("Clicked sub-item:", subItem.title);
+                          }}
+                        >
+                          {subItem.icon && <subItem.icon />}
+                          <span>{subItem.title}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
@@ -74,11 +79,16 @@ export function NavProjects({
             </Collapsible>
           ) : (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </a>
+              <SidebarMenuButton
+                className="cursor-pointer"
+                tooltip={item.title}
+                onClick={() => {
+                  setActiveTab("explorer", item.title);
+                  console.log("Clicked item:", item.title);
+                }}
+              >
+                {item.icon && <item.icon />}
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )

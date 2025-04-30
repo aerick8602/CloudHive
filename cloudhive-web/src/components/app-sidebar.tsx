@@ -134,6 +134,7 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   activeEmail: string;
   setActiveEmail: (email: string) => void;
   currentParendId: string | undefined;
+  setActiveTab: (tab: string, title: string) => void;
 };
 
 export function AppSidebar({
@@ -142,6 +143,7 @@ export function AppSidebar({
   activeEmail,
   setActiveEmail,
   currentParendId,
+  setActiveTab,
   ...props
 }: AppSidebarProps) {
   // const [activeEmail, setActiveEmail] = React.useState<string | undefined>(
@@ -163,8 +165,80 @@ export function AppSidebar({
         />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects items={data.explorer} />
+        <NavMain
+          items={[
+            {
+              title: "Drive",
+              url: "#",
+              icon: HardDrive,
+              isActive: true,
+            },
+            {
+              title: "Recent",
+              url: "#",
+              icon: ClockFading,
+            },
+            {
+              title: "Starred",
+              url: "#",
+              icon: Star,
+            },
+            {
+              title: "Trash",
+              url: "#",
+              icon: Trash2,
+            },
+            {
+              title: "Storage",
+              url: "#",
+              icon: Cloudy,
+            },
+          ]}
+          setActiveTab={setActiveTab}
+        />
+        <NavProjects
+          items={[
+            {
+              title: "Media",
+              url: "#",
+              icon: Clapperboard,
+              isActive: false,
+              items: [
+                {
+                  title: "Images",
+                  icon: Images,
+                  url: "#",
+                },
+                {
+                  title: "Videos",
+                  icon: Video,
+                  url: "#",
+                },
+                {
+                  title: "Audio",
+                  icon: AudioLines,
+                  url: "#",
+                },
+                {
+                  title: "Documents",
+                  icon: FileTerminalIcon,
+                  url: "#",
+                },
+                {
+                  title: "Text",
+                  icon: LetterTextIcon,
+                  url: "#",
+                },
+                {
+                  title: "Archives",
+                  icon: Package,
+                  url: "#",
+                },
+              ],
+            },
+          ]}
+          setActiveTab={setActiveTab}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavSecondary className="mt-auto" />
