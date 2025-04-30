@@ -1,6 +1,6 @@
 import { FaFolder } from "react-icons/fa6";
 import { FileDropdown } from "./file-dropdown";
-import { Icon, Loader } from "lucide-react";
+import { Icon } from "lucide-react";
 import Image from "next/image";
 import { getIconForMimeType } from "@/utils/icons";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,10 +14,6 @@ const dummyFile = {
 };
 
 export function DriveCard() {
-  const myLoader = ({ src }: { src: string }) => {
-    return src; // Just return the URL as is
-  };
-
   const { icon: Icon, color } = getIconForMimeType(dummyFile.mimeType);
   const isLoading = false; // Toggle this based on your fetch logic
 
@@ -82,14 +78,14 @@ export function DriveCard() {
 
                 <div className="relative flex-1 rounded-md overflow-hidden bg-muted flex items-center justify-center">
                   {dummyFile.thumbnailLink ? (
-                    <Image
-                      src={dummyFile.thumbnailLink}
-                      alt="File thumbnail"
-                      width={230}
-                      height={230}
-                      className="object-cover w-full h-full"
-                      loader={myLoader}
-                    />
+                    // <Image
+                    //   src={`https://drive.google.com/thumbnail?id=1kiXBRDgDPEeHynWuE1SDUdArfXPxxwl8`}
+                    //   alt="thumbnail"
+                    //   width={230}
+                    //   height={230}
+                    //   className="object-cover w-full h-full"
+                    // />
+                    <img src="https://drive.google.com/thumbnail?id=1kiXBRDgDPEeHynWuE1SDUdArfXPxxwl8"></img>
                   ) : (
                     <Icon
                       style={{ color }}
