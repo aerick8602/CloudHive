@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     access_type: "offline", // Request offline access to get refresh token
     scope: scopes,
     state: uid, // Pass the UID as state to keep track of user
-    prompt: "consent", // Force the consent screen every time
+    // prompt: "consent", // Force the consent screen every time
   });
 
   return NextResponse.json({ authUrl });

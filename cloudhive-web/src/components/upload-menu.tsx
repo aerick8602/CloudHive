@@ -32,11 +32,11 @@ import { FileData } from "@/app/interface";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 
-interface ExtendedInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  webkitdirectory?: string;
-  directory?: string;
-}
+// interface ExtendedInputProps
+//   extends React.InputHTMLAttributes<HTMLInputElement> {
+//   webkitdirectory?: string;
+//   directory?: string;
+// }
 
 async function prepareUploadData(
   files: FileList | null,
@@ -66,9 +66,10 @@ async function prepareUploadData(
 
 interface UploadMenuProps {
   activeEmail: string | undefined;
+  currentParendId: string | undefined;
 }
 
-export function UploadMenu({ activeEmail }: UploadMenuProps) {
+export function UploadMenu({ activeEmail, currentParendId }: UploadMenuProps) {
   const { isMobile } = useSidebar();
   const [folderName, setFolderName] = React.useState("Untitled Folder");
   const [isUploading, setIsUploading] = React.useState(false);
@@ -95,7 +96,7 @@ export function UploadMenu({ activeEmail }: UploadMenuProps) {
             files: fileData,
             isFolder,
             email: activeEmail,
-            currentParentId: null,
+            currentParentId: currentParendId,
             userAppEmail: user!.email!,
           }),
         });
@@ -131,7 +132,7 @@ export function UploadMenu({ activeEmail }: UploadMenuProps) {
         body: JSON.stringify({
           email: activeEmail,
           newFolderName: folderName,
-          currentParentId: null, // Change if you're supporting nested folders
+          currentParentId: currentParendId, // Change if you're supporting nested folders
           userAppEmail: user!.email,
         }),
       });

@@ -20,10 +20,10 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({
 
   return (
     <div
-      className={`relative overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative overflow-hidden flex items-center justify-center rounded-xl ${className}`}
     >
       {!loaded && (
-        <div className="absolute flex items-center justify-center w-full h-full">
+        <div className="absolute inset-0 flex items-center justify-center">
           {fallback}
         </div>
       )}
@@ -31,7 +31,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({
         src={src}
         alt={alt}
         onLoad={() => setLoaded(true)}
-        className={`transition-opacity duration-300 w-full h-full object-cover ${
+        className={`transition-opacity duration-300 w-full h-full object-cover rounded-inherit ${
           loaded ? "opacity-100" : "opacity-0"
         } ${imgClassName}`}
       />

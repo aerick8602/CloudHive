@@ -25,66 +25,70 @@ import { clientAuth } from "@/lib/firebase/firebase-client";
 import axiosInstance from "@/lib/axios";
 
 interface AccountSwitcherProps {
+  authUrl?: string;
   activeEmail?: string;
+  accounts: { email: string }[];
   setActiveEmail: (email: string) => void;
 }
 
 export function AccountSwitcher({
+  authUrl,
+  accounts,
   activeEmail,
   setActiveEmail,
 }: AccountSwitcherProps) {
   const { isMobile } = useSidebar();
-  const [accounts, setAccounts] = React.useState<{ email: string }[]>([]);
-  const [authUrl, setAuthUrl] = React.useState<string>("");
+  // const [accounts, setAccounts] = React.useState<{ email: string }[]>([]);
+  // const [authUrl, setAuthUrl] = React.useState<string>("");
 
-  const [user] = useAuthState(clientAuth);
+  // const [user] = useAuthState(clientAuth);
 
-  // Fetch linked cloud accounts
-  const fetchAccounts = async (uid: string) => {
-    const res = await axiosInstance.get(`/accounts`, { params: { uid } });
-    return res.data.accounts as { email: string }[];
-  };
+  // // Fetch linked cloud accounts
+  // const fetchAccounts = async (uid: string) => {
+  //   const res = await axiosInstance.get(`/accounts`, { params: { uid } });
+  //   return res.data.accounts as { email: string }[];
+  // };
 
-  // Fetch auth URL to add new account
-  const fetchAuthUrl = async (uid: string) => {
-    const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
-    return res.data.authUrl as string;
-  };
+  // // Fetch auth URL to add new account
+  // const fetchAuthUrl = async (uid: string) => {
+  //   const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
+  //   return res.data.authUrl as string;
+  // };
 
   // Load accounts and set active email
-  React.useEffect(() => {
-    const load = async () => {
-      if (!user?.uid) return;
+  // React.useEffect(() => {
+  //   const load = async () => {
+  //     if (!user?.uid) return;
 
-      try {
-        const [accountsData, authUrlData] = await Promise.all([
-          fetchAccounts(user.uid),
-          fetchAuthUrl(user.uid),
-        ]);
+  //     try {
+  //       const [accountsData, authUrlData] = await Promise.all([
+  //         fetchAccounts(user.uid),
+  //         fetchAuthUrl(user.uid),
+  //       ]);
 
-        setAuthUrl(authUrlData);
-        setAccounts(accountsData);
+  //       setAuthUrl(authUrlData);
+  //       setAccounts(accountsData);
 
-        const storedEmail = localStorage.getItem("activeEmail");
-        if (storedEmail && accountsData.some((a) => a.email === storedEmail)) {
-          setActiveEmail(storedEmail);
-        } else if (accountsData.length > 0) {
-          setActiveEmail(accountsData[0].email);
-        }
-      } catch (err) {
-        console.error("Failed to load accounts:", err);
-      }
-    };
+  //       const storedEmail = localStorage.getItem("activeEmail");
+  //       if (storedEmail && accountsData.some((a) => a.email === storedEmail)) {
+  //         setActiveEmail(storedEmail);
+  //       } else if (accountsData.length > 0) {
+  //         setActiveEmail(accountsData[0].email);
+  //       }
+  //     } catch (err) {
+  //       console.error("Failed to load accounts:", err);
+  //     }
+  //   };
 
-    load();
-  }, [user]);
+  //   load();
+  // }, [user]);
 
   // Save active email to localStorage
-  React.useEffect(() => {
-    if (activeEmail) {
-      localStorage.setItem("activeEmail", activeEmail);
-    }
-  }, [activeEmail]);
+  // React.useEffect(() => {
+  //   if (activeEmail) {
+  //     localStorage.setItem("activeEmail", activeEmail);
+  //   }
+  // }, [activeEmail]);
 
   // Redirect to add account
   const addAccount = () => {

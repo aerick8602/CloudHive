@@ -1,13 +1,6 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import { SearchForm } from "@/components/search-form";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -22,45 +15,62 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
-import { IoEllipsisVerticalSharp } from "react-icons/io5";
-import { FaFileCsv, FaFolder, FaImage } from "react-icons/fa6";
-import { getIconForMimeType } from "../utils/icons";
-import { FileDropdown } from "@/components/file-dropdown";
 import { DriveCard } from "@/components/drive-card";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 import { useRouter } from "next/navigation";
+import axiosInstance from "@/lib/axios";
+import { clientAuth } from "@/lib/firebase/firebase-client";
+import { auth } from "firebase-admin";
 
 export default function Page() {
   const { theme, setTheme } = useTheme();
+  const [user] = useAuthState(clientAuth);
   const [mounted, setMounted] = useState(false);
   const [isSessionValid, setIsSessionValid] = useState(true);
+  const [accounts, setAccounts] = useState<{ email: string }[]>([]);
+  const [authUrl, setAuthUrl] = useState<string>("");
+  const [activeEmail, setActiveEmail] = useState<string>("");
+  const [currentParendId, setCurrentParentId] = useState<string | undefined>(
+    undefined
+  );
+
   const router = useRouter();
 
   const verifySession = async () => {
-    const response = await fetch("/api/auth/verify", { method: "GET" });
-
-    if (!response.ok) {
+    try {
+      const response = await axiosInstance.get("/auth/verify");
+      const { success } = response.data;
+      setIsSessionValid(success);
+      return success;
+    } catch (error) {
+      console.error("Session verification failed:", error);
       setIsSessionValid(false);
       return false;
     }
-
-    const data = await response.json();
-    setIsSessionValid(data.success);
-    return data.success;
   };
 
   const logoutUser = async () => {
-    const response = await fetch("/api/auth/logout", { method: "POST" });
-
-    if (response.ok) {
-      router.push("/auth/sign-in"); // Redirect to sign-in page after logging out
-    } else {
-      console.error("Error during logout");
-      // Handle logout error, maybe show a toast or log out anyway
+    try {
+      await axiosInstance.post("/auth/logout");
+      router.push("/auth/sign-in");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Optionally redirect anyway or show a toast
     }
+  };
+
+  // Fetch linked cloud accounts
+  const fetchAccounts = async (uid: string) => {
+    const res = await axiosInstance.get(`/accounts`, { params: { uid } });
+    return res.data.accounts as { email: string }[];
+  };
+
+  // Fetch auth URL to add new account
+  const fetchAuthUrl = async (uid: string) => {
+    const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
+    return res.data.authUrl as string;
   };
 
   useEffect(() => {
@@ -80,12 +90,52 @@ export default function Page() {
     if (!mounted) return;
   }, [mounted]);
 
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const [accountsData, authUrlData] = await Promise.all([
+          fetchAccounts(user.uid),
+          fetchAuthUrl(user.uid),
+        ]);
+
+        setAuthUrl(authUrlData);
+        setAccounts(accountsData);
+
+        const storedEmail = localStorage.getItem("activeEmail");
+        if (storedEmail && accountsData.some((a) => a.email === storedEmail)) {
+          setActiveEmail(storedEmail);
+        } else if (accountsData.length > 0) {
+          setActiveEmail(accountsData[0].email);
+        }
+      } catch (err) {
+        console.error("Failed to load accounts:", err);
+      }
+    };
+
+    load();
+  }, [user]);
+
+  // Save active email to localStorage
+  useEffect(() => {
+    if (activeEmail) {
+      localStorage.setItem("activeEmail", activeEmail);
+    }
+  }, [activeEmail]);
+
   if (!mounted || !isSessionValid) return null;
 
   const isDark = theme === "dark";
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar
+        authUrl={authUrl}
+        accounts={accounts}
+        setActiveEmail={setActiveEmail}
+        activeEmail={activeEmail}
+        currentParendId={currentParendId}
+      />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">

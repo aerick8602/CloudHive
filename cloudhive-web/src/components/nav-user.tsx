@@ -29,8 +29,8 @@ import {
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { clientAuth } from "@/lib/firebase/firebase-client";
+import axiosInstance from "@/lib/axios";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -42,14 +42,21 @@ export function NavUser() {
     try {
       const success = await signOut(); // Your Firebase sign-out function
 
-      if (success) {
-        const response = await fetch("/api/auth/logout", { method: "POST" });
+      // if (success) {
+      //   const response = await fetch("/api/auth/logout", { method: "POST" });
 
-        if (response.ok) {
-          router.push("/auth/sign-in");
-        } else {
-          console.error("Failed to clear session cookie on backend");
-        }
+      //   if (response.ok) {
+      //     router.push("/auth/sign-in");
+      //   } else {
+      //     console.error("Failed to clear session cookie on backend");
+      //   }
+      // } else {
+      //   console.error("Firebase sign-out failed");
+      // }
+
+      if (success) {
+        await axiosInstance.post("/auth/logout");
+        router.push("/auth/sign-in");
       } else {
         console.error("Firebase sign-out failed");
       }

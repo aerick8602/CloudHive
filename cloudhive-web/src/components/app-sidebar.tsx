@@ -53,17 +53,6 @@ import { NavSecondary } from "./nav-secondary";
 
 // This is sample data.
 const data = {
-  account: [
-    {
-      email: "katiyara089@gmail.com",
-    },
-    {
-      email: "maverick8602@gmail.com",
-    },
-    {
-      email: "clashofclan080602@gmail.com",
-    },
-  ],
   navMain: [
     {
       title: "Drive",
@@ -139,32 +128,39 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [activeEmail, setActiveEmail] = React.useState<string | undefined>(
-    undefined
-  );
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  authUrl: string;
+  accounts: { email: string }[];
+  activeEmail: string;
+  setActiveEmail: (email: string) => void;
+  currentParendId: string | undefined;
+};
+
+export function AppSidebar({
+  authUrl,
+  accounts,
+  activeEmail,
+  setActiveEmail,
+  currentParendId,
+  ...props
+}: AppSidebarProps) {
+  // const [activeEmail, setActiveEmail] = React.useState<string | undefined>(
+  //   undefined
+  // );
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <AccountSwitcher
+          accounts={accounts}
+          authUrl={authUrl}
           activeEmail={activeEmail}
           setActiveEmail={setActiveEmail}
         />
-        <UploadMenu activeEmail={activeEmail} />
-        {/* <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-0 -translate-x-1"
-            >
-              <a className="pointer-events-none hover:bg-transparent hover:text-inherit ">
-                <IconCloudCode className="!size-7 flex items-center justify-center" />
-                <span className="text-xl font-semibold">CloudHive</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu> */}
+        <UploadMenu
+          activeEmail={activeEmail}
+          currentParendId={currentParendId}
+        />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
