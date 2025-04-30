@@ -76,7 +76,7 @@ export function DriveCard() {
                 </div>
 
                 <Thumbnail
-                  src="https://drive.google.com/thumbnail?id=1kiXBRDgDPEeHynWuE1SDUdArfXPxxwl8"
+                  src="https://drive.google.com/thumbnail?id=1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC"
                   fallback={
                     <Icon
                       style={{ color }}
