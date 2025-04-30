@@ -4,13 +4,12 @@ import { Icon } from "lucide-react";
 import Image from "next/image";
 import { getIconForMimeType } from "@/utils/icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Thumbnail } from "./thumbnail";
 
 const dummyFile = {
   id: "1GEdkhlbg8FnW-MsBv6McRuGalT3DRFl3",
   fileName: "AYUSH KATIYAR RESUME.pdf",
   mimeType: "video/x-flv",
-  thumbnailLink:
-    "https://lh3.googleusercontent.com/drive-storage/AJQWtBPF_UIyWJE3taYgFmwJ8WMuUosvLbmVq_GNQsM03P9KQaunwGau6bCTBGh-LaBJHKV0X9LT7Hvpz3Th6r7UkTMBDaaPDd--HsDeCnr0v_YIvg=s220",
 };
 
 export function DriveCard() {
@@ -76,23 +75,16 @@ export function DriveCard() {
                   </div>
                 </div>
 
-                <div className="relative flex-1 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                  {dummyFile.thumbnailLink ? (
-                    // <Image
-                    //   src={`https://drive.google.com/thumbnail?id=1kiXBRDgDPEeHynWuE1SDUdArfXPxxwl8`}
-                    //   alt="thumbnail"
-                    //   width={230}
-                    //   height={230}
-                    //   className="object-cover w-full h-full"
-                    // />
-                    <img src="https://drive.google.com/thumbnail?id=1kiXBRDgDPEeHynWuE1SDUdArfXPxxwl8"></img>
-                  ) : (
+                <Thumbnail
+                  src="https://drive.google.com/thumbnail?id=1kiXBRDgDPEeHynWuE1SDUdArfXPxxwl8"
+                  fallback={
                     <Icon
                       style={{ color }}
                       className="size-15 md:size-18 xl:size-21"
                     />
-                  )}
-                </div>
+                  }
+                  className="flex-1 rounded-md bg-muted"
+                />
               </div>
             ))}
       </div>
