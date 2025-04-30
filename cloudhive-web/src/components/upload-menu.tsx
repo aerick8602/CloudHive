@@ -29,6 +29,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FileData } from "@/app/interface";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { clientAuth } from "@/lib/firebase/firebase-client";
 
 interface ExtendedInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -73,6 +75,7 @@ export function UploadMenu({ activeEmail }: UploadMenuProps) {
   const [files, setFiles] = React.useState<FileList | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const folderInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [user] = useAuthState(clientAuth);
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -93,6 +96,7 @@ export function UploadMenu({ activeEmail }: UploadMenuProps) {
             isFolder,
             email: activeEmail,
             currentParentId: null,
+            userAppEmail: user!.email!,
           }),
         });
 
@@ -127,7 +131,8 @@ export function UploadMenu({ activeEmail }: UploadMenuProps) {
         body: JSON.stringify({
           email: activeEmail,
           newFolderName: folderName,
-          currentParentId: "1CekjgADqdWGMayYat9SjKMaWlVQWlxlP", // Change if you're supporting nested folders
+          currentParentId: null, // Change if you're supporting nested folders
+          userAppEmail: user!.email,
         }),
       });
       if (res.ok) {

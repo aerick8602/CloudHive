@@ -9,40 +9,49 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function POST(request: Request) {
   try {
-    const { files, email, isFolder, currentParentId } = await request.json();
+    const { files, email, isFolder, currentParentId, userAppEmail } =
+      await request.json();
+
+    if (!files || !email || !isFolder === undefined || !userAppEmail) {
+      return NextResponse.json(
+        { message: "Missing required fields." },
+        { status: 400 }
+      );
+    }
     const drive = await createOAuthClient(email);
 
-    const { db } = await connectToDatabase();
-    const hiveCollection = db.collection("hive");
+    // const { db } = await connectToDatabase();
+    // const hiveCollection = db.collection("hive");
 
     const folderIds = new Map<string, string>();
-    const uploadedMetadata: Hive[] = [];
+    // const uploadedMetadata: Hive[] = [];
 
     // Create or find the top-level CloudHive folder
-    const getOrCreateCloudHiveRoot = async (): Promise<string> => {
-      const res = await drive.files.list({
-        q: `name = 'CloudHive' and mimeType = 'application/vnd.google-apps.folder' and 'root' in parents and trashed = false`,
-        fields: "files(id, name)",
-      });
+    // const getOrCreateCloudHiveRoot = async (): Promise<string> => {
+    //   const res = await drive.files.list({
+    //     q: `name = 'CloudHive' and mimeType = 'application/vnd.google-apps.folder' and 'root' in parents and trashed = false`,
+    //     fields: "files(id, name)",
+    //   });
 
-      if (res.data.files && res.data.files.length > 0) {
-        return res.data.files[0].id!;
-      }
+    //   if (res.data.files && res.data.files.length > 0) {
+    //     return res.data.files[0].id!;
+    //   }
 
-      const createRes = await drive.files.create({
-        requestBody: {
-          name: "CloudHive",
-          mimeType: "application/vnd.google-apps.folder",
-          parents: ["root"],
-        },
-        fields: "id",
-      });
+    //   const createRes = await drive.files.create({
+    //     requestBody: {
+    //       name: "CloudHive",
+    //       mimeType: "application/vnd.google-apps.folder",
+    //       parents: ["root"],
+    //     },
+    //     fields: "id",
+    //   });
 
-      return createRes.data.id!;
-    };
+    //   return createRes.data.id!;
+    // };
 
-    const cloudHiveRootId = await getOrCreateCloudHiveRoot();
-    folderIds.set("", cloudHiveRootId);
+    // const cloudHiveRootId = await getOrCreateCloudHiveRoot();
+    // folderIds.set("", cloudHiveRootId);
+    folderIds.set("", "root");
 
     // Recursive folder creation utility
     const getOrCreateFolder = async (path: string): Promise<string> => {
@@ -53,40 +62,53 @@ export async function POST(request: Request) {
       const folderName = parts[parts.length - 1];
       const parentId = await getOrCreateFolder(parentPath);
 
+      // 1. Create the folder
       const res = await drive.files.create({
         requestBody: {
           name: folderName,
           mimeType: "application/vnd.google-apps.folder",
           parents: [parentId],
         },
-        fields:
-          "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed, permissions",
+        fields: "id",
+        // "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed, permissions",
       });
 
       const folderId = res.data.id!;
       folderIds.set(path, folderId);
 
-      // Extract permissions from the folder metadata
-      const permissions =
-        res.data.permissions?.map((permission) => ({
-          pid: permission.id!,
-          pt: permission.type!,
-          pe: permission.emailAddress,
-          pr: permission.role!,
-        })) ?? [];
-
-      uploadedMetadata.push({
-        id: folderId,
-        e: email,
-        n: res.data.name!,
-        m: res.data.mimeType!,
-        p: res.data.parents!,
-        s: res.data.starred!,
-        t: res.data.trashed!,
-        ct: res.data.createdTime!,
-        mt: res.data.modifiedTime!,
-        permissions,
+      // 2. Share it with your app-signed-in user
+      // await
+      drive.permissions.create({
+        fileId: folderId,
+        requestBody: {
+          type: "user",
+          role: "writer", // or "reader"
+          emailAddress: userAppEmail,
+        },
+        sendNotificationEmail: false,
       });
+
+      // Extract permissions from the folder metadata
+      // const permissions =
+      //   res.data.permissions?.map((permission) => ({
+      //     pid: permission.id!,
+      //     pt: permission.type!,
+      //     pe: permission.emailAddress,
+      //     pr: permission.role!,
+      //   })) ?? [];
+
+      // uploadedMetadata.push({
+      //   id: folderId,
+      //   e: email,
+      //   n: res.data.name!,
+      //   m: res.data.mimeType!,
+      //   p: res.data.parents!,
+      //   s: res.data.starred!,
+      //   t: res.data.trashed!,
+      //   ct: res.data.createdTime!,
+      //   mt: res.data.modifiedTime!,
+      //   permissions,
+      // });
 
       return folderId;
     };
@@ -121,13 +143,23 @@ export async function POST(request: Request) {
       });
 
       const fileId = initialRes.data.id!;
+      // await
+      drive.permissions.create({
+        fileId: fileId,
+        requestBody: {
+          type: "user",
+          role: "writer",
+          emailAddress: userAppEmail,
+        },
+        sendNotificationEmail: false,
+      });
       let meta: drive_v3.Schema$File | undefined;
 
       for (let attempt = 0; attempt < 5; attempt++) {
         const res = await drive.files.get({
           fileId,
-          fields:
-            "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed, thumbnailLink, webViewLink, webContentLink, quotaBytesUsed, permissions",
+          fields: "id",
+          // "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed, thumbnailLink, webViewLink, webContentLink, quotaBytesUsed, permissions",
         });
         meta = res.data;
         if (meta.thumbnailLink || attempt === 4) break;
@@ -137,35 +169,35 @@ export async function POST(request: Request) {
       if (!meta) throw new Error("Failed to fetch metadata for uploaded file");
 
       // Extract permissions from the file metadata
-      const permissions =
-        meta.permissions?.map((permission) => ({
-          pid: permission.id!,
-          pt: permission.type!,
-          pe: permission.emailAddress,
-          pr: permission.role!,
-        })) ?? [];
+      // const permissions =
+      //   meta.permissions?.map((permission) => ({
+      //     pid: permission.id!,
+      //     pt: permission.type!,
+      //     pe: permission.emailAddress,
+      //     pr: permission.role!,
+      //   })) ?? [];
 
-      uploadedMetadata.push({
-        id: fileId,
-        e: email,
-        n: meta.name!,
-        m: meta.mimeType!,
-        p: meta.parents!,
-        s: meta.starred!,
-        t: meta.trashed!,
-        ct: meta.createdTime!,
-        mt: meta.modifiedTime!,
-        tl: meta.thumbnailLink ?? undefined,
-        wvl: meta.webViewLink ?? undefined,
-        wcl: meta.webContentLink ?? undefined,
-        q: meta.quotaBytesUsed ? Number(meta.quotaBytesUsed) : undefined,
-        permissions,
-      });
+      // uploadedMetadata.push({
+      //   id: fileId,
+      //   e: email,
+      //   n: meta.name!,
+      //   m: meta.mimeType!,
+      //   p: meta.parents!,
+      //   s: meta.starred!,
+      //   t: meta.trashed!,
+      //   ct: meta.createdTime!,
+      //   mt: meta.modifiedTime!,
+      //   tl: meta.thumbnailLink ?? undefined,
+      //   wvl: meta.webViewLink ?? undefined,
+      //   wcl: meta.webContentLink ?? undefined,
+      //   q: meta.quotaBytesUsed ? Number(meta.quotaBytesUsed) : undefined,
+      //   permissions,
+      // });
     }
 
-    if (uploadedMetadata.length > 0) {
-      await hiveCollection.insertMany(uploadedMetadata);
-    }
+    // if (uploadedMetadata.length > 0) {
+    //   await hiveCollection.insertMany(uploadedMetadata);
+    // }
 
     return NextResponse.json({ message: "Upload and metadata saved!" });
   } catch (error) {
