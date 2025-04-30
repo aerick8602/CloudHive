@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "./thumbnail";
 
 const dummyFile = {
-  id: "1GEdkhlbg8FnW-MsBv6McRuGalT3DRFl3",
+  id: "1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC",
   fileName: "AYUSH KATIYAR RESUME.pdf",
   mimeType: "video/x-flv",
 };
@@ -22,7 +22,7 @@ export function DriveCard() {
   return (
     <>
       <div className="font-semibold">Folder</div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
         {isLoading
           ? [...Array(folderSkeletonCount)].map((_, i) => (
               <Skeleton
@@ -49,7 +49,7 @@ export function DriveCard() {
       </div>
 
       <div className="font-semibold">Files</div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
         {isLoading
           ? [...Array(fileSkeletonCount)].map((_, i) => (
               <Skeleton
@@ -60,10 +60,10 @@ export function DriveCard() {
           : [...Array(27)].map((_, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-md sm:rounded-lg lg:rounded-xl bg-muted/50 hover:bg-muted/100 transition-all duration-300 cursor-pointer p-2 flex flex-col justify-between"
+                className="aspect-square rounded-lg  bg-muted/50 hover:bg-muted/100 transition-all duration-300 cursor-pointer p-0 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-2 pl-1 md:p-1">
-                  <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0">
+                <div className="flex items-center justify-between ">
+                  <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0 p-2 md:p-3">
                     <Icon
                       style={{ color }}
                       className="text-md sm:text-base md:text-lg"
@@ -80,10 +80,10 @@ export function DriveCard() {
                   fallback={
                     <Icon
                       style={{ color }}
-                      className="size-15 md:size-18 xl:size-21"
+                      className="w-2/3 h-2/3 sm:w-3/4 sm:h-3/4 md:w-4/5 md:h-4/5 max-w-[50%] max-h-[50%]"
                     />
                   }
-                  className="flex-1 rounded-md bg-muted"
+                  className="flex-1 rounded-b-lg bg-muted"
                 />
               </div>
             ))}
