@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 // Firebase session cookie name
-const SESSION_COOKIE_NAME = "__SESSION";
+const SESSION_COOKIE_NAME = "CLOUDHIVE_SESSION";
 
 // Session Verification API handler
 export async function GET() {
