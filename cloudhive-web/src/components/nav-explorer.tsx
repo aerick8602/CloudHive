@@ -17,7 +17,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { TabType, TitleType } from "@/utils/content";
 
 export function NavProjects({
   items,
@@ -34,7 +33,7 @@ export function NavProjects({
       url: string;
     }[];
   }[];
-  setActiveTab: (tab: TabType, title: TitleType<typeof tab>) => void;
+  setActiveTab: (tab: string, title: string) => void;
 }) {
   return (
     <SidebarGroup>
