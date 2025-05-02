@@ -44,7 +44,6 @@ export function AccountSwitcher({
     const res = await axiosInstance.get(`/accounts`, { params: { uid } });
     return res.data.accounts as { email: string }[];
   };
-
   // Fetch auth URL to add new account
   const fetchAuthUrl = async (uid: string) => {
     const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
