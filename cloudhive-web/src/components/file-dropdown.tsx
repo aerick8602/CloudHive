@@ -28,18 +28,13 @@ import {
 
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { DialogClose } from "@radix-ui/react-dialog";
 import { Label } from "@radix-ui/react-label";
 import { CopyWithTick } from "./copy-tick";
 import { Separator } from "./ui/separator";
@@ -147,55 +142,28 @@ export function FileDropdown() {
           />
           <DialogFooter className="mt-4 w-full ">
             <div className="w-full flex justify-between">
-              <DialogClose asChild>
-                <Button variant="outline" className="cursor-pointer">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <DialogClose asChild>
-                <Button className="cursor-pointer">Save</Button>
-              </DialogClose>
+              <Button
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => setShowRenameDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="cursor-pointer"
+                onClick={() => {
+                  // Handle rename action (e.g., save new name)
+                  setShowRenameDialog(false);
+                }}
+              >
+                Save
+              </Button>
             </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Share Dialog */}
-      {/* <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Share link</DialogTitle>
-            <DialogDescription>
-              Anyone who has this link will be able to view this.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex items-center space-x-2">
-            <div className="grid flex-1 gap-2">
-              <Label htmlFor="link" className="sr-only">
-                Link
-              </Label>
-              <Input
-                id="link"
-                defaultValue="https://ui.shadcn.com/docs/installation"
-                readOnly
-              />
-            </div>
-            <Button type="submit" size="sm" className="px-3">
-              <span className="sr-only">Copy</span>
-              <CopyWithTick value="" />
-            </Button>
-          </div>
-          <Separator className="my-4" />
-          <div>People with access</div>
-          <DialogFooter className="sm:justify-start">
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
       <ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
@@ -206,9 +174,7 @@ export function FileDropdown() {
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Detail</SheetTitle>
-            {/* <SheetDescription>
-              Make changes to your profile here. Click save when you're done.
-            </SheetDescription> */}
+            {/* You can add further description or information here */}
           </SheetHeader>
         </SheetContent>
       </Sheet>
