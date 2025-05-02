@@ -130,7 +130,7 @@ const data = {
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   authUrl: string;
-  accounts: { email: string }[];
+  accounts: { email: string; _id: string }[];
   activeEmail: string;
   setActiveEmail: (email: string) => void;
   currentParendId: string | undefined;

@@ -41,7 +41,7 @@ export default function Page() {
     data: accounts = [],
     error,
     isLoading,
-  } = useSWR(user?.uid ? `/accounts?uid=${user.uid}` : null, fetchAccounts);
+  } = useSWR(user?.uid ? user.uid : null, fetchAccounts);
 
   const { data: sessionValid, error: sessionError } = useSWR(
     "/auth/verify",
@@ -49,7 +49,7 @@ export default function Page() {
   );
 
   const { data: authUrl, error: authUrlError } = useSWR(
-    user?.uid ? `/cloud/google?uid=${user.uid}` : null,
+    user?.uid ? user.uid : null,
     fetchAuthUrl
   );
 

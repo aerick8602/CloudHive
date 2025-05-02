@@ -27,7 +27,7 @@ import axiosInstance from "@/lib/axios";
 interface AccountSwitcherProps {
   authUrl?: string;
   activeEmail?: string;
-  accounts: { email: string }[];
+  accounts: { email: string; _id: string }[];
   setActiveEmail: (email: string) => void;
 }
 

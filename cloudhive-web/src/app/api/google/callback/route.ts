@@ -14,21 +14,21 @@ interface GoogleTokens {
 }
 
 export async function GET(req: NextRequest) {
-  console.log("⚡ [Callback] Starting GET handler");
+  console.log("[Callback] Starting GET handler");
 
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
 
   if (!code || !state) {
-    console.error("❌ Missing code or state");
+    console.error("Missing code or state");
     return NextResponse.json(
       { error: "Missing code or state" },
       { status: 400 }
     );
   }
 
-  console.log("✅ Authorization code and state received:", { code, state });
+  console.log("Authorization code and state received:", { code, state });
 
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID!,
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
-    console.log("✅ Tokens received :", tokens);
+    console.log("Tokens received:", tokens);
 
     const typedTokens = tokens as GoogleTokens;
     oauth2Client.setCredentials(typedTokens);
@@ -48,25 +48,24 @@ export async function GET(req: NextRequest) {
     const email = userinfo.email;
 
     if (!email || typeof email !== "string") {
-      console.error("❌ Unable to fetch valid email");
+      console.error("Unable to fetch valid email");
       return NextResponse.json(
         { error: "Unable to fetch email" },
         { status: 400 }
       );
     }
 
-    console.log("✅ User info fetched:", { email });
+    console.log("User info fetched:", { email });
 
-    // 🚀 FIRE-AND-FORGET background DB task
-    // using await because ux is not ready yet
+    // Background DB task
     await (async () => {
-      console.log("🛠️ [Background] Starting database update task");
+      console.log("[Background] Starting database update task");
       try {
         const { db } = await connectToDatabase();
         const accountsCollection = db.collection("accounts");
         const usersCollection = db.collection("users");
 
-        console.log("✅ Database connected");
+        console.log("Database connected");
 
         const drive = google.drive({ version: "v3", auth: oauth2Client });
         const about = await drive.about.get({ fields: "storageQuota" });
@@ -75,12 +74,12 @@ export async function GET(req: NextRequest) {
         const totalQuota = storageQuota?.limit ? Number(storageQuota.limit) : 0;
         const usedQuota = storageQuota?.usage ? Number(storageQuota.usage) : 0;
 
-        console.log("✅ Storage quota fetched:", { totalQuota, usedQuota });
+        console.log("Storage quota fetched:", { totalQuota, usedQuota });
 
         let account = await accountsCollection.findOne({ e: email });
 
         if (account) {
-          console.log("🔄 Updating existing account:", account._id);
+          console.log("Updating existing account:", account._id);
           await accountsCollection.updateOne(
             { _id: account._id },
             {
@@ -98,9 +97,9 @@ export async function GET(req: NextRequest) {
               $addToSet: { uids: state },
             }
           );
-          console.log("✅ Existing account updated");
+          console.log("Existing account updated");
         } else {
-          console.log("➕ Creating new account for email:", email);
+          console.log("Creating new account for email:", email);
           const result = await accountsCollection.insertOne({
             e: email,
             at: typedTokens.access_token,
@@ -116,33 +115,33 @@ export async function GET(req: NextRequest) {
           account = await accountsCollection.findOne({
             _id: result.insertedId,
           });
-          console.log("✅ New account created:", result.insertedId);
+          console.log("New account created:", result.insertedId);
         }
 
         (async () => {
           if (account) {
-            console.log("🔗 Linking account to user...");
+            console.log("Linking account to user...");
             await usersCollection.updateOne(
               { uid: state },
               { $addToSet: { aids: account._id } },
               { upsert: true }
             );
-            console.log("✅ User document updated/created");
+            console.log("User document updated/created");
           } else {
             console.error(
-              "❌ Failed to find or create account after insert/update"
+              "Failed to find or create account after insert/update"
             );
           }
         })();
       } catch (dbError) {
-        console.error("❌ Background database task error:", dbError);
+        console.error("Background database task error:", dbError);
       }
     })();
 
-    console.log("🚀 Redirecting user immediately");
+    console.log("Redirecting user immediately");
     return NextResponse.redirect(new URL("/", req.url));
   } catch (error) {
-    console.error("❌ Callback processing error:", error);
+    console.error("Callback processing error:", error);
     return NextResponse.json({ error: "Callback error" }, { status: 500 });
   }
 }
