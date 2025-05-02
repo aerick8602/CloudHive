@@ -37,20 +37,27 @@ export default function Page() {
 
   const router = useRouter();
 
-  const {
-    data: accounts = [],
-    error,
-    isLoading,
-  } = useSWR(user?.uid ? user.uid : null, fetchAccounts);
+  const [userUID, setUserUID] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setUserUID(user.uid);
+    }
+  }, [user]);
+
+  const { data: accounts = [], error: accountsError } = useSWR(
+    userUID ? userUID : null, // Trigger only after UID is available
+    fetchAccounts
+  );
+
+  const { data: authUrl = "", error: authUrlError } = useSWR(
+    userUID ? `/google/oauth/${userUID}` : null, // Trigger after UID is available
+    fetchAuthUrl
+  );
 
   const { data: sessionValid, error: sessionError } = useSWR(
     "/auth/verify",
     fetchSession
-  );
-
-  const { data: authUrl, error: authUrlError } = useSWR(
-    user?.uid ? user.uid : null,
-    fetchAuthUrl
   );
 
   useEffect(() => {
@@ -68,7 +75,7 @@ export default function Page() {
   useEffect(() => {
     const savedEmail = localStorage.getItem("activeEmail");
     if (savedEmail) {
-      setActiveEmail(savedEmail); // Set activeEmail from localStorage if it exists
+      setActiveEmail(savedEmail);
     }
   }, []);
 

@@ -17,7 +17,7 @@ export async function GET(
   // Check if the OAuth URL is cached
   const cachedAuthUrl = await redis.get(redisKey);
   if (cachedAuthUrl) {
-    console.log("✅ Serving authUrl from Redis cache");
+    console.log("Serving authUrl from Redis cache");
     return NextResponse.json({ authUrl: cachedAuthUrl });
   }
 
@@ -42,6 +42,8 @@ export async function GET(
 
   // Cache in Redis for 24 hours
   await redis.set(redisKey, authUrl, "EX", 3600 * 24);
+
+  console.log("Auth URL generated and cached");
 
   return NextResponse.json({ authUrl });
 }
