@@ -72,7 +72,7 @@ export default function Page() {
             />
             <SearchForm className="w-full sm:ml-auto sm:w-auto" />
           </div>
-          <div className="px-5">
+          <div className="px-3">
             <ModeToggle />
           </div>
         </header>
