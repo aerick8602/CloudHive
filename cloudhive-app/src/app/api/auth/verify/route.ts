@@ -12,10 +12,7 @@ export async function GET() {
     const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME);
 
     if (!sessionCookie) {
-      return NextResponse.json(
-        { success: false, error: "No session cookie found." },
-        { status: 401 }
-      );
+      return NextResponse.json(false, { status: 401 });
     }
 
     // Verify the session cookie using Firebase Admin SDK
@@ -25,7 +22,7 @@ export async function GET() {
     ); // true ensures it checks for expiration
 
     // Return the decoded token (user information)
-    return NextResponse.json({ success: true, uid: decodedToken.uid });
+    return NextResponse.json(true);
   } catch (error) {
     console.error("Session verification error:", error);
     return NextResponse.json(

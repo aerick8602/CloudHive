@@ -10,10 +10,15 @@ import {
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { contentMap } from "@/utils/content";
+import { fetchSession } from "@/utils/apis/fetch";
+import useSWR from "swr";
+import { logoutUser } from "@/utils/apis/post";
 
 export default function Page() {
   const [currentActiveAccount, setCurrentActiveAccount] = useState<string>("");
+  const [currentParentId, setCurrentParentId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("Drive");
+
   useEffect(() => {
     const savedEmail = localStorage.getItem("currentActiveAccount");
     if (savedEmail) {
@@ -27,7 +32,26 @@ export default function Page() {
     }
   }, [currentActiveAccount]);
 
-  const [currentParentId, setCurrentParentId] = useState<string>("");
+  const { data: sessionValid, error: sessionError } = useSWR(
+    "api/auth/verify",
+    fetchSession
+  );
+
+  useEffect(() => {
+    const checkSession = async () => {
+      // console.log(sessionValid);
+      if (!sessionValid) {
+        await logoutUser("api/auth/logout"); // Log out the user if session is invalid
+      }
+    };
+
+    checkSession();
+  }, [sessionValid]);
+
+  if (sessionError) {
+    throw new Error("Session Error");
+  }
+
   const Component = contentMap[activeTab];
   return (
     <SidebarProvider>

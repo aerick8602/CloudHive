@@ -43,18 +43,6 @@ export function AccountSwitcher({
 
   // const [user] = useAuthState(clientAuth);
 
-<<<<<<< HEAD
-  // Fetch linked cloud accounts
-  const fetchAccounts = async (uid: string) => {
-    const res = await axiosInstance.get(`/accounts`, { params: { uid } });
-    return res.data.accounts as { email: string }[];
-  };
-  // Fetch auth URL to add new account
-  const fetchAuthUrl = async (uid: string) => {
-    const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
-    return res.data.authUrl as string;
-  };
-=======
   // // Fetch linked cloud accounts
   // const fetchAccounts = async (uid: string) => {
   //   const res = await axiosInstance.get(`/accounts`, { params: { uid } });
@@ -66,7 +54,6 @@ export function AccountSwitcher({
   //   const res = await axiosInstance.get(`/cloud/google`, { params: { uid } });
   //   return res.data.authUrl as string;
   // };
->>>>>>> main
 
   // Load accounts and set active email
   // React.useEffect(() => {
