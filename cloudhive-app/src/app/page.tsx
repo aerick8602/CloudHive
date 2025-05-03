@@ -39,8 +39,8 @@ export default function Page() {
 
   useEffect(() => {
     const checkSession = async () => {
-      // console.log(sessionValid);
-      if (!sessionValid) {
+      console.log(sessionValid);
+      if (sessionValid == false) {
         await logoutUser("api/auth/logout"); // Log out the user if session is invalid
       }
     };
