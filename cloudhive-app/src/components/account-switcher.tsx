@@ -103,6 +103,7 @@ export function AccountSwitcher({
           <DropdownMenuContent
             className="min-w-56 rounded-lg"
             align="start"
+            // align={isMobile ? "end" : "start"} // aligns right on mobile
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
