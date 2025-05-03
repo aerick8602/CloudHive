@@ -7,11 +7,19 @@ import { Button } from "@/components/ui/button";
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  // Ensure rendering only happens after hydration
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isDark = theme === "dark";
+
+  if (!mounted) return null; // Avoid rendering on the server
 
   return (
     <Button
-      className="cursor-pointer"
       variant="outline"
       size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}

@@ -9,24 +9,24 @@ import { AudioContent } from "@/components/content/AudioContent";
 import { DocumentContent } from "@/components/content/DocumentContent";
 import { TextContent } from "@/components/content/TextContent";
 import { ArchiveContent } from "@/components/content/ArchiveContent";
+import { ProfileContent } from "@/components/content/ProfileContent";
+import { AccountsContent } from "@/components/content/AccountsContent";
 
-// Explicitly define the type for the components
-const contentArray: Record<string, Record<string, React.ComponentType<any>>> = {
-  main: {
-    Drive: DriveContent,
-    Recent: RecentContent,
-    Starred: StarredContent,
-    Trash: TrashContent,
-    Storage: StorageContent,
-  },
-  explorer: {
-    Images: ImageContent,
-    Videos: VideoContent,
-    Audio: AudioContent,
-    Documents: DocumentContent,
-    Text: TextContent,
-    Archives: ArchiveContent,
-  },
+// Flat mapping from tab title to content component
+const contentMap: Record<string, React.ComponentType<any>> = {
+  Drive: DriveContent,
+  Recent: RecentContent,
+  Starred: StarredContent,
+  Trash: TrashContent,
+  Storage: StorageContent,
+  Images: ImageContent,
+  Videos: VideoContent,
+  Audio: AudioContent,
+  Documents: DocumentContent,
+  Text: TextContent,
+  Archives: ArchiveContent,
+  Profile: ProfileContent,
+  Accounts: AccountsContent,
 };
 
-export { contentArray };
+export { contentMap };

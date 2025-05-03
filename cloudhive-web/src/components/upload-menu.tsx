@@ -157,7 +157,7 @@ export function UploadMenu({ activeEmail, currentParendId }: UploadMenuProps) {
               <DropdownMenuTrigger asChild disabled={isUploading}>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground  disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     {isUploading ? (
@@ -166,19 +166,19 @@ export function UploadMenu({ activeEmail, currentParendId }: UploadMenuProps) {
                       <Plus className="size-4" />
                     )}
                   </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight cursor-pointer">
+                  <div className="grid flex-1 text-left text-sm leading-tight ">
                     <span className="truncate font-medium">New</span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="min-w-56 rounded-lg cursor-pointer"
+                className="min-w-56 rounded-lg "
                 align="start"
                 side={isMobile ? "bottom" : "right"}
                 sideOffset={4}
               >
                 <DialogTrigger asChild>
-                  <DropdownMenuItem className="gap-2 p-2 cursor-pointer">
+                  <DropdownMenuItem className="gap-2 p-2 ">
                     <FolderPlus className="size-4" />
                     New Folder
                   </DropdownMenuItem>
@@ -187,7 +187,7 @@ export function UploadMenu({ activeEmail, currentParendId }: UploadMenuProps) {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem
-                  className="gap-2 p-2 cursor-pointer"
+                  className="gap-2 p-2 "
                   disabled={isUploading}
                   onClick={() => triggerFileInput(false)}
                 >
@@ -196,7 +196,7 @@ export function UploadMenu({ activeEmail, currentParendId }: UploadMenuProps) {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  className="gap-2 p-2 cursor-pointer"
+                  className="gap-2 p-2 "
                   disabled={isUploading}
                   onClick={() => triggerFileInput(true)}
                 >
@@ -226,12 +226,12 @@ export function UploadMenu({ activeEmail, currentParendId }: UploadMenuProps) {
           <DialogFooter className="mt-4 w-full">
             <div className="w-full flex justify-between">
               <DialogClose asChild>
-                <Button className="cursor-pointer" variant="outline">
+                <Button className="" variant="outline">
                   Cancel
                 </Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button className="cursor-pointer" onClick={createFolder}>
+                <Button className="" onClick={createFolder}>
                   Create
                 </Button>
               </DialogClose>

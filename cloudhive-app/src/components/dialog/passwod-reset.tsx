@@ -69,10 +69,7 @@ export const PasswordResetDialog = ({
         </div>
         <DialogFooter className="mt-4 w-full">
           <DialogClose asChild>
-            <Button
-              className="cursor-pointer w-full"
-              onClick={handlePasswordReset}
-            >
+            <Button className=" w-full" onClick={handlePasswordReset}>
               Continue
             </Button>
           </DialogClose>

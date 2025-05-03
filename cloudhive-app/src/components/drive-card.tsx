@@ -1,10 +1,11 @@
 import { FaFolder } from "react-icons/fa6";
-import { FileDropdown } from "./file-dropdown";
+
 import { Icon } from "lucide-react";
 import Image from "next/image";
 import { getIconForMimeType } from "@/utils/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "./thumbnail";
+import { FileDropdown } from "./file-dropdown";
 
 const dummyFile = {
   id: "1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC",
@@ -62,7 +63,7 @@ export function DriveCard() {
                 key={i}
                 className="aspect-square rounded-lg  bg-muted/60 hover:bg-muted/100 transition-all duration-300  p-1 lg:p-2 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between ">
+                <div className="flex items-center justify-between -mt-0.5">
                   <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0 p-1  pl-2 pb-2 ">
                     <Icon
                       style={{ color }}
@@ -83,7 +84,7 @@ export function DriveCard() {
                       className="w-2/3 h-2/3 sm:w-3/4 sm:h-3/4 md:w-4/5 md:h-4/5 max-w-[50%] max-h-[50%]"
                     />
                   }
-                  className="flex-1 rounded-b-sm bg-muted"
+                  className="flex-1 rounded-sm bg-muted"
                 />
               </div>
             ))}

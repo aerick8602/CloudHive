@@ -108,7 +108,7 @@ export default function Page() {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1 cursor-pointer" />
+            <SidebarTrigger className="-ml-1 " />
             <Separator
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
@@ -116,7 +116,7 @@ export default function Page() {
             <SearchForm className="w-full sm:ml-auto sm:w-auto" />
           </div>
           <Button
-            className="cursor-pointer"
+            className=""
             variant="outline"
             size="icon"
             onClick={() => setTheme(isDark ? "light" : "dark")}

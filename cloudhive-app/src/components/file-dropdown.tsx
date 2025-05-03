@@ -7,16 +7,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Copy,
   Download,
   ExternalLinkIcon,
   Info,
@@ -26,19 +18,11 @@ import {
   Trash2,
 } from "lucide-react";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "@radix-ui/react-label";
-import { CopyWithTick } from "./copy-tick";
-import { Separator } from "./ui/separator";
-import ShareDialog from "./share-dialog";
+
+import ShareDialog from "./dialog/share-file";
+import RenameFolderDialog from "./dialog/rename-folder";
+import FileDetailsSheet from "./sheet/file-details";
 
 export function FileDropdown() {
   const [showRenameDialog, setShowRenameDialog] = React.useState(false);
@@ -108,7 +92,7 @@ export function FileDropdown() {
             className="gap-2"
           >
             <Info className="size-4" />
-            Info
+            Details
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -124,41 +108,12 @@ export function FileDropdown() {
       </DropdownMenu>
 
       {/* Rename Dialog */}
-      <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
-        <DialogContent className="top-70 lg:top-88">
-          <DialogHeader>
-            <DialogTitle>Rename</DialogTitle>
-            <DialogDescription>
-              Give a new name to your file or folder.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            value={folderName}
-            onChange={(e) => setFolderName(e.target.value)}
-            placeholder="New name"
-          />
-          <DialogFooter className="mt-4 w-full ">
-            <div className="w-full flex justify-between">
-              <Button
-                variant="outline"
-                className=""
-                onClick={() => setShowRenameDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className=""
-                onClick={() => {
-                  // Handle rename action (e.g., save new name)
-                  setShowRenameDialog(false);
-                }}
-              >
-                Save
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RenameFolderDialog
+        open={showRenameDialog}
+        onOpenChange={setShowRenameDialog}
+        folderName={folderName}
+        setFolderName={setFolderName}
+      />
 
       {/* Share Dialog */}
       <ShareDialog
@@ -167,14 +122,10 @@ export function FileDropdown() {
       ></ShareDialog>
 
       {/* Detail Sheet */}
-      <Sheet open={showDetailSheet} onOpenChange={setShowDetailSheet}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Detail</SheetTitle>
-            {/* You can add further description or information here */}
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
+      <FileDetailsSheet
+        open={showDetailSheet}
+        onOpenChange={setShowDetailSheet}
+      ></FileDetailsSheet>
     </>
   );
 }

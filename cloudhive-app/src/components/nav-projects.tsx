@@ -1,89 +1,123 @@
-"use client"
+"use client";
 
 import {
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Trash2,
+  ChevronRight,
+  Clapperboard,
+  Images,
+  Video,
+  AudioLines,
+  FileTerminal,
+  FileText,
+  Package,
+  Settings2,
+  User,
+  AtSign,
   type LucideIcon,
-} from "lucide-react"
+} from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+} from "@/components/ui/sidebar";
 
 export function NavProjects({
-  projects,
+  setActiveTab,
 }: {
-  projects: {
-    name: string
-    url: string
-    icon: LucideIcon
-  }[]
+  setActiveTab: (tab: string) => void;
 }) {
-  const { isMobile } = useSidebar()
+  const items = [
+    {
+      title: "Media",
+      url: "#",
+      icon: Clapperboard,
+      isActive: false,
+      items: [
+        { title: "Images", icon: Images, url: "#" },
+        { title: "Videos", icon: Video, url: "#" },
+        { title: "Audio", icon: AudioLines, url: "#" },
+        { title: "Documents", icon: FileTerminal, url: "#" },
+        { title: "Text", icon: FileText, url: "#" },
+        { title: "Archives", icon: Package, url: "#" },
+      ],
+    },
+    {
+      title: "Setting",
+      url: "#",
+      icon: Settings2,
+      isActive: false,
+      items: [
+        { title: "Profile", icon: User, url: "#" },
+        { title: "Accounts", icon: AtSign, url: "#" },
+      ],
+    },
+  ];
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+    <SidebarGroup>
+      <SidebarGroupLabel>Explorer</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
-            </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
-                  <MoreHorizontal />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-48 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
+        {items.map((item) =>
+          item.items?.length ? (
+            <Collapsible
+              key={item.title}
+              asChild
+              defaultOpen={item.isActive}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton tooltip={item.title}>
+                    {item.icon && <item.icon className="w-4 h-4" />}
+                    <span>{item.title}</span>
+                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.items.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton
+                          onClick={() => {
+                            setActiveTab(subItem.title);
+                            console.log("Clicked sub-item:", subItem.title);
+                          }}
+                        >
+                          {subItem.icon && <subItem.icon className="w-4 h-4" />}
+                          <span>{subItem.title}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          ) : (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                tooltip={item.title}
+                onClick={() => {
+                  setActiveTab(item.title);
+                  console.log("Clicked item:", item.title);
+                }}
               >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Share Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+                {item.icon && <item.icon className="w-4 h-4" />}
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        )}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

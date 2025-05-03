@@ -11,7 +11,6 @@ import {
   sendEmailVerification,
   setPersistence,
 } from "firebase/auth";
-
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -144,7 +143,7 @@ export function SignUpForm({
               <button
                 type="button"
                 onClick={() => setOpenResetDialog(true)}
-                className="cursor-pointer ml-auto text-sm underline-offset-4 hover:underline text-primary"
+                className=" ml-auto text-sm underline-offset-4 hover:underline text-primary"
               >
                 Forgot your password?
               </button>

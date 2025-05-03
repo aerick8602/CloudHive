@@ -44,7 +44,7 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
-                  className="cursor-pointer"
+                  className=""
                   tooltip={item.title}
                   onClick={() => {
                     setActiveTab("main", item.title);

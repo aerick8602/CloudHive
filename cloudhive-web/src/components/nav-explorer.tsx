@@ -49,10 +49,7 @@ export function NavProjects({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    className="cursor-pointer"
-                    tooltip={item.title}
-                  >
+                  <SidebarMenuButton className="" tooltip={item.title}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -80,7 +77,7 @@ export function NavProjects({
           ) : (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
-                className="cursor-pointer"
+                className=""
                 tooltip={item.title}
                 onClick={() => {
                   setActiveTab("explorer", item.title);
