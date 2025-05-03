@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 // Firebase session cookie name
-const SESSION_COOKIE_NAME = "CLOUDHIVE_SESSION";
+const SESSION_COOKIE_NAME = "_CLOUD_HIVE__SESSION";
 // Session expiration time (24 hours)
 const SESSION_EXPIRES_IN = 60 * 60 * 24 * 1000;
 
