@@ -4,8 +4,7 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionCookie = request.cookies.get("__SESSION")?.value;
-
+  const sessionCookie = request.cookies.get("CLOUDHIVE_SESSION")?.value;
   const isAuthPage =
     pathname.startsWith("/auth/sign-in") ||
     pathname.startsWith("/auth/sign-up");

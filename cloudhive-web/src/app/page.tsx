@@ -1,13 +1,5 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { SearchForm } from "@/components/search-form";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,99 +10,113 @@ import {
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-
 import { Button } from "@/components/ui/button";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
-import { IoEllipsisVerticalSharp } from "react-icons/io5";
-import { FaFileCsv, FaFolder, FaImage } from "react-icons/fa6";
-import { getIconForMimeType } from "../utils/icons";
-import { FileDropdown } from "@/components/file-dropdown";
-import { DriveCard } from "@/components/drive-card";
 import { useAuthState } from "react-firebase-hooks/auth";
-
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
+import { clientAuth } from "@/lib/firebase/firebase-client";
+
+import { fetchAccounts, fetchAuthUrl } from "@/utils/apis/fetcher";
+import { fetchSession, logoutUser } from "@/utils/apis/auth";
+import { contentArray } from "@/utils/content";
 
 export default function Page() {
   const { theme, setTheme } = useTheme();
+  const [user] = useAuthState(clientAuth);
   const [mounted, setMounted] = useState(false);
-  const [isSessionValid, setIsSessionValid] = useState(true);
+
+  const [activeEmail, setActiveEmail] = useState<string>("");
+  const [currentParendId, setCurrentParentId] = useState<string | undefined>(
+    undefined
+  );
+  const [activeTab, setActiveTab] = useState<string>("main");
+  const [activeItemTitle, setActiveItemTitle] = useState<string>("Drive");
+
   const router = useRouter();
 
-  const verifySession = async () => {
-    const response = await fetch("/api/auth/verify", { method: "GET" });
+  const [userUID, setUserUID] = useState<string | null>(null);
 
-    if (!response.ok) {
-      setIsSessionValid(false);
-      return false;
+  useEffect(() => {
+    if (user) {
+      setUserUID(user.uid);
     }
+  }, [user]);
 
-    const data = await response.json();
-    setIsSessionValid(data.success);
-    return data.success;
-  };
+  const { data: accounts = [], error: accountsError } = useSWR(
+    userUID ? userUID : null, // Trigger only after UID is available
+    fetchAccounts
+  );
 
-  const logoutUser = async () => {
-    const response = await fetch("/api/auth/logout", { method: "POST" });
+  const { data: authUrl = "", error: authUrlError } = useSWR(
+    userUID ? `/google/oauth/${userUID}` : null, // Trigger after UID is available
+    fetchAuthUrl
+  );
 
-    if (response.ok) {
-      router.push("/auth/sign-in"); // Redirect to sign-in page after logging out
-    } else {
-      console.error("Error during logout");
-      // Handle logout error, maybe show a toast or log out anyway
-    }
-  };
+  const { data: sessionValid, error: sessionError } = useSWR(
+    "/auth/verify",
+    fetchSession
+  );
 
   useEffect(() => {
     setMounted(true);
 
     const checkSession = async () => {
-      const sessionValid = await verifySession();
-      if (!sessionValid) {
+      if (sessionValid === false) {
         await logoutUser(); // Log out the user if session is invalid
       }
     };
 
     checkSession();
+  }, [sessionValid]);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("activeEmail");
+    if (savedEmail) {
+      setActiveEmail(savedEmail);
+    }
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
-  }, [mounted]);
+    if (activeEmail) {
+      localStorage.setItem("activeEmail", activeEmail);
+    }
+  }, [activeEmail]);
 
-  if (!mounted || !isSessionValid) return null;
+  const handleTabChange = (tab: string, title: string) => {
+    setActiveTab(tab);
+    setActiveItemTitle(title);
+  };
+  const Component = contentArray[activeTab][activeItemTitle];
+
+  if (!mounted || sessionValid === undefined) return null;
 
   const isDark = theme === "dark";
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar
+        variant="floating"
+        authUrl={authUrl || ""}
+        accounts={accounts}
+        activeEmail={activeEmail}
+        setActiveEmail={setActiveEmail}
+        currentParendId={currentParendId}
+        setActiveTab={handleTabChange}
+      />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1 cursor-pointer" />
+            <SidebarTrigger className="-ml-1 " />
             <Separator
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            {/* <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="#">
-            Building Your Application
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator className="hidden md:block" />
-        <BreadcrumbItem>
-          <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb> */}
             <SearchForm className="w-full sm:ml-auto sm:w-auto" />
           </div>
           <Button
-            className="cursor-pointer"
+            className=""
             variant="outline"
             size="icon"
             onClick={() => setTheme(isDark ? "light" : "dark")}
@@ -121,10 +127,9 @@ export default function Page() {
           </Button>
         </header>
 
-        <div className="flex-1 rounded-xl bg-muted/20 m-2 md:min-h-min h-[100vh] flex flex-col overflow-hidden">
-          {/* Inner scrollable content wrapper */}
-          <div className="flex-1 overflow-y-auto max-h-[88vh] flex flex-col gap-6 p-1 sm:p-3 md:p-5 lg:p-8 pt-0">
-            <DriveCard />
+        <div className="flex-1 rounded-xl bg-muted/20 m-2 max-h-[88.5vh] flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
+            <Component />;
           </div>
         </div>
       </SidebarInset>
