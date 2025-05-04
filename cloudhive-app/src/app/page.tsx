@@ -26,12 +26,13 @@ export default async function Home() {
     );
 
     const uid = decodedToken.uid;
-
     // 🚀 Try Redis cache for accounts
     const cachedAccounts = await redis.get(`accounts:${uid}`);
     let accounts;
+
     if (cachedAccounts) {
       accounts = JSON.parse(cachedAccounts);
+      console.log("Accounts (from cache):", accounts);
     } else {
       const accountsRes = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/${uid}/accounts`,
@@ -45,19 +46,17 @@ export default async function Home() {
       }
 
       const accountsJson = await accountsRes.json();
-
-      // Assuming the accounts are inside the first array element
-      const accountsList = accountsJson?.accounts || [];
+      const accountsList = accountsJson?.accounts?.[0] || [];
 
       await redis.set(
         `accounts:${uid}`,
-        JSON.stringify(accountsList[0]),
+        JSON.stringify(accountsList),
         "EX",
         CACHE_EXPIRES_IN
       );
 
-      console.log("Accounts:", accountsList[0]); // Corrected to use `accountsList`
-      accounts = accountsList[0]; // Assigning directly without nesting
+      accounts = accountsList;
+      console.log("Accounts (from API):", accounts);
     }
 
     // 🚀 Try Redis cache for oauthUrl

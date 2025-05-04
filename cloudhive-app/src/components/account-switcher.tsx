@@ -67,7 +67,7 @@ export function AccountSwitcher({
   // Auto-set first account if none is active
   React.useEffect(() => {
     if (!currentActiveAccount && accounts.length > 0) {
-      setCurrentActiveAccount(accounts[0].email);
+      setCurrentActiveAccount(accounts[0].e);
     }
   }, [accounts, currentActiveAccount, setCurrentActiveAccount]);
 
@@ -115,13 +115,13 @@ export function AccountSwitcher({
               accounts.map((account, index) => (
                 <DropdownMenuItem
                   key={account._id}
-                  onClick={() => setCurrentActiveAccount(account.email)}
+                  onClick={() => setCurrentActiveAccount(account.e)}
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-md border">
                     <FaGoogleDrive className="text-lg" />
                   </div>
-                  {account.email}
+                  {account.e}
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))
