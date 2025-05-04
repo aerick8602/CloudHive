@@ -1,3 +1,4 @@
+import redis from "@/lib/cache/redis.config";
 import { connectToDatabase } from "@/lib/db/mongo.config";
 import { convertMillisToIST } from "@/utils/time";
 import { google } from "googleapis";
@@ -116,6 +117,25 @@ export async function GET(req: NextRequest) {
             _id: result.insertedId,
           });
           console.log("New account created:", result.insertedId);
+
+          // CACHE LOGIC
+
+          // After creating the new account, fetch the updated list of accounts (with the new account)
+          const updatedAccounts = await accountsCollection
+            .find({ uids: state }) // Find all accounts linked to the user
+            .project({ _id: 1, e: 1 }) // Project only _id and email (e)
+            .toArray();
+
+          // Cache the updated list of accounts in Redis
+          const cacheKey = `accounts:${state}`;
+          await redis.set(
+            cacheKey,
+            JSON.stringify(updatedAccounts),
+            "EX",
+            parseInt(process.env.CACHE_TTL!)
+          ); // Cache for 5 minutes
+
+          console.log("Updated accounts cached in Redis:", updatedAccounts);
         }
 
         (async () => {

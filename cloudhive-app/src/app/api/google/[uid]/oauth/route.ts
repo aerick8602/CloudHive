@@ -1,4 +1,4 @@
-import redis from "@/lib/cache/redis.config";
+// import redis from "@/lib/cache/redis.config";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,14 +12,14 @@ export async function GET(
     return NextResponse.json({ error: "UID is required" }, { status: 400 });
   }
 
-  const redisKey = `oauth-url:${uid}`;
+  // const redisKey = `oauth-url:${uid}`;
 
   // Check if the OAuth URL is cached
-  const cachedAuthUrl = await redis.get(redisKey);
-  if (cachedAuthUrl) {
-    console.log("Serving authUrl from Redis cache");
-    return NextResponse.json(cachedAuthUrl);
-  }
+  // const cachedAuthUrl = await redis.get(redisKey);
+  // if (cachedAuthUrl) {
+  //   console.log("Serving authUrl from Redis cache");
+  //   return NextResponse.json(cachedAuthUrl);
+  // }
 
   // Generate OAuth URL
   const oauth2Client = new google.auth.OAuth2(
@@ -41,7 +41,7 @@ export async function GET(
   });
 
   // Cache in Redis for 24 hours
-  await redis.set(redisKey, authUrl, "EX", 3600 * 24);
+  // await redis.set(redisKey, authUrl, "EX", 3600 * 24);
 
   console.log("Auth URL generated and cached");
 

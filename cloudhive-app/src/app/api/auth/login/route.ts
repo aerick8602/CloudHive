@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 const SESSION_COOKIE_NAME = process.env.SESSION!;
-const SESSION_EXPIRES_IN = 60 * 60 * 24 * 1000; // 24 hours in ms
+const SESSION_EXPIRES_IN = Number(process.env.SESSION_TTL!); // 24 hours in ms
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set({
       name: SESSION_COOKIE_NAME,
       value: sessionCookie,
-      maxAge: SESSION_EXPIRES_IN / 1000,
+      maxAge: SESSION_EXPIRES_IN,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",

@@ -45,25 +45,25 @@ export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
     }
   }, [currentActiveAccount]);
 
-  const { data: sessionValid, error: sessionError } = useSWR(
-    "api/auth/verify",
-    verifySession
-  );
+  // const { data: sessionValid, error: sessionError } = useSWR(
+  //   "api/auth/verify",
+  //   verifySession
+  // );
 
-  useEffect(() => {
-    const checkSession = async () => {
-      console.log(sessionValid);
-      if (sessionValid == false) {
-        await logoutUser("api/auth/logout"); // Log out the user if session is invalid
-      }
-    };
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     console.log(sessionValid);
+  //     if (sessionValid == false) {
+  //       await logoutUser("api/auth/logout"); // Log out the user if session is invalid
+  //     }
+  //   };
 
-    checkSession();
-  }, [sessionValid]);
+  //   checkSession();
+  // }, [sessionValid]);
 
-  if (sessionError) {
-    throw new Error("Session Error");
-  }
+  // if (sessionError) {
+  //   throw new Error("Session Error");
+  // }
 
   //   const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
   //     user?.uid ? `api/${user?.uid}/accounts` : null,
