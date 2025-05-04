@@ -1,72 +1,35 @@
-import { createOAuthClient } from "@/lib/google/google.client";
+import { connectToDatabase } from "@/lib/db/mongo.config";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  paramsPromise: Promise<{ params: { params: string[] } }>
+  { params }: { params: Promise<{ uid: string }> }
 ) {
+  const { uid } = await params;
+
+  if (!uid) {
+    return NextResponse.json({ error: "UID is required" }, { status: 400 });
+  }
+
+  const { db } = await connectToDatabase();
+  const accountsCollection = db.collection("accounts");
   try {
-    const { params } = await paramsPromise;
-    const [email, parentId] = params.params || [];
+    // Fetch accounts linked to the UID
+    const accounts = await accountsCollection.find({ uids: uid }).toArray();
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
-    }
+    const accountsList = accounts.map((account: any) => ({
+      email: account.e,
+      _id: account._id.toString(),
+    }));
 
-    const { searchParams } = new URL(req.url);
-    const pageToken = searchParams.get("pageToken") || undefined;
-    const starred = searchParams.get("starred") === "true";
-    const trashed = searchParams.get("trashed") === "true";
+    // console.log("Accounts found:", accountsList);
 
-    console.log("⚡ Params:", { email, parentId, pageToken, starred, trashed });
-
-    const drive = await createOAuthClient(email);
-    const { files, nextPageToken } = await getDriveFilesWithQuery(drive, {
-      parentId,
-      pageToken,
-      starred,
-      trashed,
-    });
-
-    return NextResponse.json({ files, nextPageToken }, { status: 200 });
+    return NextResponse.json(accountsList);
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error("Error fetching accounts:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
-}
-
-async function getDriveFilesWithQuery(
-  drive: any,
-  options: {
-    parentId?: string;
-    pageToken?: string;
-    starred?: boolean;
-    trashed?: boolean;
-  }
-) {
-  const { parentId, pageToken, starred, trashed } = options;
-
-  let qParts = [];
-
-  if (parentId) qParts.push(`'${parentId}' in parents`);
-  if (starred) qParts.push("starred = true");
-  if (!trashed) qParts.push("trashed = false");
-  if (trashed) qParts.push("trashed = true");
-
-  const q = qParts.join(" and ");
-
-  const response = await drive.files.list({
-    pageSize: 25,
-    q,
-    fields: "nextPageToken, files(*)",
-    pageToken,
-  });
-
-  return {
-    files: response.data.files || [],
-    nextPageToken: response.data.nextPageToken,
-  };
 }

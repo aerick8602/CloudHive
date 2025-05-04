@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { params: string[] } }
+  paramsPromise: Promise<{ params: { params: string[] } }>
 ) {
   try {
+    const { params } = await paramsPromise;
     const [email, parentId] = params.params || [];
 
     if (!email) {
@@ -52,8 +53,8 @@ async function getDriveFilesWithQuery(
 
   if (parentId) qParts.push(`'${parentId}' in parents`);
   if (starred) qParts.push("starred = true");
-  if (!trashed) qParts.push("trashed = false"); // Default to excluding trash
-  if (trashed) qParts.push("trashed = true"); // If explicitly asked
+  if (!trashed) qParts.push("trashed = false");
+  if (trashed) qParts.push("trashed = true");
 
   const q = qParts.join(" and ");
 
