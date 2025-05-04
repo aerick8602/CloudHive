@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { EarthIcon, UserCheck2 } from "lucide-react";
 import { CopyWithTick } from "../copy-tick";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 type Permission = "Can edit" | "Can view";
 type Person = {
@@ -161,12 +162,22 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                   >
                     <div className="flex items-center space-x-2 sm:space-x-3">
                       <Avatar>
+                        <AvatarImage
+                          src="https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64"
+                          alt="ok"
+                        />
                         <AvatarFallback>
                           {person.email[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="text-sm truncate max-w-[180px] sm:max-w-[250px]">
-                        {person.email}
+                      <div>
+                        <div className="text-sm truncate max-w-[180px] sm:max-w-[250px]">
+                          Ayush Katiyar
+                        </div>
+
+                        <div className="text-xs truncate max-w-[180px] sm:max-w-[250px]">
+                          {person.email}
+                        </div>
                       </div>
                     </div>
                     <Select

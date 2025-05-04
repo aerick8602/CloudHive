@@ -9,15 +9,12 @@ const dummyFile = {
   mimeType: "video/x-flv",
 };
 
-type DriveCardProps = {
-  email: string;
+interface DriveCardProps {
   files: any[]; // Replace 'any' with a specific file type if available
   loading: boolean;
-  error?: any;
-};
+}
 
-export function DriveCard({ email, files, loading, error }: DriveCardProps) {
-  const { icon: Icon, color } = getIconForMimeType(dummyFile.mimeType);
+export function DriveCard({ files, loading }: DriveCardProps) {
   const isLoading = false;
 
   const folderSkeletonCount = 4;
@@ -38,7 +35,6 @@ export function DriveCard({ email, files, loading, error }: DriveCardProps) {
               <FolderCard key={i} name="Assssssssssssssss" />
             ))}
       </div>
-
       <div className="font-semibold">Files</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
         {isLoading
@@ -48,15 +44,7 @@ export function DriveCard({ email, files, loading, error }: DriveCardProps) {
                 className="aspect-square rounded-md sm:rounded-lg lg:rounded-xl p-2"
               />
             ))
-          : [...Array(27)].map((_, i) => (
-              <FileCard
-                key={i}
-                name="Ayush File.jpeg"
-                icon={Icon}
-                color={color}
-                thumbnailId="1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC"
-              />
-            ))}
+          : files.map((file) => <FileCard key={file.id} file={file} />)}
       </div>
     </>
   );

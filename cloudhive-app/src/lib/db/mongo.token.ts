@@ -1,4 +1,4 @@
-import { Account } from "@/app/interface";
+import { Account } from "@/interface";
 import { connectToDatabase } from "./mongo.config";
 import { convertMillisToIST } from "@/utils/time";
 

@@ -23,12 +23,17 @@ import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import ShareDialog from "./dialog/share-file";
 import RenameFolderDialog from "./dialog/rename-folder";
 import FileDetailsSheet from "./sheet/file-details";
+import { FileData } from "@/interface";
 
-export function FileDropdown() {
+interface FileDropdownProps {
+  file: FileData;
+}
+
+export function FileDropdown({ file }: FileDropdownProps) {
   const [showRenameDialog, setShowRenameDialog] = React.useState(false);
   const [showShareDialog, setShowShareDialog] = React.useState(false);
   const [showDetailSheet, setShowDetailSheet] = React.useState(false);
-  const [folderName, setFolderName] = React.useState("Untitled Folder");
+  const [filename, setFileName] = React.useState("Untitled File");
 
   return (
     <>
@@ -41,9 +46,10 @@ export function FileDropdown() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-56 rounded-lg " align="start">
           <DropdownMenuItem
+            // Opens the file in a new tab via Google Drive's file viewer
             onClick={() =>
               window.open(
-                "https://drive.google.com/file/d/1IuJVZy9TPnan0IT9r25tVA5IC84rLxQp",
+                `https://drive.google.com/file/d/${file.id}/view`,
                 "_blank"
               )
             }
@@ -51,17 +57,28 @@ export function FileDropdown() {
           >
             <ExternalLinkIcon className="size-4" />
             Open
-            <DropdownMenuShortcut className="text-sm ">⌘O</DropdownMenuShortcut>
+            <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={() => alert("Download")} className="gap-2">
+          <DropdownMenuItem
+            onClick={() => {
+              const link = document.createElement("a");
+              link.href = `https://drive.google.com/uc?id=${file.id}&export=download`;
+              link.download = file.name || "download"; // optional fallback name
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="gap-2"
+          >
             <Download className="size-4" />
             Download
           </DropdownMenuItem>
 
           <DropdownMenuItem
+            // Opens rename dialog to rename the file
             onClick={() => setShowRenameDialog(true)}
             className="gap-2"
           >
@@ -70,24 +87,28 @@ export function FileDropdown() {
           </DropdownMenuItem>
 
           <DropdownMenuItem
+            // Opens the share dialog to manage file sharing permissions
             onClick={() => setShowShareDialog(true)}
             className="gap-2"
           >
             <Share2Icon className="size-4" />
             Share
-            <DropdownMenuShortcut className="text-sm ">
-              ⌘+S
-            </DropdownMenuShortcut>
+            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={() => alert("Starred")} className="gap-2">
+          <DropdownMenuItem
+            // Placeholder for starring the file – can be connected to a backend or API
+            onClick={() => alert("Starred")}
+            className="gap-2"
+          >
             <Star className="size-4" />
             Add to Starred
           </DropdownMenuItem>
 
           <DropdownMenuItem
+            // Opens a bottom sheet showing file metadata and details
             onClick={() => setShowDetailSheet(true)}
             className="gap-2"
           >
@@ -98,7 +119,8 @@ export function FileDropdown() {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={() => alert("Trash")}
+            // Placeholder for moving file to trash – should trigger a deletion or trash API
+            onClick={() => alert("Moved to Trash")}
             className="gap-2 text-destructive"
           >
             <Trash2 className="size-4" />
@@ -111,8 +133,8 @@ export function FileDropdown() {
       <RenameFolderDialog
         open={showRenameDialog}
         onOpenChange={setShowRenameDialog}
-        folderName={folderName}
-        setFolderName={setFolderName}
+        fileName={filename}
+        setFileName={setFileName}
       />
 
       {/* Share Dialog */}

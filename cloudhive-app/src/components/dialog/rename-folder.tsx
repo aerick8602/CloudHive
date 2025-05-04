@@ -16,15 +16,15 @@ import { useState, useEffect } from "react";
 interface RenameFolderProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  folderName: string;
-  setFolderName: (name: string) => void;
+  fileName: string;
+  setFileName: (name: string) => void;
 }
 
 export const RenameFolderDialog: React.FC<RenameFolderProps> = ({
   open,
   onOpenChange,
-  folderName,
-  setFolderName,
+  fileName,
+  setFileName,
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -36,8 +36,8 @@ export const RenameFolderDialog: React.FC<RenameFolderProps> = ({
           </DialogDescription>
         </DialogHeader>
         <Input
-          value={folderName}
-          onChange={(e) => setFolderName(e.target.value)}
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
           placeholder="New name"
         />
         <DialogFooter className="mt-4 w-full">

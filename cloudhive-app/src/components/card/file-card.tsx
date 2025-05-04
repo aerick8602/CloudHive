@@ -1,34 +1,29 @@
-import { IconType } from "react-icons";
+import { getIconForMimeType } from "@/utils/icons";
 import { Thumbnail } from "../thumbnail";
 import { FileDropdown } from "../file-dropdown";
+import { FileData } from "@/interface";
 
 interface FileCardProps {
-  name: string;
-  icon: IconType;
-  color: string;
-  thumbnailId: string | undefined;
+  file: FileData;
 }
 
-export function FileCard({
-  name,
-  icon: Icon,
-  color,
-  thumbnailId,
-}: FileCardProps) {
+export function FileCard({ file }: FileCardProps) {
+  const { icon: Icon, color } = getIconForMimeType(file.mimeType);
+
   return (
     <div className="aspect-square rounded-lg bg-muted/60 hover:bg-muted/100 transition-all duration-300 p-1 lg:p-2 flex flex-col justify-between">
       <div className="flex items-center justify-between -mt-0.5">
         <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0 p-1 pl-2 pb-2">
           <Icon style={{ color }} className="text-md sm:text-base md:text-lg" />
           <span className="text-sm text-start font-medium text-muted-foreground truncate block flex-1">
-            {name}
+            {file.name}
           </span>
-          <FileDropdown />
+          <FileDropdown file={file} />
         </div>
       </div>
 
       <Thumbnail
-        src={"https://drive.google.com/thumbnail?id=${thumbnailId}"}
+        src={`https://drive.google.com/thumbnail?id=${file.id}`}
         fallback={
           <Icon
             style={{ color }}

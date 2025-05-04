@@ -16,10 +16,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { FileData } from "@/app/interface";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import { NewFolderDialog } from "./dialog/new-folder";
+
+interface FileData {
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+  file: string;
+}
 
 async function prepareUploadData(
   files: FileList | null,

@@ -17,10 +17,10 @@ import { clientAuth } from "@/lib/firebase/firebase-client";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { AccountProps } from "@/types/AccountProps";
 
-type CloudHiveProps = {
+interface CloudHiveProps {
   accounts: AccountProps[];
   oauthUrl: string;
-};
+}
 
 export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
   const [currentActiveAccount, setCurrentActiveAccount] = useState<string>("");

@@ -3,7 +3,15 @@ import { createOAuthClient } from "@/lib/google/google.client";
 import { Readable } from "stream";
 import { connectToDatabase } from "@/lib/db/mongo.config";
 import { drive_v3 } from "googleapis";
-import { Hive, FileData } from "@/app/interface";
+// import { Hive, FileData } from "@/interface";
+
+interface FileData {
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+  file: string;
+}
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

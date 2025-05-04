@@ -2,17 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { createOAuthClient } from "@/lib/google/google.client";
 import { CATEGORY_MIME_MAP } from "@/utils/mimetypes";
 
-export async function GET(req: NextRequest, context: any) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ email: string }> }
+) {
   try {
-    const { params } = context;
-    const email = params.params[0];
-    const parentId = params.params[1]; // Optional
+    const { email } = await params;
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     const { searchParams } = new URL(req.url);
+    const parentId = searchParams.get("parentId") || undefined;
     const pageToken = searchParams.get("pageToken") || undefined;
     const starred = searchParams.get("starred") === "true";
     const trashed = searchParams.get("trashed") === "true";
