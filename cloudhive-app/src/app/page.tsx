@@ -84,7 +84,7 @@ export default async function Home() {
       console.error("Logout error:", logoutError);
     }
 
-    // Redirect to 503 page if there's an error
-    return redirect("/500");
+    // Redirect to 500 page if there's an error
+    return redirect("/(errors)/500");
   }
 }
