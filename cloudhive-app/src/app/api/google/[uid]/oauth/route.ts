@@ -45,5 +45,10 @@ export async function GET(
 
   console.log("Auth URL generated and cached");
 
-  return NextResponse.json(authUrl);
+  return new NextResponse(authUrl, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/plain",
+    },
+  });
 }

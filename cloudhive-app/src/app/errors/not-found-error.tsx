@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export default function NotFoundError() {
-  const router = useRouter();
   return (
     <div className="h-svh">
       <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
@@ -16,7 +15,7 @@ export default function NotFoundError() {
           {/* <Button variant="outline" onClick={() => router.back()}>
             Go Back
           </Button> */}
-          <Button onClick={() => router.push("/")}>Back to Home</Button>
+          <Button onClick={() => redirect("/")}>Back to Home</Button>
         </div>
       </div>
     </div>

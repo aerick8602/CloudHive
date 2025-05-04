@@ -24,7 +24,7 @@ export async function GET(
 
     // console.log("Accounts found:", accountsList);
 
-    return NextResponse.json(accountsList);
+    return NextResponse.json({ accounts: [accountsList] });
   } catch (error) {
     console.error("Error fetching accounts:", error);
     return NextResponse.json(

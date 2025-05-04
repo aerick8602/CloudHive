@@ -3,10 +3,16 @@ import { adminAuth } from "@/lib/firebase/firebase-admin";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import redis from "@/lib/cache/redis.config";
+import MaintenanceError from "./errors/maintenance-error";
+import GeneralError from "./errors/general-error";
 
 const CACHE_EXPIRES_IN = Number(process.env.CACHE_TTL!);
 
 export default async function Home() {
+  const appMode = await redis.get("appMode");
+  if (appMode === "maintenance") {
+    return <MaintenanceError />;
+  }
   const sessionCookie = (await cookies()).get(process.env.SESSION!);
 
   if (!sessionCookie) {
@@ -38,13 +44,17 @@ export default async function Home() {
         throw new Error("Failed to fetch accounts");
       }
 
-      accounts = await accountsRes.json();
+      const accountsJson = await accountsRes.json();
+      const accountsList = accountsJson.accounts;
+
       await redis.set(
         `accounts:${uid}`,
-        JSON.stringify(accounts),
+        JSON.stringify(accountsList),
         "EX",
         CACHE_EXPIRES_IN
       );
+
+      accounts = accountsList;
     }
 
     // 🚀 Try Redis cache for oauthUrl
@@ -65,6 +75,7 @@ export default async function Home() {
       }
 
       oauthUrl = await oauthRes.text();
+      console.log(oauthUrl);
       await redis.set(`oauth:${uid}`, oauthUrl, "EX", CACHE_EXPIRES_IN);
     }
 
@@ -85,6 +96,6 @@ export default async function Home() {
     }
 
     // Redirect to 500 page if there's an error
-    return redirect("/e/500");
+    return <GeneralError />;
   }
 }

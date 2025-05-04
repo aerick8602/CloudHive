@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 interface GeneralErrorProps extends React.HTMLAttributes<HTMLDivElement> {
   minimal?: boolean;
@@ -10,7 +10,6 @@ export default function GeneralError({
   className,
   minimal = false,
 }: GeneralErrorProps) {
-  const router = useRouter();
   return (
     <div className={cn("h-svh w-full", className)}>
       <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
@@ -26,7 +25,7 @@ export default function GeneralError({
             {/* <Button variant="outline" onClick={() => router.back()}>
               Go Back
             </Button> */}
-            <Button onClick={() => router.push("/")}>Back to Home</Button>
+            <Button onClick={() => redirect("/")}>Back to Home</Button>
           </div>
         )}
       </div>

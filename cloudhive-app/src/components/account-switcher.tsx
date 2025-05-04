@@ -111,31 +111,34 @@ export function AccountSwitcher({
               Accounts
             </DropdownMenuLabel>
 
-            {accounts.length > 0
-              ? accounts.map((account, index) => (
-                  <DropdownMenuItem
-                    key={account._id}
-                    onClick={() => setCurrentActiveAccount(account.email)}
-                    className="gap-2 p-2"
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-md border">
-                      <FaGoogleDrive className="text-lg" />
-                    </div>
-                    {account.email}
-                    <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                ))
-              : // Skeletons (2 placeholders)
-                Array.from({ length: 2 }).map((_, i) => (
-                  <div
-                    key={`skeleton-${i}`}
-                    className="flex items-center gap-2 p-2 animate-pulse"
-                  >
-                    <div className="size-6 rounded-md bg-muted" />
-                    <div className="h-4 flex-1 rounded bg-muted" />
-                    {/* <div className="h-3 w-6 rounded bg-muted ml-auto" /> */}
+            {accounts.length > 0 ? (
+              accounts.map((account, index) => (
+                <DropdownMenuItem
+                  key={account._id}
+                  onClick={() => setCurrentActiveAccount(account.email)}
+                  className="gap-2 p-2"
+                >
+                  <div className="flex size-6 items-center justify-center rounded-md border">
+                    <FaGoogleDrive className="text-lg" />
                   </div>
-                ))}
+                  {account.email}
+                  <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              // Skeletons (2 placeholders)
+              // Array.from({ length: 2 }).map((_, i) => (
+              //   <div
+              //     key={`skeleton-${i}`}
+              //     className="flex items-center gap-2 p-2 animate-pulse"
+              //   >
+              //     <div className="size-6 rounded-md bg-muted" />
+              //     <div className="h-4 flex-1 rounded bg-muted" />
+              //     {/* <div className="h-3 w-6 rounded bg-muted ml-auto" /> */}
+              //   </div>
+              // ))
+              <></>
+            )}
 
             <DropdownMenuSeparator />
 
