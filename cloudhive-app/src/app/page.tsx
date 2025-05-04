@@ -45,16 +45,19 @@ export default async function Home() {
       }
 
       const accountsJson = await accountsRes.json();
-      const accountsList = accountsJson.accounts;
+
+      // Assuming the accounts are inside the first array element
+      const accountsList = accountsJson?.accounts || [];
 
       await redis.set(
         `accounts:${uid}`,
-        JSON.stringify(accountsList),
+        JSON.stringify(accountsList[0]),
         "EX",
         CACHE_EXPIRES_IN
       );
 
-      accounts = accountsList;
+      console.log("Accounts:", accountsList[0]); // Corrected to use `accountsList`
+      accounts = accountsList[0]; // Assigning directly without nesting
     }
 
     // 🚀 Try Redis cache for oauthUrl
@@ -75,7 +78,7 @@ export default async function Home() {
       }
 
       oauthUrl = await oauthRes.text();
-      console.log(oauthUrl);
+      console.log("OauthUrl :", oauthUrl);
       await redis.set(`oauth:${uid}`, oauthUrl, "EX", CACHE_EXPIRES_IN);
     }
 

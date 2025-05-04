@@ -73,7 +73,7 @@ export function AccountSwitcher({
 
   const addAccount = () => {
     if (oauthUrl) {
-      router.push(oauthUrl);
+      window.location.href = oauthUrl;
     } else {
       console.warn("Auth URL not available");
     }
