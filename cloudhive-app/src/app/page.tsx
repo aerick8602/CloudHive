@@ -73,6 +73,7 @@ export default async function Home() {
     console.error("Authentication or data fetch error:", error);
 
     try {
+      // Attempt logout in case of an error
       await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/logout`, {
         method: "POST",
         headers: {
@@ -83,6 +84,7 @@ export default async function Home() {
       console.error("Logout error:", logoutError);
     }
 
-    return redirect("/auth/sign-in");
+    // Redirect to 503 page if there's an error
+    return redirect("/500");
   }
 }
