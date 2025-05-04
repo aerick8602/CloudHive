@@ -85,6 +85,6 @@ export default async function Home() {
     }
 
     // Redirect to 500 page if there's an error
-    return redirect("/(errors)/500");
+    return redirect("/e/500");
   }
 }
