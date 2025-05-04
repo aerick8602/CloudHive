@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createOAuthClient } from "@/lib/google/google.client";
 import { connectToDatabase } from "@/lib/db/mongo.config";
 import { drive_v3 } from "googleapis";
-import { Hive } from "@/interface";
+// import { Hive } from "@/interface";
 
 export async function POST(request: Request) {
   try {
