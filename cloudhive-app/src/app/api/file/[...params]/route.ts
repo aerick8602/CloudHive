@@ -1,13 +1,12 @@
-import { createOAuthClient } from "@/lib/google/google.client";
 import { NextRequest, NextResponse } from "next/server";
+import { createOAuthClient } from "@/lib/google/google.client";
 
-export async function GET(
-  req: NextRequest,
-  paramsPromise: Promise<{ params: { params: string[] } }>
-) {
+export async function GET(req: NextRequest, context: any) {
   try {
-    const { params } = await paramsPromise;
-    const [email, parentId] = params.params || [];
+    const { params } = context;
+    // console.log(params);
+    const email = params.params[0];
+    const parentId = params.params[1];
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
