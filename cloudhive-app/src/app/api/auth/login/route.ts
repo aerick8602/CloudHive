@@ -2,7 +2,7 @@ import { adminAuth } from "@/lib/firebase/firebase-admin";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const SESSION_COOKIE_NAME = "_CLOUD_HIVE__SESSION";
+const SESSION_COOKIE_NAME = process.env.SESSION!;
 const SESSION_EXPIRES_IN = 60 * 60 * 24 * 1000; // 24 hours in ms
 
 export async function POST(request: NextRequest) {

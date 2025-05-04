@@ -17,12 +17,15 @@ import { UploadMenu } from "./upload-menu";
 import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { AccountProps } from "@/types/AccountProps";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   currentActiveAccount: string | undefined;
   currentParentId: string | undefined;
   setCurrentActiveAccount: (account: string) => void;
   setActiveTab: (tab: string) => void;
+  accounts: AccountProps[];
+  oauthUrl: string | undefined;
 }
 
 export function AppSidebar({
@@ -30,12 +33,16 @@ export function AppSidebar({
   currentActiveAccount,
   setCurrentActiveAccount,
   setActiveTab,
+  accounts,
+  oauthUrl,
   ...props
 }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <AccountSwitcher
+          accounts={accounts}
+          oauthUrl={oauthUrl}
           currentActiveAccount={currentActiveAccount}
           setCurrentActiveAccount={setCurrentActiveAccount}
         ></AccountSwitcher>

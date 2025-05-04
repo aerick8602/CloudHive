@@ -1,91 +1,48 @@
-"use client";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ModeToggle } from "@/components/ui/mode-toggle";
-import { SearchForm } from "@/components/search-form";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
-import { contentMap } from "@/utils/content";
-import { fetchSession } from "@/utils/apis/fetch";
-import useSWR from "swr";
-import { logoutUser } from "@/utils/apis/post";
+import CloudHive from "@/components/cloudhive";
+import { adminAuth } from "@/lib/firebase/firebase-admin";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  const [currentActiveAccount, setCurrentActiveAccount] = useState<string>("");
-  const [currentParentId, setCurrentParentId] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("Drive");
+export default async function Home() {
+  const sessionCookie = (await cookies()).get(process.env.SESSION!);
 
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("currentActiveAccount");
-    if (savedEmail) {
-      setCurrentActiveAccount(savedEmail);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (currentActiveAccount) {
-      localStorage.setItem("currentActiveAccount", currentActiveAccount);
-    }
-  }, [currentActiveAccount]);
-
-  const { data: sessionValid, error: sessionError } = useSWR(
-    "api/auth/verify",
-    fetchSession
-  );
-
-  useEffect(() => {
-    const checkSession = async () => {
-      console.log(sessionValid);
-      if (sessionValid == false) {
-        await logoutUser("api/auth/logout"); // Log out the user if session is invalid
-      }
-    };
-
-    checkSession();
-  }, [sessionValid]);
-
-  if (sessionError) {
-    throw new Error("Session Error");
+  if (!sessionCookie) {
+    return redirect("/auth/sign-in");
   }
 
-  const Component = contentMap[activeTab];
-  return (
-    <SidebarProvider>
-      <AppSidebar
-        variant="inset"
-        currentActiveAccount={currentActiveAccount}
-        setCurrentActiveAccount={setCurrentActiveAccount}
-        currentParentId={currentParentId}
-        setActiveTab={setActiveTab}
-      />
-      <SidebarInset className="overflow-hidden h-[calc(100vh-1rem)]">
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 justify-between">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <SearchForm className="w-full sm:ml-auto sm:w-auto" />
-          </div>
-          <div className="px-3">
-            <ModeToggle />
-          </div>
-        </header>
-        <main
-          className="flex-1 rounded-md bg-muted/30 mb-2 ml-2 mr-2
-  flex flex-col overflow-hidden"
-        >
-          <div className="flex-1 overflow-y-auto">
-            {/* MAIN CONTENT */}
-            <Component />
-          </div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
-  );
+  try {
+    const decodedToken = await adminAuth.verifySessionCookie(
+      sessionCookie.value,
+      true
+    );
+
+    const uid = decodedToken.uid;
+
+    const [accountsRes, oauthRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/${uid}/accounts`, {
+        headers: { Cookie: `${process.env.SESSION}=${sessionCookie.value}` },
+        cache: "no-store",
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/google/${uid}/oauth`, {
+        headers: { Cookie: `${process.env.SESSION}=${sessionCookie.value}` },
+        cache: "no-store",
+      }),
+    ]);
+
+    if (!accountsRes.ok) {
+      throw new Error("Failed to fetch accounts");
+    }
+
+    if (!oauthRes.ok) {
+      throw new Error("Failed to fetch OAuth URL");
+    }
+
+    const accounts = await accountsRes.json();
+    const oauthUrl = await oauthRes.text();
+
+    return <CloudHive accounts={accounts} oauthUrl={oauthUrl} />;
+  } catch (error) {
+    console.error("Authentication or data fetch error:", error);
+    return redirect("/auth/sign-in");
+  }
 }

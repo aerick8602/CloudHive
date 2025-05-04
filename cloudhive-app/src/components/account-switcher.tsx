@@ -27,42 +27,42 @@ import {
 
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import { fetchAccounts, fetchOauthUrl } from "@/utils/apis/fetch";
-
-type Account = {
-  _id: string;
-  email: string;
-};
+import { AccountProps } from "@/types/AccountProps";
 
 interface AccountSwitcherProps {
   currentActiveAccount: string | undefined;
   setCurrentActiveAccount: (account: string) => void;
+  accounts: AccountProps[];
+  oauthUrl: string | undefined;
 }
 
 export function AccountSwitcher({
   currentActiveAccount,
   setCurrentActiveAccount,
+  accounts,
+  oauthUrl,
 }: AccountSwitcherProps) {
   const { isMobile } = useSidebar();
   const [user] = useAuthState(clientAuth);
   const router = useRouter();
 
-  const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
-    user?.uid ? `api/${user?.uid}/accounts` : null,
-    fetchAccounts
-  );
+  // const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
+  //   user?.uid ? `api/${user?.uid}/accounts` : null,
+  //   fetchAccounts
+  // );
 
-  const { data: oauthUrl, error: oauthUrlError } = useSWR<string>(
-    user?.uid ? `api/google/${user?.uid}/oauth` : null,
-    fetchOauthUrl
-  );
+  // const { data: oauthUrl, error: oauthUrlError } = useSWR<string>(
+  //   user?.uid ? `api/google/${user?.uid}/oauth` : null,
+  //   fetchOauthUrl
+  // );
 
-  if (accountsError) {
-    throw new Error("Failed to fetch accounts");
-  }
+  // if (accountsError) {
+  //   throw new Error("Failed to fetch accounts");
+  // }
 
-  if (oauthUrlError) {
-    throw new Error("Failed to fetch OAuth URL");
-  }
+  // if (oauthUrlError) {
+  //   throw new Error("Failed to fetch OAuth URL");
+  // }
 
   // Auto-set first account if none is active
   React.useEffect(() => {
