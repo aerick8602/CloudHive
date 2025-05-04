@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { clientAuth } from "@/lib/firebase/firebase-client";
-import { fetchAccounts, fetchOauthUrl } from "@/utils/apis/fetch";
+import { fetcher } from "@/utils/apis/fetch";
 import { AccountProps } from "@/types/AccountProps";
 
 interface AccountSwitcherProps {
@@ -48,12 +48,12 @@ export function AccountSwitcher({
 
   // const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
   //   user?.uid ? `api/${user?.uid}/accounts` : null,
-  //   fetchAccounts
+  //   fetcher
   // );
 
   // const { data: oauthUrl, error: oauthUrlError } = useSWR<string>(
   //   user?.uid ? `api/google/${user?.uid}/oauth` : null,
-  //   fetchOauthUrl
+  //   fetcher
   // );
 
   // if (accountsError) {

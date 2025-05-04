@@ -10,11 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { contentMap } from "@/utils/content";
-import {
-  fetchAccounts,
-  fetchOauthUrl,
-  verifySession,
-} from "@/utils/apis/fetch";
+import { fetcher } from "@/utils/apis/fetch";
 import useSWR from "swr";
 import { logoutUser } from "@/utils/apis/post";
 import { clientAuth } from "@/lib/firebase/firebase-client";
@@ -47,7 +43,7 @@ export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
 
   // const { data: sessionValid, error: sessionError } = useSWR(
   //   "api/auth/verify",
-  //   verifySession
+  //   fetcher
   // );
 
   // useEffect(() => {
@@ -67,12 +63,12 @@ export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
 
   //   const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
   //     user?.uid ? `api/${user?.uid}/accounts` : null,
-  //     fetchAccounts
+  //     fetcher
   //   );
 
   //   const { data: oauthUrl, error: oauthUrlError } = useSWR<string>(
   //     user?.uid ? `api/google/${user?.uid}/oauth` : null,
-  //     fetchOauthUrl
+  //     fetcher
   //   );
 
   //   if (accountsError) {
@@ -115,7 +111,7 @@ export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
         >
           <div className="flex-1 overflow-y-auto">
             {/* MAIN CONTENT */}
-            <Component />
+            <Component accounts={accounts} />
           </div>
         </main>
       </SidebarInset>

@@ -1,11 +1,7 @@
-import { FaFolder } from "react-icons/fa6";
-
-import { Icon } from "lucide-react";
-import Image from "next/image";
 import { getIconForMimeType } from "@/utils/icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Thumbnail } from "./thumbnail";
-import { FileDropdown } from "./file-dropdown";
+import { FolderCard } from "./card/folder-card";
+import { FileCard } from "./card/file-card";
 
 const dummyFile = {
   id: "1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC",
@@ -13,9 +9,16 @@ const dummyFile = {
   mimeType: "video/x-flv",
 };
 
-export function DriveCard() {
+type DriveCardProps = {
+  email: string;
+  files: any[]; // Replace 'any' with a specific file type if available
+  loading: boolean;
+  error?: any;
+};
+
+export function DriveCard({ email, files, loading, error }: DriveCardProps) {
   const { icon: Icon, color } = getIconForMimeType(dummyFile.mimeType);
-  const isLoading = false; // Toggle this based on your fetch logic
+  const isLoading = false;
 
   const folderSkeletonCount = 4;
   const fileSkeletonCount = 7;
@@ -32,20 +35,7 @@ export function DriveCard() {
               />
             ))
           : [...Array(7)].map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[35/12] sm:aspect-[22/6] md:aspect-[18/5] bg-muted/50 hover:bg-muted/100 rounded-md sm:rounded-lg lg:rounded-xl transition-all duration-300  p-4 flex flex-col gap-4"
-              >
-                <div className="h-full flex items-center justify-between text-center">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <FaFolder size={20} className="text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground truncate block flex-1 text-start ">
-                      Assssssssssssssss
-                    </span>
-                  </div>
-                  <FileDropdown />
-                </div>
-              </div>
+              <FolderCard key={i} name="Assssssssssssssss" />
             ))}
       </div>
 
@@ -59,34 +49,13 @@ export function DriveCard() {
               />
             ))
           : [...Array(27)].map((_, i) => (
-              <div
+              <FileCard
                 key={i}
-                className="aspect-square rounded-lg  bg-muted/60 hover:bg-muted/100 transition-all duration-300  p-1 lg:p-2 flex flex-col justify-between"
-              >
-                <div className="flex items-center justify-between -mt-0.5">
-                  <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0 p-1  pl-2 pb-2 ">
-                    <Icon
-                      style={{ color }}
-                      className="text-md sm:text-base md:text-lg"
-                    />
-                    <span className="text-sm text-start font-medium text-muted-foreground truncate block flex-1">
-                      Ayush File.jpeg
-                    </span>
-                    <FileDropdown />
-                  </div>
-                </div>
-
-                <Thumbnail
-                  src="https://drive.google.com/thumbnail?id=1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC"
-                  fallback={
-                    <Icon
-                      style={{ color }}
-                      className="w-2/3 h-2/3 sm:w-3/4 sm:h-3/4 md:w-4/5 md:h-4/5 max-w-[50%] max-h-[50%]"
-                    />
-                  }
-                  className="flex-1 rounded-sm bg-muted"
-                />
-              </div>
+                name="Ayush File.jpeg"
+                icon={Icon}
+                color={color}
+                thumbnailId="1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC"
+              />
             ))}
       </div>
     </>
