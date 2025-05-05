@@ -2,38 +2,34 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const SESSION_COOKIE_NAME = "_CLOUD_HIVE__SESSION";
+
 export function middleware(request: NextRequest) {
-  // const { pathname } = request.nextUrl;
-  // const sessionCookie = request.cookies.get("_CLOUD_HIVE__SESSION")?.value;
-  // const isAuthPage =
-  //   pathname.startsWith("/auth/sign-in") ||
-  //   pathname.startsWith("/auth/sign-up");
-  // const isApiAuthRoute = pathname.startsWith("/api/auth/");
+  const { pathname } = request.nextUrl;
+  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
-  // // 1. Allow all /api/auth/* requests
-  // if (isApiAuthRoute) {
-  //   return NextResponse.next();
-  // }
+  const isPublicPath =
+    pathname.startsWith("/auth/sign-in") ||
+    pathname.startsWith("/auth/sign-up") ||
+    pathname.startsWith("/api/auth/");
 
-  // // 2. If user has a session
-  // if (sessionCookie) {
-  //   if (isAuthPage) {
-  //     return NextResponse.redirect(new URL("/", request.url));
-  //   }
-  //   return NextResponse.next();
-  // }
+  // ✅ Allow public paths always
+  if (isPublicPath) {
+    return NextResponse.next();
+  }
 
-  // // 3. If no session and not on auth pages
-  // if (!isAuthPage) {
-  //   return NextResponse.redirect(new URL("/auth/sign-in", request.url));
-  // }
+  // ✅ Allow if session cookie exists
+  if (sessionCookie) {
+    return NextResponse.next();
+  }
 
-  // 4. Otherwise allow
-  return NextResponse.next();
+  // ❌ Block access to protected routes if no session
+  return NextResponse.redirect(new URL("/auth/sign-in", request.url));
 }
 
 export const config = {
   matcher: [
-    "/((?!_next|.*\\.(?:ico|png|jpg|jpeg|svg|webp|css|js|woff2?|ttf|eot)).*)",
+    // Exclude _next/static, image files, etc.
+    "/((?!_next|.*\\.(?:ico|png|jpg|jpeg|svg|webp|css|js|woff2?|ttf|eot|map)).*)",
   ],
 };
