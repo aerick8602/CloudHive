@@ -33,7 +33,6 @@ export function FileDropdown({ file }: FileDropdownProps) {
   const [showRenameDialog, setShowRenameDialog] = React.useState(false);
   const [showShareDialog, setShowShareDialog] = React.useState(false);
   const [showDetailSheet, setShowDetailSheet] = React.useState(false);
-  const [filename, setFileName] = React.useState("Untitled File");
 
   return (
     <>
@@ -133,8 +132,7 @@ export function FileDropdown({ file }: FileDropdownProps) {
       <RenameFolderDialog
         open={showRenameDialog}
         onOpenChange={setShowRenameDialog}
-        fileName={filename}
-        setFileName={setFileName}
+        fileName={file.name}
       />
 
       {/* Share Dialog */}

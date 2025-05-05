@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOAuthClient } from "@/lib/google/google.client";
 import { CATEGORY_MIME_MAP } from "@/utils/mimetypes";
+import { FileData } from "@/interface";
 
 export async function GET(
   req: NextRequest,
@@ -14,10 +15,16 @@ export async function GET(
     }
 
     const { searchParams } = new URL(req.url);
+
     const parentId = searchParams.get("parentId") || undefined;
     const pageToken = searchParams.get("pageToken") || undefined;
-    const starred = searchParams.get("starred") === "true";
-    const trashed = searchParams.get("trashed") === "true";
+
+    const starredParam = searchParams.get("starred");
+    const starred = starredParam === null ? undefined : starredParam === "true";
+
+    const trashedParam = searchParams.get("trashed");
+    const trashed = trashedParam === null ? undefined : trashedParam === "true";
+
     const type = searchParams.get("type") || undefined;
 
     console.log("⚡ Params:", {
@@ -31,13 +38,17 @@ export async function GET(
 
     const drive = await createOAuthClient(email);
 
-    const { files, nextPageToken } = await getDriveFilesWithQuery(drive, {
-      parentId,
-      pageToken,
-      starred,
-      trashed,
-      type,
-    });
+    const {
+      files,
+      nextPageToken,
+    }: { files: FileData[]; nextPageToken?: string } =
+      await getDriveFilesWithQuery(drive, {
+        parentId,
+        pageToken,
+        starred,
+        trashed,
+        type,
+      });
 
     return NextResponse.json({ files, nextPageToken }, { status: 200 });
   } catch (error) {
@@ -64,11 +75,9 @@ async function getDriveFilesWithQuery(
   let qParts: string[] = [];
 
   if (parentId) qParts.push(`'${parentId}' in parents`);
-  if (starred) qParts.push("starred = true");
-  if (!trashed) qParts.push("trashed = false");
-  if (trashed) qParts.push("trashed = true");
+  if (starred !== undefined) qParts.push(`starred = ${starred}`);
+  if (trashed !== undefined) qParts.push(`trashed = ${trashed}`);
 
-  // 🧠 Add MIME type filter based on "type" category
   if (type && CATEGORY_MIME_MAP[type]) {
     const mimeConditions = CATEGORY_MIME_MAP[type].map(
       (mime) => `mimeType='${mime}'`
@@ -82,7 +91,8 @@ async function getDriveFilesWithQuery(
     pageSize: 25,
     q,
     orderBy: "modifiedTime desc",
-    fields: "nextPageToken, files(*)",
+    fields:
+      "nextPageToken, files(id,name,mimeType,parents,starred,trashed,createdTime,modifiedTime,permissions(displayName,photoLink,id,type,emailAddress,role),quotaBytesUsed)",
     pageToken,
   });
 

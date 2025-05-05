@@ -28,12 +28,12 @@ export interface FileData {
   createdTime: string;
   modifiedTime: string;
   permissions: {
-    displayName: string;
-    photoLink: string;
     id: string;
     type: string;
-    emailAddress?: string | null;
     role: string;
+    emailAddress?: string | null;
+    displayName?: string | null;
+    photoLink?: string | null;
   }[];
   quotaBytesUsed?: number;
 }

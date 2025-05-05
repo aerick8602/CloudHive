@@ -6,7 +6,7 @@ export const swrConfig = {
    * Time in milliseconds that determines how often data will be automatically refreshed.
    * Set this to `0` to disable polling.
    */
-  refreshInterval: 60000, // Refresh every 60 seconds.
+  refreshInterval: 60000 * 10, // Refresh every 60 seconds.
 
   /**
    * `dedupingInterval`:

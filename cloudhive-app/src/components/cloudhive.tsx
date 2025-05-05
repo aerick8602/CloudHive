@@ -105,12 +105,11 @@ export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
             <ModeToggle />
           </div>
         </header>
-        <main
-          className="flex-1 rounded-md bg-muted/30 mb-2 ml-2 mr-2
-  flex flex-col overflow-hidden"
-        >
-          <div className="flex-1 overflow-y-auto">
-            {/* MAIN CONTENT */}
+        <main className="relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl font-semibold rounded-none">
+            {activeTab}
+          </div>
+          <div className="flex-1 overflow-y-auto px-3 mt-14">
             <Component accounts={accounts} />
           </div>
         </main>

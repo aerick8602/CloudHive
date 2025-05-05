@@ -1,50 +1,91 @@
-import { getIconForMimeType } from "@/utils/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FolderCard } from "./card/folder-card";
 import { FileCard } from "./card/file-card";
-
-const dummyFile = {
-  id: "1NzXLEbi4Nxf8nwa-hGv7MMyXB68Wy6kC",
-  fileName: "AYUSH KATIYAR RESUME.pdf",
-  mimeType: "video/x-flv",
-};
+import { FileData } from "@/interface";
 
 interface DriveCardProps {
-  files: any[]; // Replace 'any' with a specific file type if available
-  loading: boolean;
+  tab: string;
+  allFile: FileData[];
+  allLoading: boolean;
 }
 
-export function DriveCard({ files, loading }: DriveCardProps) {
-  const isLoading = false;
+export function DriveCard({ tab, allFile, allLoading }: DriveCardProps) {
+  // Filtering folders and files
+  const folders = allFile.filter(
+    (file) => file.mimeType === "application/vnd.google-apps.folder"
+  );
+  const files = allFile.filter(
+    (file) => file.mimeType !== "application/vnd.google-apps.folder"
+  );
 
-  const folderSkeletonCount = 4;
-  const fileSkeletonCount = 7;
+  // Skeleton rendering
+  const renderSkeleton = (count: number, isFolder: boolean) =>
+    [...Array(count)].map((_, i) => (
+      <Skeleton
+        key={i}
+        className={`${
+          isFolder
+            ? "aspect-[35/12] sm:aspect-[22/6] md:aspect-[18/5]"
+            : "aspect-square"
+        } rounded-md sm:rounded-lg lg:rounded-xl p-4 flex flex-col gap-4 bg-muted/50 animate-pulse`}
+      >
+        <div className="h-full flex items-center justify-between text-center">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Skeleton className="w-5 h-5 bg-muted/80 rounded-sm" />
+            <div className="flex-1">
+              <Skeleton className="w-full h-5 bg-muted/80" />
+            </div>
+          </div>
+        </div>
+      </Skeleton>
+    ));
 
+  // Skeletons while loading
+  if (allLoading) {
+    return (
+      <>
+        <div className="mb-8">
+          <div className="font-semibold text-lg mb-2">Folder</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+            {renderSkeleton(6, true)} {/* Skeletons for folders */}
+          </div>
+        </div>
+
+        <div>
+          <div className="font-semibold text-lg mb-2">Files</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+            {renderSkeleton(12, false)} {/* Skeletons for files */}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Rendering content after loading
   return (
     <>
-      <div className="font-semibold">Folder</div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-        {isLoading
-          ? [...Array(folderSkeletonCount)].map((_, i) => (
-              <Skeleton
-                key={i}
-                className="aspect-[35/12] sm:aspect-[22/6] md:aspect-[18/5] rounded-md sm:rounded-lg lg:rounded-xl p-4"
-              />
-            ))
-          : [...Array(7)].map((_, i) => (
-              <FolderCard key={i} name="Assssssssssssssss" />
-            ))}
+      {/* Folders Section */}
+      <div className="mb-4">
+        <div className="font-semibold text-muted-foreground p-1 text-sm mb-2">
+          Folders
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+          {folders.map((folder) => (
+            <FolderCard key={folder.id} file={folder} />
+          ))}
+        </div>
       </div>
-      <div className="font-semibold">Files</div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-        {isLoading
-          ? [...Array(fileSkeletonCount)].map((_, i) => (
-              <Skeleton
-                key={i}
-                className="aspect-square rounded-md sm:rounded-lg lg:rounded-xl p-2"
-              />
-            ))
-          : files.map((file) => <FileCard key={file.id} file={file} />)}
+
+      {/* Files Section */}
+      <div>
+        <div className="font-semibold text-muted-foreground p-1  text-sm mb-2">
+          Files
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+          {files.map((file) => (
+            <FileCard key={file.id} file={file} />
+          ))}
+        </div>
       </div>
     </>
   );
