@@ -24,6 +24,7 @@ export default async function Home() {
       sessionCookie.value,
       true
     );
+    console.log(decodedToken);
 
     const uid = decodedToken.uid;
     // 🚀 Try Redis cache for accounts
