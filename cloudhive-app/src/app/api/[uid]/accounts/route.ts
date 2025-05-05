@@ -18,7 +18,7 @@ export async function GET(
     const accounts = await accountsCollection.find({ uids: uid }).toArray();
 
     const accountsList = accounts.map((account: any) => ({
-      email: account.e,
+      e: account.e,
       _id: account._id.toString(),
     }));
 
