@@ -93,6 +93,7 @@ export default async function Home() {
           Cookie: `${process.env.SESSION}=${sessionCookie?.value}`,
         },
       });
+      return redirect("/auth/sign-in");
     } catch (logoutError) {
       console.error("Logout error:", logoutError);
     }
