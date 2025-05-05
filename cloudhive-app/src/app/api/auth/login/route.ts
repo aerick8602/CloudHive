@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set({
       name: SESSION_COOKIE_NAME,
       value: sessionCookie,
-      maxAge: SESSION_EXPIRES_IN,
+      maxAge: SESSION_EXPIRES_IN / 1000,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",

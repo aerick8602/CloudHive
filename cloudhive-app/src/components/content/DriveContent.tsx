@@ -11,7 +11,8 @@ export function DriveContent({ accounts }: { accounts: AccountProps[] }) {
   // Fetch files for each account
   const swrResponses = accounts.map((account) => {
     const url = `/api/file/${account.e}?parentId=root&trashed=false`;
-    return useSWR(url, fetcher, swrConfig);
+    // return useSWR(url, fetcher, swrConfig);
+    return useSWR(url, fetcher);
   });
 
   // Check if any response is still loading or has an error
