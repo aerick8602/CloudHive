@@ -18,7 +18,6 @@ export default async function Home() {
   if (!sessionCookie) {
     return redirect("/auth/sign-in");
   }
-
   try {
     const decodedToken = await adminAuth.verifySessionCookie(
       sessionCookie.value,
