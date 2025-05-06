@@ -286,7 +286,8 @@ export function DriveContent({ accounts }: { accounts: AccountProps[] }) {
 
   // Handle errors and loading states
   if (anyError) {
-    throw new Error("Error fetching files");
+    // throw new Error("Error fetching files");
+    console.log("Error fetching files");
   }
 
   // Render the component with the fetched files
