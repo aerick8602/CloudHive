@@ -80,7 +80,7 @@ export default async function Home() {
       await redis.set(`oauth:${uid}`, oauthUrl, "EX", CACHE_EXPIRES_IN);
     }
 
-    return <CloudHive accounts={accounts} oauthUrl={oauthUrl} />;
+    return <CloudHive uid={uid} accounts={accounts} oauthUrl={oauthUrl} />;
   } catch (err) {
     console.error("Data fetch error:", err);
     return <GeneralError />;

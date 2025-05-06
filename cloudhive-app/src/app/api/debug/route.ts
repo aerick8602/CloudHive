@@ -1,35 +1,33 @@
 import { NextResponse } from "next/server";
 import { createOAuthClient } from "@/lib/google/google.client";
-// GET /api/debug?id=your-file-or-folder-id&email=user@gmail.com
 
+// GET /api/debug?email=user@gmail.com
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const id = url.searchParams.get("id");
     const email = url.searchParams.get("email");
 
-    if (!id || !email) {
+    if (!email) {
       return NextResponse.json(
-        { error: "Missing id or email" },
+        { error: "Missing email parameter" },
         { status: 400 }
       );
     }
 
     const drive = await createOAuthClient(email);
 
-    const fileRes = await drive.files.get({
-      fileId: id,
-      fields: "*",
-      supportsAllDrives: true,
+    const response = await drive.files.list({
+      q: "'me' in owners", // ✅ Only show files owned by the user
+      fields: "files(*)",
+
+      orderBy: "modifiedTime desc",
     });
 
-    const metadata = fileRes.data;
+    const files = response.data.files || [];
 
-    return NextResponse.json({
-      file: metadata,
-    });
+    return NextResponse.json({ files }, { status: 200 });
   } catch (err) {
-    console.error("Debug API error:", err);
+    console.error("❌ Debug API error:", err);
     return NextResponse.json(
       { error: "Failed to fetch file info" },
       { status: 500 }

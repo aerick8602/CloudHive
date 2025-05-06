@@ -20,9 +20,10 @@ import { AccountProps } from "@/types/AccountProps";
 interface CloudHiveProps {
   accounts: AccountProps[];
   oauthUrl: string;
+  uid: string;
 }
 
-export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
+export default function CloudHive({ accounts, oauthUrl, uid }: CloudHiveProps) {
   const [currentActiveAccount, setCurrentActiveAccount] = useState<string>("");
   const [currentParentId, setCurrentParentId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("Drive");
@@ -106,11 +107,11 @@ export default function CloudHive({ accounts, oauthUrl }: CloudHiveProps) {
           </div>
         </header>
         <main className="relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl font-semibold rounded-none">
+          {/* <div className="absolute top-0 left-0 right-0 z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl font-semibold rounded-none">
             {activeTab}
-          </div>
+          </div> */}
           <div className="flex-1 overflow-y-auto px-3 mt-14">
-            <Component accounts={accounts} />
+            <Component uid={uid} accounts={accounts} />
           </div>
         </main>
       </SidebarInset>

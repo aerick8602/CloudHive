@@ -1,299 +1,79 @@
 "use client";
-import useSWR from "swr";
-import { useMemo, useEffect } from "react";
+import { useState } from "react";
 import { DriveCard } from "../drive-card";
-import { AccountProps } from "@/types/AccountProps";
-import { swrConfig } from "@/hooks/use-swr";
+import { FileData } from "@/interface";
+import Link from "next/link";
+import useSWR from "swr";
+import { fetcher } from "@/utils/apis/fetch";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+export function DriveContent({ accounts, uid }: any) {
+  const [currentFolderId, setCurrentFolderId] = useState("root");
+  const [activeEmail, setActiveEmail] = useState<string | null>(null);
+  const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
-export function DriveContent({ accounts }: { accounts: AccountProps[] }) {
-  // Fetch files for each account
-  const swrResponses = accounts.map((account) => {
-    const url = `/api/file/${account.e}?parentId=root&trashed=false`;
-    // return useSWR(url, fetcher, swrConfig);
-    return useSWR(url, fetcher);
-  });
+  const queryKey =
+    currentFolderId === "root" && !activeEmail
+      ? `/api/file/all/${uid}?trashed=false`
+      : activeEmail
+      ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
+      : null;
 
-  // Check if any response is still loading or has an error
-  const allLoading = swrResponses.some((res) => res.isLoading);
-  const anyError = swrResponses.find((res) => res.error);
+  const { data, isLoading, error, mutate } = useSWR(queryKey, fetcher);
 
-  // Merge all files from all accounts
-  const allFiles = useMemo(() => {
-    return swrResponses.flatMap((res) => res.data?.files || []);
-  }, [swrResponses]);
+  const files: FileData[] = data?.files || [];
 
-  // const allFiles: any = [];
-  // const dummyFiles = [
-  //   {
-  //     id: "12Bo5cH9jmhJnBFUaUrdG41vVj8IMfV3B",
-  //     email: "maverick8602@gmail.com",
-  //     name: "0328 Dub, Edited.mp4",
-  //     mimeType: "video/mp4",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: false,
-  //     createdTime: "2024-12-05T09:30:00Z",
-  //     modifiedTime: "2025-01-10T14:15:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         role: "writer",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 102400,
-  //   },
-  //   {
-  //     id: "1gHTF-dOCRZD3_UlfDKcwgS_tUMPRtOGb",
-  //     email: "maverick8602@gmail.com",
-  //     name: "17462831123286042703706227348382.jpg",
-  //     mimeType: "image/jpeg",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: true,
-  //     trashed: false,
-  //     createdTime: "2025-02-01T11:00:00Z",
-  //     modifiedTime: "2025-02-02T13:20:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         role: "writer",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 204800,
-  //   },
-  //   {
-  //     id: "1L1e8gp1UODYAYbaVD9fR9PEbuaVxN-4j",
-  //     email: "maverick8602@gmail.com",
-  //     name: "What is React.docx",
-  //     mimeType:
-  //       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: true,
-  //     createdTime: "2025-01-01T08:45:00Z",
-  //     modifiedTime: "2025-03-01T10:00:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 51200,
-  //   },
-  //   {
-  //     id: "1UUSxaoNCv24Lmc3knHXDWdnDChsiSIuX",
-  //     name: "Dynamic_Range_Minimum_Queries.bin",
-  //     mimeType: "application/x-dosexec",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: false,
+  const handleFolderClick = (
+    folderId: string,
+    email: string,
+    folderName: string
+  ) => {
+    setCurrentFolderId(folderId);
+    setActiveEmail(email);
 
-  //     createdTime: "2025-05-03T14:33:16.537Z",
-  //     modifiedTime: "2025-05-03T14:33:17.557Z",
+    setBreadcrumb((prev) => [
+      ...prev.filter((crumb) => crumb.id !== folderId),
+      { id: folderId, name: folderName },
+    ]);
+  };
 
-  //     permissions: [
-  //       {
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         role: "owner",
-  //         displayName: "Ayush Katiyar",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //       },
-  //       {
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         role: "writer",
-  //         displayName: "Ayush Katiyar",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 165643,
-  //   },
-  //   {
-  //     id: "12Bo5cH9jmhJnBFUaUrdG41vVj8IMfV3B",
-  //     email: "maverick8602@gmail.com",
-  //     name: "0328 Dub, Edited.mp4",
-  //     mimeType: "video/mp4",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: false,
-  //     createdTime: "2024-12-05T09:30:00Z",
-  //     modifiedTime: "2025-01-10T14:15:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         role: "writer",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 102400,
-  //   },
-  //   {
-  //     id: "12Bo5cH9jmhJnBFUaUrdG41vVj8IMfV3B",
-  //     email: "maverick8602@gmail.com",
-  //     name: "0328 Dub, Edited.mp4",
-  //     mimeType: "video/mp4",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: false,
-  //     createdTime: "2024-12-05T09:30:00Z",
-  //     modifiedTime: "2025-01-10T14:15:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         role: "writer",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 102400,
-  //   },
-  //   {
-  //     id: "12Bo5cH9jmhJnBFUaUrdG41vVj8IMfV3B",
-  //     email: "maverick8602@gmail.com",
-  //     name: "0328 Dub, Edited.mp4",
-  //     mimeType: "video/mp4",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: false,
-  //     createdTime: "2024-12-05T09:30:00Z",
-  //     modifiedTime: "2025-01-10T14:15:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         role: "writer",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 102400,
-  //   },
-  //   {
-  //     id: "12Bo5cH9jmhJnBFUaUrdG41vVj8IMfV3B",
-  //     email: "maverick8602@gmail.com",
-  //     name: "0328 Dub, Edited.mp4",
-  //     mimeType: "video/mp4",
-  //     parents: ["0AL7L8bHjeJkGUk9PVA"],
-  //     starred: false,
-  //     trashed: false,
-  //     createdTime: "2024-12-05T09:30:00Z",
-  //     modifiedTime: "2025-01-10T14:15:00Z",
-  //     permissions: [
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a/ACg8ocJqSQhYlYNY4erOh2UCAcmhz8c7d-TpJ8KwV3BMl_LFNLUYnQ=s64",
-  //         id: "02815059765992363055",
-  //         type: "user",
-  //         emailAddress: "maverick8602@gmail.com",
-  //         role: "owner",
-  //       },
-  //       {
-  //         displayName: "Ayush Katiyar",
-  //         photoLink:
-  //           "https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64",
-  //         id: "03077307409702619721",
-  //         type: "user",
-  //         emailAddress: "katiyarayush02@gmail.com",
-  //         role: "writer",
-  //       },
-  //     ],
-  //     quotaBytesUsed: 102400,
-  //   },
-  // ];
+  const handleBreadcrumbClick = (folderId: string, email: string | null) => {
+    setCurrentFolderId(folderId);
+    setActiveEmail(email);
 
-  // Log merged files when available
-  useEffect(() => {
-    if (allFiles.length) {
-      console.log("📁 Merged Files", allFiles);
+    if (folderId === "root") {
+      setBreadcrumb([]);
     }
-  }, [allFiles]);
+  };
 
-  // Handle errors and loading states
-  if (anyError) {
-    // throw new Error("Error fetching files");
-    console.log("Error fetching files");
-  }
-
-  // Render the component with the fetched files
   return (
     <div className="container mx-auto p-2 space-y-4">
-      <DriveCard tab="My Drive" allFile={allFiles} allLoading={allLoading} />
+      {/* Breadcrumb Navigation */}
+      <div className="absolute top-0 left-0 right-0 z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl font-semibold rounded-none">
+        <Link href="#" onClick={() => handleBreadcrumbClick("root", null)}>
+          My Drive
+        </Link>
+        {breadcrumb.map((crumb) => (
+          <span key={crumb.id} className="text-muted-foreground">
+            {" / "}
+            <Link
+              href="#"
+              onClick={() => handleBreadcrumbClick(crumb.id, activeEmail)}
+            >
+              {crumb.name}
+            </Link>
+          </span>
+        ))}
+      </div>
+
+      {/* Drive Card */}
+      <DriveCard
+        tab="My Drive"
+        allFile={files}
+        allLoading={isLoading}
+        onFolderClick={handleFolderClick}
+      />
     </div>
   );
 }

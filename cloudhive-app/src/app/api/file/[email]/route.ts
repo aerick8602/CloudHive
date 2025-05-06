@@ -16,7 +16,7 @@ export async function GET(
 
     const { searchParams } = new URL(req.url);
 
-    const parentId = searchParams.get("parentId") || undefined;
+    const parentId = searchParams.get("parentId") || "root";
     const pageToken = searchParams.get("pageToken") || undefined;
 
     const starredParam = searchParams.get("starred");
@@ -50,7 +50,31 @@ export async function GET(
         type,
       });
 
-    return NextResponse.json({ files, nextPageToken }, { status: 200 });
+    const transformedFiles = files.map((file) => ({
+      id: file.id,
+      email,
+      name: file.name,
+      mimeType: file.mimeType,
+      parents: file.parents || [],
+      starred: file.starred || false,
+      trashed: file.trashed || false,
+      createdTime: file.createdTime,
+      modifiedTime: file.modifiedTime,
+      permissions: (file.permissions || []).map((perm) => ({
+        id: perm.id,
+        type: perm.type,
+        role: perm.role,
+        emailAddress: perm.emailAddress || null,
+        displayName: perm.displayName || null,
+        photoLink: perm.photoLink || null,
+      })),
+      quotaBytesUsed: file.quotaBytesUsed,
+    }));
+
+    return NextResponse.json(
+      { files: transformedFiles, nextPageToken },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("❌ Error:", error);
     return NextResponse.json(
@@ -72,7 +96,7 @@ async function getDriveFilesWithQuery(
 ) {
   const { parentId, pageToken, starred, trashed, type } = options;
 
-  let qParts: string[] = [];
+  let qParts: string[] = ["'me' in owners"];
 
   if (parentId) qParts.push(`'${parentId}' in parents`);
   if (starred !== undefined) qParts.push(`starred = ${starred}`);

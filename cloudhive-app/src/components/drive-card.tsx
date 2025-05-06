@@ -7,9 +7,15 @@ interface DriveCardProps {
   tab: string;
   allFile: FileData[];
   allLoading: boolean;
+  onFolderClick?: (folderId: string, email: string, folderName: string) => void; // `onFolderClick` prop to handle folder clicks
 }
 
-export function DriveCard({ tab, allFile, allLoading }: DriveCardProps) {
+export function DriveCard({
+  tab,
+  allFile,
+  allLoading,
+  onFolderClick,
+}: DriveCardProps) {
   // Filtering folders and files
   const folders = allFile.filter(
     (file) => file.mimeType === "application/vnd.google-apps.folder"
@@ -71,7 +77,11 @@ export function DriveCard({ tab, allFile, allLoading }: DriveCardProps) {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
           {folders.map((folder) => (
-            <FolderCard key={folder.id} file={folder} />
+            <FolderCard
+              key={folder.id}
+              file={folder}
+              onClick={onFolderClick} // Using the `onFolderClick` prop
+            />
           ))}
         </div>
       </div>
