@@ -29,10 +29,15 @@ export function SignInForm({
   const [openResetDialog, setOpenResetDialog] = useState(false);
   const router = useRouter();
 
-  const [signInWithEmailAndPassword, user, loading, error] =
-    useSignInWithEmailAndPassword(clientAuth);
+  const [
+    signInWithEmailAndPassword,
+    user,
+    loading,
+    signInWithEmailAndPasswordError,
+  ] = useSignInWithEmailAndPassword(clientAuth);
 
-  const [signInWithGoogle] = useSignInWithGoogle(clientAuth);
+  const [signInWithGoogle, , , googleSignInError] =
+    useSignInWithGoogle(clientAuth);
 
   const handleEmailAndPasswordSignIn = async (
     e: React.FormEvent<HTMLFormElement>
@@ -128,14 +133,27 @@ export function SignInForm({
   };
 
   useEffect(() => {
-    if (error) {
-      console.error("Firebase sign-in error:", error.code);
-      const msg = getFirebaseErrorMessage(error.code);
+    if (signInWithEmailAndPasswordError) {
+      console.error(
+        "Firebase sign-in error:",
+        signInWithEmailAndPasswordError.code
+      );
+      const msg = getFirebaseErrorMessage(signInWithEmailAndPasswordError.code);
       toast.error(msg, {
         position: "top-right",
       });
     }
-  }, [error]);
+  }, [signInWithEmailAndPasswordError]);
+
+  useEffect(() => {
+    if (googleSignInError) {
+      console.error("Google sign-in error:", googleSignInError.code);
+      const msg = getFirebaseErrorMessage(googleSignInError.code);
+      toast.error(msg, {
+        position: "top-right",
+      });
+    }
+  }, [googleSignInError]);
 
   return (
     <>

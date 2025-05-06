@@ -31,10 +31,14 @@ export function SignUpForm({
   const [openResetDialog, setOpenResetDialog] = useState(false);
   const router = useRouter();
 
-  const [createUserWithEmailAndPassword, user, loading, error] =
-    useCreateUserWithEmailAndPassword(clientAuth);
-
-  const [signInWithGoogle] = useSignInWithGoogle(clientAuth);
+  const [
+    createUserWithEmailAndPassword,
+    user,
+    loading,
+    createUserWithEmailAndPasswordError,
+  ] = useCreateUserWithEmailAndPassword(clientAuth);
+  const [signInWithGoogle, , , googleSignInError] =
+    useSignInWithGoogle(clientAuth);
 
   // Handle Email + Password Sign-Up
   const handleEmailAndPasswordSignUp = async (
@@ -99,11 +103,23 @@ export function SignUpForm({
 
   // Show Firebase error messages
   useEffect(() => {
-    if (error) {
-      const message = getFirebaseErrorMessage(error.code);
+    if (createUserWithEmailAndPasswordError) {
+      const message = getFirebaseErrorMessage(
+        createUserWithEmailAndPasswordError.code
+      );
       toast.error(message, { position: "top-right" });
     }
-  }, [error]);
+  }, [createUserWithEmailAndPasswordError]);
+
+  useEffect(() => {
+    if (googleSignInError) {
+      console.error("Google sign-in error:", googleSignInError.code);
+      const msg = getFirebaseErrorMessage(googleSignInError.code);
+      toast.error(msg, {
+        position: "top-right",
+      });
+    }
+  }, [googleSignInError]);
 
   return (
     <>
