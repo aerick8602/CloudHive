@@ -5,6 +5,7 @@ import { FileData } from "@/interface";
 import Link from "next/link";
 import useSWR from "swr";
 import { fetcher } from "@/utils/apis/fetch";
+import { DriveFacetedFilter } from "../faceted-filter";
 
 export function DriveContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -47,10 +48,25 @@ export function DriveContent({ accounts, uid }: any) {
     }
   };
 
+  const [accountFilter, setAccountFilter] = useState<string[]>([]);
+  const [typeFilter, setTypeFilter] = useState<string[]>([]);
+  const fileTypeOptions = [
+    { label: "PDF", value: "pdf" },
+    { label: "MP4 ", value: "mp4" },
+    { label: "JPG ", value: "jpg" },
+    { label: "PNG ", value: "png" },
+    { label: "DOCX ", value: "docx" },
+    { label: "XLSX ", value: "xlsx" },
+    { label: "PPTX", value: "pptx" },
+    { label: "ZIP", value: "zip" },
+    { label: "TXT ", value: "txt" },
+    { label: "CSV ", value: "csv" },
+  ];
+
   return (
-    <div className="container mx-auto p-2 space-y-4">
+    <div>
       {/* Breadcrumb Navigation */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl font-semibold rounded-none">
+      <div className=" z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl  rounded-none">
         <Link href="#" onClick={() => handleBreadcrumbClick("root", null)}>
           My Drive
         </Link>
@@ -66,14 +82,34 @@ export function DriveContent({ accounts, uid }: any) {
           </span>
         ))}
       </div>
+      <div className="flex gap-2 px-5 mb-4">
+        <DriveFacetedFilter
+          title="Accounts"
+          selected={accountFilter}
+          onChange={setAccountFilter}
+          options={accounts.map((email: any) => ({
+            label: email.e,
+            value: email.e,
+          }))}
+        />
+
+        <DriveFacetedFilter
+          title="Types"
+          selected={typeFilter}
+          onChange={setTypeFilter}
+          options={fileTypeOptions}
+        />
+      </div>
 
       {/* Drive Card */}
-      <DriveCard
-        tab="My Drive"
-        allFile={files}
-        allLoading={isLoading}
-        onFolderClick={handleFolderClick}
-      />
+      <div className="overflow-y-auto max-h-[calc(100vh-8rem)] mb-10">
+        <DriveCard
+          tab="My Drive"
+          allFile={files}
+          allLoading={isLoading}
+          onFolderClick={handleFolderClick}
+        />
+      </div>
     </div>
   );
 }

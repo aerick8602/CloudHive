@@ -7,7 +7,8 @@ interface DriveCardProps {
   tab: string;
   allFile: FileData[];
   allLoading: boolean;
-  onFolderClick?: (folderId: string, email: string, folderName: string) => void; // `onFolderClick` prop to handle folder clicks
+  onFolderClick?: (folderId: string, email: string, folderName: string) => void;
+  hasFolders?: boolean; // <== NEW
 }
 
 export function DriveCard({
@@ -15,8 +16,8 @@ export function DriveCard({
   allFile,
   allLoading,
   onFolderClick,
+  hasFolders = true, // default true for backward compatibility
 }: DriveCardProps) {
-  // Filtering folders and files
   const folders = allFile.filter(
     (file) => file.mimeType === "application/vnd.google-apps.folder"
   );
@@ -24,79 +25,99 @@ export function DriveCard({
     (file) => file.mimeType !== "application/vnd.google-apps.folder"
   );
 
-  // Skeleton rendering
-  const renderSkeleton = (count: number, isFolder: boolean) =>
+  const renderFolderSkeleton = (count: number) =>
     [...Array(count)].map((_, i) => (
       <Skeleton
         key={i}
-        className={`${
-          isFolder
-            ? "aspect-[35/12] sm:aspect-[22/6] md:aspect-[18/5]"
-            : "aspect-square"
-        } rounded-md sm:rounded-lg lg:rounded-xl p-4 flex flex-col gap-4 bg-muted/50 animate-pulse`}
+        className="aspect-[35/12] sm:aspect-[22/6] md:aspect-[18/5] bg-muted/50 rounded-md sm:rounded-lg lg:rounded-xl p-4 flex flex-col gap-4 animate-pulse"
       >
         <div className="h-full flex items-center justify-between text-center">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Skeleton className="w-5 h-5 bg-muted/80 rounded-sm" />
-            <div className="flex-1">
-              <Skeleton className="w-full h-5 bg-muted/80" />
-            </div>
+            <Skeleton className="flex-1 h-5 bg-muted/80 rounded-sm" />
           </div>
+          <Skeleton className="w-5 h-5 bg-muted/70 rounded" />
         </div>
       </Skeleton>
     ));
 
-  // Skeletons while loading
-  if (allLoading) {
-    return (
-      <>
-        <div className="mb-8">
-          <div className="font-semibold text-lg mb-2">Folder</div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-            {renderSkeleton(6, true)} {/* Skeletons for folders */}
+  const renderFileSkeleton = (count: number) =>
+    [...Array(count)].map((_, i) => (
+      <Skeleton
+        key={i}
+        className="aspect-square rounded-lg bg-muted/60 p-1 lg:p-2 flex flex-col justify-between animate-pulse"
+      >
+        <div className="flex items-center justify-between -mt-0.5">
+          <div className="flex items-center gap-2 h-full text-center flex-1 min-w-0 p-1 pl-2 pb-2">
+            <Skeleton className="w-5 h-5 bg-muted/80 rounded-sm -ml-2" />
+            <Skeleton className="flex-1 h-5 bg-muted/80 rounded-sm" />
           </div>
         </div>
+        <Skeleton className="flex-1 rounded-sm bg-muted/40" />
+      </Skeleton>
+    ));
 
-        <div>
-          <div className="font-semibold text-lg mb-2">Files</div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-            {renderSkeleton(12, false)} {/* Skeletons for files */}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  // Rendering content after loading
   return (
     <>
-      {/* Folders Section */}
-      <div className="mb-4">
-        <div className="font-semibold text-muted-foreground p-1 text-sm mb-2">
-          Folders
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-          {folders.map((folder) => (
-            <FolderCard
-              key={folder.id}
-              file={folder}
-              onClick={onFolderClick} // Using the `onFolderClick` prop
-            />
-          ))}
-        </div>
-      </div>
+      {allLoading ? (
+        <div className="px-4">
+          {hasFolders && (
+            <div className="mb-4">
+              <div className="font-semibold text-muted-foreground p-1 text-sm mb-2">
+                Folders
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                {renderFolderSkeleton(7)}
+              </div>
+            </div>
+          )}
 
-      {/* Files Section */}
-      <div>
-        <div className="font-semibold text-muted-foreground p-1  text-sm mb-2">
-          Files
+          <div className="mb-8">
+            <div className="font-semibold text-muted-foreground p-1 text-sm mb-2">
+              Files
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+              {renderFileSkeleton(12)}
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-          {files.map((file) => (
-            <FileCard key={file.id} file={file} />
-          ))}
+      ) : allFile.length === 0 ? (
+        <div className="text-muted-foreground text-sm text-center mt-16">
+          No data available.
         </div>
-      </div>
+      ) : (
+        <div className="px-4">
+          {hasFolders && folders.length > 0 && (
+            <div className="mb-4 ">
+              <div className="font-semibold text-muted-foreground p-1 text-sm mb-2">
+                Folders
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                {folders.map((folder) => (
+                  <FolderCard
+                    key={folder.id}
+                    file={folder}
+                    onClick={onFolderClick}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {files.length > 0 && (
+            <div className="mb-8">
+              <div className="font-semibold text-muted-foreground p-1 text-sm mb-2">
+                Files
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                {files.map((file) => (
+                  <FileCard key={file.id} file={file} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }

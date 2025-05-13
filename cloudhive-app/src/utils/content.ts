@@ -9,8 +9,9 @@ import { AudioContent } from "@/components/content/AudioContent";
 import { DocumentContent } from "@/components/content/DocumentContent";
 import { TextContent } from "@/components/content/TextContent";
 import { ArchiveContent } from "@/components/content/ArchiveContent";
-import { ProfileContent } from "@/components/content/ProfileContent";
-import { AccountsContent } from "@/components/content/AccountsContent";
+
+import SettingsAccount from "@/components/content/setting/SettingsAccount";
+import ProfileContent from "@/components/content/ProfileContent";
 
 // Flat mapping from tab title to content component
 const contentMap: Record<string, React.ComponentType<any>> = {
@@ -26,7 +27,7 @@ const contentMap: Record<string, React.ComponentType<any>> = {
   Text: TextContent,
   Archives: ArchiveContent,
   Profile: ProfileContent,
-  Accounts: AccountsContent,
+  Accounts: SettingsAccount,
 };
 
 export { contentMap };

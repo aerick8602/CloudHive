@@ -92,7 +92,7 @@ export default function CloudHive({ accounts, oauthUrl, uid }: CloudHiveProps) {
         currentParentId={currentParentId}
         setActiveTab={setActiveTab}
       />
-      <SidebarInset className="overflow-hidden h-[calc(100vh-1rem)]">
+      <SidebarInset className="h-[calc(100vh-1rem)]">
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 justify-between">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -106,13 +106,14 @@ export default function CloudHive({ accounts, oauthUrl, uid }: CloudHiveProps) {
             <ModeToggle />
           </div>
         </header>
-        <main className="relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
+        <main className=" relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
           {/* <div className="absolute top-0 left-0 right-0 z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl font-semibold rounded-none">
             {activeTab}
           </div> */}
-          <div className="flex-1 overflow-y-auto px-3 mt-14">
+          <Component uid={uid} accounts={accounts} />
+          {/* <div className="overflow-y-auto">
             <Component uid={uid} accounts={accounts} />
-          </div>
+          </div> */}
         </main>
       </SidebarInset>
     </SidebarProvider>
