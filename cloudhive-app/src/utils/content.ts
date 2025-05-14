@@ -3,15 +3,15 @@ import { RecentContent } from "@/components/content/RecentContent";
 import { StarredContent } from "@/components/content/StarredContent";
 import { TrashContent } from "@/components/content/TrashContent";
 import { StorageContent } from "@/components/content/StorageContent";
-import { ImageContent } from "@/components/content/ImageContent";
-import { VideoContent } from "@/components/content/VideoContent";
-import { AudioContent } from "@/components/content/AudioContent";
-import { DocumentContent } from "@/components/content/DocumentContent";
-import { TextContent } from "@/components/content/TextContent";
-import { ArchiveContent } from "@/components/content/ArchiveContent";
+import { ImageContent } from "@/components/content/media/ImageContent";
+import { VideoContent } from "@/components/content/media/VideoContent";
+import { AudioContent } from "@/components/content/media/AudioContent";
+import { DocumentContent } from "@/components/content/media/DocumentContent";
+import { TextContent } from "@/components/content/media/TextContent";
+import { ArchiveContent } from "@/components/content/media/ArchiveContent";
 
 import SettingsAccount from "@/components/content/setting/SettingsAccount";
-import ProfileContent from "@/components/content/ProfileContent";
+import ProfileContent from "@/components/content/setting/ProfileContent";
 
 // Flat mapping from tab title to content component
 const contentMap: Record<string, React.ComponentType<any>> = {

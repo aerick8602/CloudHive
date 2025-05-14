@@ -27,6 +27,8 @@ export interface FileData {
   trashed: boolean;
   createdTime: string;
   modifiedTime: string;
+  viewedByMe: boolean;
+  viewedByMeTime: string;
   permissions: {
     id: string;
     type: string;

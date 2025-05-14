@@ -1,4 +1,3 @@
-"use client";
 import { useState } from "react";
 import { DriveCard } from "../drive-card";
 import { FileData } from "@/interface";
@@ -6,6 +5,19 @@ import useSWR from "swr";
 import { fetcher } from "@/utils/apis/fetch";
 import { DriveFacetedFilter } from "../faceted-filter";
 import { AppBreadcrumb } from "../breadcrumb";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Updated import
+
+import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
+import {
+  IconSortAscendingLetters,
+  IconSortDescendingLetters,
+} from "@tabler/icons-react";
 
 export function DriveContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -13,6 +25,7 @@ export function DriveContent({ accounts, uid }: any) {
   const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
     []
   );
+  const [filterOption, setFilterOption] = useState<string>("lastOpened"); // Single state for both sorting and time filters
 
   const queryKey =
     currentFolderId === "root" && !activeEmail
@@ -21,7 +34,27 @@ export function DriveContent({ accounts, uid }: any) {
       ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
       : null;
 
-  const { data, isLoading } = useSWR(queryKey, fetcher);
+  const { data, error, isLoading, mutate, isValidating } = useSWR(
+    queryKey,
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000,
+      focusThrottleInterval: 5000,
+      refreshInterval: 60000,
+      errorRetryInterval: 5000,
+      errorRetryCount: 3,
+      suspense: false,
+      loadingTimeout: 5000,
+      onSuccess: (data) => {
+        console.log("Data fetched successfully:", data);
+      },
+      onError: (error) => {
+        console.error("Error fetching data:", error);
+      },
+    }
+  );
 
   const files: FileData[] = data?.files || [];
 
@@ -62,7 +95,56 @@ export function DriveContent({ accounts, uid }: any) {
     { label: "CSV", value: "csv" },
   ];
 
-  // 🔍 Apply filters before passing to DriveCard
+  // Function to extract just the date part (YYYY-MM-DD) from the timestamp
+  const extractDate = (dateString: string) => {
+    return new Date(dateString).toISOString().split("T")[0]; // "YYYY-MM-DD"
+  };
+
+  // Function to filter by time range
+  const filterFilesByTime = (file: FileData) => {
+    const modifiedDate = extractDate(file.modifiedTime || file.createdTime);
+    const today = extractDate(new Date().toISOString());
+
+    // Get yesterday's date
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayDate = extractDate(yesterday.toISOString());
+
+    switch (filterOption) {
+      case "today":
+        return modifiedDate === today;
+      case "yesterday":
+        return modifiedDate === yesterdayDate;
+      case "last7days":
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const sevenDaysAgoDate = extractDate(sevenDaysAgo.toISOString());
+        return modifiedDate >= sevenDaysAgoDate && modifiedDate <= today;
+      case "last30days":
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const thirtyDaysAgoDate = extractDate(thirtyDaysAgo.toISOString());
+        return modifiedDate >= thirtyDaysAgoDate && modifiedDate <= today;
+      default:
+        return true; // No filter applied
+    }
+  };
+
+  // Function to sort files based on selected option
+  const sortFiles = (files: FileData[]) => {
+    return files.sort((a, b) => {
+      const dateA = a.viewedByMe === false ? a.modifiedTime : a.viewedByMeTime;
+      const dateB = b.viewedByMe === false ? b.modifiedTime : b.viewedByMeTime;
+
+      // Extract date from timestamps
+      const dateAParsed = new Date(dateA);
+      const dateBParsed = new Date(dateB);
+
+      return dateBParsed.getTime() - dateAParsed.getTime(); // Default to sorting by last opened
+    });
+  };
+
+  // Apply filters before passing to DriveCard
   const filteredFiles = files.filter((file) => {
     const matchesAccount =
       accountFilter.length === 0 || accountFilter.includes(file.email);
@@ -71,8 +153,12 @@ export function DriveContent({ accounts, uid }: any) {
       typeFilter.length === 0 ||
       typeFilter.some((type) => file.mimeType.toLowerCase().includes(type));
 
-    return matchesAccount && matchesType;
+    const matchesTime = filterFilesByTime(file);
+
+    return matchesAccount && matchesType && matchesTime;
   });
+
+  const sortedFiles = sortFiles(filteredFiles);
 
   return (
     <div>
@@ -91,31 +177,79 @@ export function DriveContent({ accounts, uid }: any) {
       />
 
       {/* Filters */}
-      <div className="flex gap-2 px-5 mb-4">
-        <DriveFacetedFilter
-          title="Accounts"
-          selected={accountFilter}
-          onChange={setAccountFilter}
-          options={accounts.map((email: any) => ({
-            label: email.e,
-            value: email.e,
-          }))}
-          widthClass="w-[230px]"
-        />
-        <DriveFacetedFilter
-          title="Types"
-          selected={typeFilter}
-          onChange={setTypeFilter}
-          options={fileTypeOptions}
-          widthClass="w-[150px]"
-        />
+      <div className="flex gap-2 px-5 mb-2 justify-between">
+        <div className="flex gap-2">
+          <DriveFacetedFilter
+            title="Accounts"
+            selected={accountFilter}
+            onChange={setAccountFilter}
+            options={accounts.map((email: any) => ({
+              label: email.e,
+              value: email.e,
+            }))}
+            widthClass="w-[230px]"
+          />
+          <DriveFacetedFilter
+            title="Types"
+            selected={typeFilter}
+            onChange={setTypeFilter}
+            options={fileTypeOptions}
+            widthClass="w-[150px]"
+          />
+        </div>
+
+        {/* Filter Options */}
+        <Select value={filterOption} onValueChange={setFilterOption}>
+          <SelectTrigger className="w-16">
+            <SelectValue>
+              <IconAdjustmentsHorizontal size={18} />
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="end">
+            {/* Sorting Options */}
+            <SelectItem value="lastOpened">
+              <div className="flex items-center gap-4">
+                <span>Last opened</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="modifiedTime">
+              <div className="flex items-center gap-4">
+                <span>Last modified</span>
+              </div>
+            </SelectItem>
+
+            <div className="border-t border-gray-300 my-2" />
+
+            {/* Time Filter Options */}
+            <SelectItem value="today">
+              <div className="flex items-center gap-4">
+                <span>Today</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="yesterday">
+              <div className="flex items-center gap-4">
+                <span>Yesterday</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="last7days">
+              <div className="flex items-center gap-4">
+                <span>Last 7 Days</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="last30days">
+              <div className="flex items-center gap-4">
+                <span>Last 30 Days</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Drive Cards */}
-      <div className="overflow-y-auto max-h-[calc(100vh-11rem)] mb-10">
+      <div className="overflow-y-auto max-h-[calc(100vh-11rem)] mb-9">
         <DriveCard
           tab="My Drive"
-          allFile={filteredFiles}
+          allFile={sortedFiles}
           allLoading={isLoading}
           onFolderClick={handleFolderClick}
         />

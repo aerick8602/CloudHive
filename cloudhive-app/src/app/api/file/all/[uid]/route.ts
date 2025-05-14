@@ -135,7 +135,7 @@ async function getDriveFilesWithQuery(
     q,
     orderBy: "modifiedTime desc",
     fields:
-      "nextPageToken, files(id,name,mimeType,parents,starred,trashed,createdTime,modifiedTime,permissions(displayName,photoLink,id,type,emailAddress,role),quotaBytesUsed)",
+      "nextPageToken, files(id,name,mimeType,parents,starred,trashed,createdTime,modifiedTime,permissions(displayName,photoLink,id,type,emailAddress,role),quotaBytesUsed,viewedByMe,viewedByMeTime)",
     pageToken,
   });
 
