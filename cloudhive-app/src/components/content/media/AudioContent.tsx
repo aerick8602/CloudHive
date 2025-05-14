@@ -174,13 +174,13 @@ export function AudioContent({ accounts, uid }: any) {
             }))}
             widthClass="w-[230px]"
           />
-          <DriveFacetedFilter
+          {/* <DriveFacetedFilter
             title="Types"
             selected={typeFilter}
             onChange={setTypeFilter}
             options={fileTypeOptions}
             widthClass="w-[150px]"
-          />
+          /> */}
         </div>
 
         {/* Filter Options */}
@@ -239,8 +239,8 @@ export function AudioContent({ accounts, uid }: any) {
           onFolderClick={handleFolderClick}
           hasFolders={false}
           bgImage="Audio.svg"
-          bgfirstMessage=""
-          bgsecondMessage=""
+          bgfirstMessage="No Audio Files Yet"
+          bgsecondMessage="Upload MP3s, WAVs, and more to build your audio collection."
         />
       </div>
     </div>

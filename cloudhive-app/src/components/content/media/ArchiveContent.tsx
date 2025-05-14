@@ -174,13 +174,13 @@ export function ArchiveContent({ accounts, uid }: any) {
             }))}
             widthClass="w-[230px]"
           />
-          <DriveFacetedFilter
+          {/* <DriveFacetedFilter
             title="Types"
             selected={typeFilter}
             onChange={setTypeFilter}
             options={fileTypeOptions}
             widthClass="w-[150px]"
-          />
+          /> */}
         </div>
 
         {/* Filter Options */}
@@ -239,8 +239,8 @@ export function ArchiveContent({ accounts, uid }: any) {
           onFolderClick={handleFolderClick}
           hasFolders={true}
           bgImage="Archive.svg"
-          bgfirstMessage=""
-          bgsecondMessage=""
+          bgfirstMessage="No Archives Found"
+          bgsecondMessage="Upload ZIP, RAR, and other archive files to manage compressed content."
         />
       </div>
     </div>

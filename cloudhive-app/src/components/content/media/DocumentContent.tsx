@@ -174,13 +174,13 @@ export function DocumentContent({ accounts, uid }: any) {
             }))}
             widthClass="w-[230px]"
           />
-          <DriveFacetedFilter
+          {/* <DriveFacetedFilter
             title="Types"
             selected={typeFilter}
             onChange={setTypeFilter}
             options={fileTypeOptions}
             widthClass="w-[150px]"
-          />
+          /> */}
         </div>
 
         {/* Filter Options */}
@@ -239,8 +239,8 @@ export function DocumentContent({ accounts, uid }: any) {
           onFolderClick={handleFolderClick}
           hasFolders={false}
           bgImage="Document.svg"
-          bgfirstMessage=""
-          bgsecondMessage=""
+          bgfirstMessage="No Documents Found"
+          bgsecondMessage="Start uploading your PDFs, Word files, or sheets to manage them here."
         />
       </div>
     </div>

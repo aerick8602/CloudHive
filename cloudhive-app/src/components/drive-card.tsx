@@ -2,6 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FolderCard } from "./card/folder-card";
 import { FileCard } from "./card/file-card";
 import { FileData } from "@/interface";
+import Image from "next/image";
 
 interface DriveCardProps {
   tab: string;
@@ -9,7 +10,7 @@ interface DriveCardProps {
   allLoading: boolean;
   onFolderClick?: (folderId: string, email: string, folderName: string) => void;
   hasFolders?: boolean; // <== NEW
-  bgImage?: string;
+  bgImage: string;
   bgfirstMessage?: string;
   bgsecondMessage?: string;
 }
@@ -89,11 +90,13 @@ export function DriveCard({
         </div>
       ) : allFile.length === 0 ? (
         <div className=" flex flex-col items-center justify-center   text-muted-foreground text-sm text-center px-4">
-          <img
+          <Image
             src={bgImage}
-            alt="Upload illustration "
-            className="mb-4"
+            alt="Empty state illustration"
             width={300}
+            height={200}
+            className="mb-4"
+            priority
           />
           <p className=" font-medium text-2xl mb-4">{bgfirstMessage}</p>
           <p className="text-sm">{bgsecondMessage}</p>

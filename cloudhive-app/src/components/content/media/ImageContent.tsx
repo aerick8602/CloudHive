@@ -174,13 +174,13 @@ export function ImageContent({ accounts, uid }: any) {
             }))}
             widthClass="w-[230px]"
           />
-          <DriveFacetedFilter
+          {/* <DriveFacetedFilter
             title="Types"
             selected={typeFilter}
             onChange={setTypeFilter}
             options={fileTypeOptions}
             widthClass="w-[150px]"
-          />
+          /> */}
         </div>
 
         {/* Filter Options */}
@@ -239,8 +239,8 @@ export function ImageContent({ accounts, uid }: any) {
           onFolderClick={handleFolderClick}
           hasFolders={false}
           bgImage="Image.svg"
-          bgfirstMessage=""
-          bgsecondMessage=""
+          bgfirstMessage="Your Image Gallery is Empty"
+          bgsecondMessage="Start uploading photos to view them here."
         />
       </div>
     </div>

@@ -174,13 +174,13 @@ export function TextContent({ accounts, uid }: any) {
             }))}
             widthClass="w-[230px]"
           />
-          <DriveFacetedFilter
+          {/* <DriveFacetedFilter
             title="Types"
             selected={typeFilter}
             onChange={setTypeFilter}
             options={fileTypeOptions}
             widthClass="w-[150px]"
-          />
+          /> */}
         </div>
 
         {/* Filter Options */}
@@ -239,8 +239,8 @@ export function TextContent({ accounts, uid }: any) {
           onFolderClick={handleFolderClick}
           hasFolders={false}
           bgImage="Text.svg"
-          bgfirstMessage=""
-          bgsecondMessage=""
+          bgfirstMessage="No Files to Display"
+          bgsecondMessage="Start uploading your  files to manage them here."
         />
       </div>
     </div>

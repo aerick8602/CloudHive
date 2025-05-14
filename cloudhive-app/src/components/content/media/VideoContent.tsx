@@ -174,13 +174,13 @@ export function VideoContent({ accounts, uid }: any) {
             }))}
             widthClass="w-[230px]"
           />
-          <DriveFacetedFilter
+          {/* <DriveFacetedFilter
             title="Types"
             selected={typeFilter}
             onChange={setTypeFilter}
             options={fileTypeOptions}
             widthClass="w-[150px]"
-          />
+          /> */}
         </div>
 
         {/* Filter Options */}
@@ -239,8 +239,8 @@ export function VideoContent({ accounts, uid }: any) {
           onFolderClick={handleFolderClick}
           hasFolders={false}
           bgImage="Video.svg"
-          bgfirstMessage=""
-          bgsecondMessage=""
+          bgfirstMessage="Your Video Collection is Empty"
+          bgsecondMessage="Upload videos  to start building your collection."
         />
       </div>
     </div>
