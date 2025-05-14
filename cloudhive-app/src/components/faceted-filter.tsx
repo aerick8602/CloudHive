@@ -32,6 +32,7 @@ interface DriveFacetedFilterProps {
   options: FacetOption[];
   selected: string[];
   onChange: (selected: string[]) => void;
+  widthClass?: string;
 }
 
 export function DriveFacetedFilter({
@@ -39,6 +40,7 @@ export function DriveFacetedFilter({
   options,
   selected,
   onChange,
+  widthClass,
 }: DriveFacetedFilterProps) {
   const selectedSet = new Set(selected);
 
@@ -93,7 +95,10 @@ export function DriveFacetedFilter({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent
+        className={cn("p-0", widthClass ?? "w-[200px]")}
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={title} />
           <CommandList>

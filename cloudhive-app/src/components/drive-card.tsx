@@ -82,8 +82,14 @@ export function DriveCard({
           </div>
         </div>
       ) : allFile.length === 0 ? (
-        <div className="text-muted-foreground text-sm text-center mt-16">
-          No data available.
+        <div className="flex flex-col items-center justify-center   text-muted-foreground text-sm text-center px-4">
+          <img src="/Folder-amico.svg" alt="Upload illustration" width={350} />
+          <p className=" font-medium text-2xl mb-4">
+            A place for all of your files
+          </p>
+          <p className="text-sm">
+            Drag your files and folders here or use the 'New' button to upload
+          </p>
         </div>
       ) : (
         <div className="px-4">

@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { DriveCard } from "../drive-card";
 import { FileData } from "@/interface";
-import Link from "next/link";
 import useSWR from "swr";
 import { fetcher } from "@/utils/apis/fetch";
 import { DriveFacetedFilter } from "../faceted-filter";
+import { AppBreadcrumb } from "../breadcrumb";
 
 export function DriveContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -21,7 +21,7 @@ export function DriveContent({ accounts, uid }: any) {
       ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
       : null;
 
-  const { data, isLoading, error, mutate } = useSWR(queryKey, fetcher);
+  const { data, isLoading } = useSWR(queryKey, fetcher);
 
   const files: FileData[] = data?.files || [];
 
@@ -32,7 +32,6 @@ export function DriveContent({ accounts, uid }: any) {
   ) => {
     setCurrentFolderId(folderId);
     setActiveEmail(email);
-
     setBreadcrumb((prev) => [
       ...prev.filter((crumb) => crumb.id !== folderId),
       { id: folderId, name: folderName },
@@ -42,7 +41,6 @@ export function DriveContent({ accounts, uid }: any) {
   const handleBreadcrumbClick = (folderId: string, email: string | null) => {
     setCurrentFolderId(folderId);
     setActiveEmail(email);
-
     if (folderId === "root") {
       setBreadcrumb([]);
     }
@@ -50,38 +48,49 @@ export function DriveContent({ accounts, uid }: any) {
 
   const [accountFilter, setAccountFilter] = useState<string[]>([]);
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
+
   const fileTypeOptions = [
     { label: "PDF", value: "pdf" },
-    { label: "MP4 ", value: "mp4" },
-    { label: "JPG ", value: "jpg" },
-    { label: "PNG ", value: "png" },
-    { label: "DOCX ", value: "docx" },
-    { label: "XLSX ", value: "xlsx" },
+    { label: "MP4", value: "mp4" },
+    { label: "JPG", value: "jpg" },
+    { label: "PNG", value: "png" },
+    { label: "DOCX", value: "docx" },
+    { label: "XLSX", value: "xlsx" },
     { label: "PPTX", value: "pptx" },
     { label: "ZIP", value: "zip" },
-    { label: "TXT ", value: "txt" },
-    { label: "CSV ", value: "csv" },
+    { label: "TXT", value: "txt" },
+    { label: "CSV", value: "csv" },
   ];
+
+  // 🔍 Apply filters before passing to DriveCard
+  const filteredFiles = files.filter((file) => {
+    const matchesAccount =
+      accountFilter.length === 0 || accountFilter.includes(file.email);
+
+    const matchesType =
+      typeFilter.length === 0 ||
+      typeFilter.some((type) => file.mimeType.toLowerCase().includes(type));
+
+    return matchesAccount && matchesType;
+  });
 
   return (
     <div>
       {/* Breadcrumb Navigation */}
-      <div className=" z-10 bg-opacity-100 pl-5 flex items-center h-14 text-2xl  rounded-none">
-        <Link href="#" onClick={() => handleBreadcrumbClick("root", null)}>
-          My Drive
-        </Link>
-        {breadcrumb.map((crumb) => (
-          <span key={crumb.id} className="text-muted-foreground">
-            {" / "}
-            <Link
-              href="#"
-              onClick={() => handleBreadcrumbClick(crumb.id, activeEmail)}
-            >
-              {crumb.name}
-            </Link>
-          </span>
-        ))}
-      </div>
+      <AppBreadcrumb
+        items={[
+          { label: "My Drive", id: "root", email: null },
+          ...breadcrumb.map((crumb) => ({
+            label: crumb.name,
+            id: crumb.id,
+            email: activeEmail,
+          })),
+        ]}
+        onCrumbClick={handleBreadcrumbClick}
+        className="px-5 py-3"
+      />
+
+      {/* Filters */}
       <div className="flex gap-2 px-5 mb-4">
         <DriveFacetedFilter
           title="Accounts"
@@ -91,21 +100,22 @@ export function DriveContent({ accounts, uid }: any) {
             label: email.e,
             value: email.e,
           }))}
+          widthClass="w-[230px]"
         />
-
         <DriveFacetedFilter
           title="Types"
           selected={typeFilter}
           onChange={setTypeFilter}
           options={fileTypeOptions}
+          widthClass="w-[150px]"
         />
       </div>
 
-      {/* Drive Card */}
-      <div className="overflow-y-auto max-h-[calc(100vh-8rem)] mb-10">
+      {/* Drive Cards */}
+      <div className="overflow-y-auto max-h-[calc(100vh-11rem)] mb-10">
         <DriveCard
           tab="My Drive"
-          allFile={files}
+          allFile={filteredFiles}
           allLoading={isLoading}
           onFolderClick={handleFolderClick}
         />
