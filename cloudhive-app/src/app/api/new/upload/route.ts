@@ -151,8 +151,7 @@ export async function POST(request: Request) {
       });
 
       const fileId = initialRes.data.id!;
-      // await
-      drive.permissions.create({
+      await drive.permissions.create({
         fileId: fileId,
         requestBody: {
           type: "user",

@@ -31,7 +31,7 @@ export function NavSecondary({
           {navSecondary.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton tooltip={item.title} asChild size="sm">
-                <a>
+                <a className="text-xs flex  h-full items-center">
                   <item.icon />
                   <span>{item.title}</span>
                 </a>

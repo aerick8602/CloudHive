@@ -9,6 +9,9 @@ interface DriveCardProps {
   allLoading: boolean;
   onFolderClick?: (folderId: string, email: string, folderName: string) => void;
   hasFolders?: boolean; // <== NEW
+  bgImage?: string;
+  bgfirstMessage?: string;
+  bgsecondMessage?: string;
 }
 
 export function DriveCard({
@@ -16,6 +19,9 @@ export function DriveCard({
   allFile,
   allLoading,
   onFolderClick,
+  bgImage,
+  bgfirstMessage,
+  bgsecondMessage,
   hasFolders = true, // default true for backward compatibility
 }: DriveCardProps) {
   const folders = allFile.filter(
@@ -82,14 +88,15 @@ export function DriveCard({
           </div>
         </div>
       ) : allFile.length === 0 ? (
-        <div className="flex flex-col items-center justify-center   text-muted-foreground text-sm text-center px-4">
-          <img src="/Folder-amico.svg" alt="Upload illustration" width={350} />
-          <p className=" font-medium text-2xl mb-4">
-            A place for all of your files
-          </p>
-          <p className="text-sm">
-            Drag your files and folders here or use the 'New' button to upload
-          </p>
+        <div className=" flex flex-col items-center justify-center   text-muted-foreground text-sm text-center px-4">
+          <img
+            src={bgImage}
+            alt="Upload illustration "
+            className="mb-4"
+            width={300}
+          />
+          <p className=" font-medium text-2xl mb-4">{bgfirstMessage}</p>
+          <p className="text-sm">{bgsecondMessage}</p>
         </div>
       ) : (
         <div className="px-4">

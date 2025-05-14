@@ -18,6 +18,7 @@ import {
   IconSortAscendingLetters,
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
+import { swrOptions } from "@/lib/swr.config";
 
 export function DriveContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -34,27 +35,9 @@ export function DriveContent({ accounts, uid }: any) {
       ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
       : null;
 
-  const { data, error, isLoading, mutate, isValidating } = useSWR(
-    queryKey,
-    fetcher,
-    {
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      dedupingInterval: 5000,
-      focusThrottleInterval: 5000,
-      refreshInterval: 60000,
-      errorRetryInterval: 5000,
-      errorRetryCount: 3,
-      suspense: false,
-      loadingTimeout: 5000,
-      onSuccess: (data) => {
-        console.log("Data fetched successfully:", data);
-      },
-      onError: (error) => {
-        console.error("Error fetching data:", error);
-      },
-    }
-  );
+  const { data, error, isLoading } = useSWR(queryKey, fetcher, {
+    ...swrOptions,
+  });
 
   const files: FileData[] = data?.files || [];
 
@@ -248,10 +231,14 @@ export function DriveContent({ accounts, uid }: any) {
       {/* Drive Cards */}
       <div className="overflow-y-auto max-h-[calc(100vh-11rem)] mb-9">
         <DriveCard
-          tab="My Drive"
+          tab="Drive"
           allFile={sortedFiles}
           allLoading={isLoading}
           onFolderClick={handleFolderClick}
+          hasFolders={true}
+          bgImage="Drive.svg"
+          bgfirstMessage="A place for all of your files"
+          bgsecondMessage="Drag your files and folders here or use the 'New' button to upload"
         />
       </div>
     </div>
