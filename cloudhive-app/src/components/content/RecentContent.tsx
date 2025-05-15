@@ -181,15 +181,16 @@ export function RecentContent({ accounts, uid }: any) {
             widthClass="w-[150px]"
           />
         </div>
+
         {/* Filter Options */}
-        {/* <Select value={filterOption} onValueChange={setFilterOption}>
-          <SelectTrigger className="w-16">
+        <Select value={filterOption} onValueChange={setFilterOption}>
+          {/* <SelectTrigger className="w-16">
             <SelectValue>
               <IconAdjustmentsHorizontal size={18} />
             </SelectValue>
-          </SelectTrigger>
+          </SelectTrigger> */}
+
           <SelectContent align="end">
-          
             <SelectItem value="lastOpened">
               <div className="flex items-center gap-4">
                 <span>Last opened</span>
@@ -223,7 +224,7 @@ export function RecentContent({ accounts, uid }: any) {
               </div>
             </SelectItem>
           </SelectContent>
-        </Select> */}
+        </Select>
       </div>
 
       {/* Drive Cards */}
@@ -236,7 +237,7 @@ export function RecentContent({ accounts, uid }: any) {
           hasFolders={true}
           bgImage="Drive.svg"
           bgfirstMessage="A place for all of your files"
-          bgsecondMessage="Drag your files and folders here or use the 'New' button to upload"
+          bgsecondMessage="Your recent files section is empty right now"
         />
       </div>
     </div>

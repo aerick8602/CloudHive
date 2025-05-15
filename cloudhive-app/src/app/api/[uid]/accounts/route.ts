@@ -1,6 +1,7 @@
+import redis from "@/lib/cache/redis.config";
 import { connectToDatabase } from "@/lib/db/mongo.config";
 import { NextRequest, NextResponse } from "next/server";
-
+const CACHE_EXPIRES_IN = Number(process.env.CACHE_TTL!);
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
@@ -23,6 +24,13 @@ export async function GET(
     }));
 
     // console.log("Accounts found:", accountsList);
+
+    await redis.set(
+      `accounts:${uid}`,
+      JSON.stringify(accountsList),
+      "EX",
+      CACHE_EXPIRES_IN
+    );
 
     return NextResponse.json({ accounts: [accountsList] });
   } catch (error) {

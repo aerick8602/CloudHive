@@ -1,6 +1,7 @@
 import redis from "@/lib/cache/redis.config";
 import { connectToDatabase } from "@/lib/db/mongo.config";
 import { convertMillisToIST } from "@/utils/time";
+import axios from "axios";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -79,6 +80,66 @@ export async function GET(req: NextRequest) {
 
         let account = await accountsCollection.findOne({ e: email });
 
+        // if (account) {
+        //   console.log("Updating existing account:", account._id);
+        //   await accountsCollection.updateOne(
+        //     { _id: account._id },
+        //     {
+        //       $set: {
+        //         at: typedTokens.access_token,
+        //         rt: typedTokens.refresh_token || account.rt,
+        //         atv: convertMillisToIST(typedTokens.expiry_date!),
+        //         rtv: convertMillisToIST(
+        //           Date.now() +
+        //             (typedTokens.refresh_token_expires_in ?? 0) * 1000
+        //         ),
+        //         q: { l: totalQuota, u: usedQuota },
+        //         sync: convertMillisToIST(Date.now()),
+        //       },
+        //       $addToSet: { uids: state },
+        //     }
+        //   );
+
+        //   console.log("Existing account updated");
+        // } else {
+        //   console.log("Creating new account for email:", email);
+        //   const result = await accountsCollection.insertOne({
+        //     e: email,
+        //     at: typedTokens.access_token,
+        //     rt: typedTokens.refresh_token,
+        //     atv: convertMillisToIST(typedTokens.expiry_date!),
+        //     rtv: convertMillisToIST(
+        //       Date.now() + (typedTokens.refresh_token_expires_in ?? 0) * 1000
+        //     ),
+        //     q: { l: totalQuota, u: usedQuota },
+        //     sync: convertMillisToIST(Date.now()),
+        //     uids: [state],
+        //   });
+        //   account = await accountsCollection.findOne({
+        //     _id: result.insertedId,
+        //   });
+        //   console.log("New account created:", result.insertedId);
+
+        //   // CACHE LOGIC
+
+        //   // After creating the new account, fetch the updated list of accounts (with the new account)
+        //   const updatedAccounts = await accountsCollection
+        //     .find({ uids: state }) // Find all accounts linked to the user
+        //     .project({ _id: 1, e: 1 }) // Project only _id and email (e)
+        //     .toArray();
+
+        //   // Cache the updated list of accounts in Redis
+        //   const cacheKey = `accounts:${state}`;
+        //   await redis.set(
+        //     cacheKey,
+        //     JSON.stringify(updatedAccounts),
+        //     "EX",
+        //     parseInt(process.env.CACHE_TTL!)
+        //   ); // Cache for 5 minutes
+
+        //   console.log("Updated accounts cached in Redis:", updatedAccounts);
+        // }
+
         if (account) {
           console.log("Updating existing account:", account._id);
           await accountsCollection.updateOne(
@@ -117,26 +178,22 @@ export async function GET(req: NextRequest) {
             _id: result.insertedId,
           });
           console.log("New account created:", result.insertedId);
-
-          // CACHE LOGIC
-
-          // After creating the new account, fetch the updated list of accounts (with the new account)
-          const updatedAccounts = await accountsCollection
-            .find({ uids: state }) // Find all accounts linked to the user
-            .project({ _id: 1, e: 1 }) // Project only _id and email (e)
-            .toArray();
-
-          // Cache the updated list of accounts in Redis
-          const cacheKey = `accounts:${state}`;
-          await redis.set(
-            cacheKey,
-            JSON.stringify(updatedAccounts),
-            "EX",
-            parseInt(process.env.CACHE_TTL!)
-          ); // Cache for 5 minutes
-
-          console.log("Updated accounts cached in Redis:", updatedAccounts);
         }
+
+        // Background async call to update accounts cache
+        // Don't await to avoid blocking main flow
+        await redis.del(`accounts:${state}`);
+        void (async () => {
+          try {
+            await axios.get(`/api/${state}/accounts`);
+            console.log(`Triggered background cache update for user ${state}`);
+          } catch (error) {
+            console.error(
+              "Failed to update accounts cache in background:",
+              error
+            );
+          }
+        })();
 
         (async () => {
           if (account) {

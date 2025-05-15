@@ -102,7 +102,7 @@ export function DriveFacetedFilter({
         <Command>
           <CommandInput placeholder={title} />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandEmpty>Accounts list is empty</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedSet.has(option.value);

@@ -55,11 +55,28 @@ export function TrashContent({ accounts, uid }: any) {
     ]);
   };
 
+  // const handleBreadcrumbClick = (folderId: string, email: string | null) => {
+  //   setCurrentFolderId(folderId);
+  //   setActiveEmail(email);
+  //   if (folderId === "root") {
+  //     setBreadcrumb([]);
+  //   }
+  // };
+
   const handleBreadcrumbClick = (folderId: string, email: string | null) => {
     setCurrentFolderId(folderId);
     setActiveEmail(email);
+
     if (folderId === "root") {
+      // Reset to root
       setBreadcrumb([]);
+    } else {
+      // Trim breadcrumb to the clicked folder
+      setBreadcrumb((prev) => {
+        const index = prev.findIndex((crumb) => crumb.id === folderId);
+        if (index === -1) return prev;
+        return prev.slice(0, index + 1);
+      });
     }
   };
 
@@ -184,7 +201,7 @@ export function TrashContent({ accounts, uid }: any) {
 
         {/* Filter Options */}
         <Select value={filterOption} onValueChange={setFilterOption}>
-          <SelectTrigger className="w-16">
+          <SelectTrigger className="w-16 -mr-4 lg:mr-0 lg:mr-0">
             <SelectValue>
               <IconAdjustmentsHorizontal size={18} />
             </SelectValue>

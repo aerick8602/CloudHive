@@ -23,12 +23,12 @@ export default function UnauthorisedError() {
         <p className="text-md text-muted-foreground text-center">
           The app is currently being tested and can only be accessed by
           <br />
-          developer-approved testers. If you think you should have access,
-          <br /> contact the &nbsp;
+          developer-approved testers. If you think you should have <br />{" "}
+          access, contact the &nbsp;
           <b>developer.</b>&nbsp;
           <a
             href="mailto:katiyarayush02@gmail.com"
-            className=" text-sm hover:underline"
+            className=" text-xs hover:underline"
           >
             (katiyarayush02@gmail.com)
           </a>

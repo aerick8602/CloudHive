@@ -214,7 +214,7 @@ export default function SettingAccounts() {
           </Select>
         </div>
         <Separator className="shadow-sm " />
-        <ul className="px-4 py-6 overflow-y-auto max-h-[calc(100vh-12rem)] faded-bottom no-scrollbar grid gap-4 overflow-auto pt-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="px-4 py-6 overflow-y-auto max-h-[calc(100vh-14rem)] faded-bottom no-scrollbar grid gap-4 overflow-auto pt-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
           {filteredApps.map((app) => (
             <li
               key={app.name}

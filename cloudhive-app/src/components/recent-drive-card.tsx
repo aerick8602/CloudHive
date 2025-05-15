@@ -112,7 +112,7 @@ export function RecentDriveCard({
             alt="Empty state illustration"
             width={300}
             height={200}
-            className="mb-4"
+            className="mb-4 mt-1"
             priority
           />
           <p className="font-medium text-2xl mb-4">{bgfirstMessage}</p>
