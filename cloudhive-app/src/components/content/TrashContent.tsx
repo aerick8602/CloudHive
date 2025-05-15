@@ -18,7 +18,8 @@ import {
   IconSortAscendingLetters,
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
-import { swrOptions } from "@/lib/swr.config";
+
+import { swrConfig } from "@/hooks/use-swr";
 
 export function TrashContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -36,7 +37,7 @@ export function TrashContent({ accounts, uid }: any) {
       : null;
 
   const { data, error, isLoading } = useSWR(queryKey, fetcher, {
-    ...swrOptions,
+    ...swrConfig,
   });
 
   const files: FileData[] = data?.files || [];

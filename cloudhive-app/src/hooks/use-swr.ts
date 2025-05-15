@@ -14,7 +14,7 @@ export const swrConfig = {
    * SWR will avoid making duplicate requests during this time interval.
    * Default is 2000ms (2 seconds).
    */
-  dedupingInterval: 30000, // Deduplicate requests for 30 seconds.
+  dedupingInterval: 5000, // Deduplicate requests for 5 seconds.
 
   /**
    * `revalidateOnFocus`:
@@ -42,7 +42,7 @@ export const swrConfig = {
    * Number of retries before failing when an error occurs during the fetch.
    * Default is 3 retries.
    */
-  errorRetryCount: 5, // Retry up to 5 times on error.
+  errorRetryCount: 3, // Retry up to 3 times on error.
 
   /**
    * `errorRetryInterval`:
@@ -82,7 +82,7 @@ export const swrConfig = {
    * `timeout`:
    * You can use this to define a timeout for requests. SWR will automatically cancel requests that exceed this time.
    */
-  timeout: 10000, // Timeout after 10 seconds.
+  timeout: 30000, // Timeout after 30 seconds.
 
   /**
    * `swr` (customized SWR instance):

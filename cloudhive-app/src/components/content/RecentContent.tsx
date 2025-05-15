@@ -19,7 +19,7 @@ import {
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
 import { RecentDriveCard } from "../recent-drive-card";
-import { swrOptions } from "@/lib/swr.config";
+import { swrConfig } from "@/hooks/use-swr";
 
 export function RecentContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -37,7 +37,7 @@ export function RecentContent({ accounts, uid }: any) {
       : null;
 
   const { data, error, isLoading } = useSWR(queryKey, fetcher, {
-    ...swrOptions,
+    ...swrConfig,
   });
 
   const files: FileData[] = data?.files || [];

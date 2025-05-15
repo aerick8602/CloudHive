@@ -17,7 +17,7 @@ import {
   IconSortAscendingLetters,
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
-import { swrOptions } from "@/lib/swr.config";
+import { swrConfig } from "@/hooks/use-swr";
 import { AppBreadcrumb } from "@/components/breadcrumb";
 import { DriveFacetedFilter } from "@/components/faceted-filter";
 import { DriveCard } from "@/components/drive-card";
@@ -38,7 +38,7 @@ export function ImageContent({ accounts, uid }: any) {
       : null;
 
   const { data, error, isLoading } = useSWR(queryKey, fetcher, {
-    ...swrOptions,
+    ...swrConfig,
   });
 
   const files: FileData[] = data?.files || [];

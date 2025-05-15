@@ -17,10 +17,11 @@ import {
   IconSortAscendingLetters,
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
-import { swrOptions } from "@/lib/swr.config";
+
 import { AppBreadcrumb } from "@/components/breadcrumb";
 import { DriveFacetedFilter } from "@/components/faceted-filter";
 import { DriveCard } from "@/components/drive-card";
+import { swrConfig } from "@/hooks/use-swr";
 
 export function AudioContent({ accounts, uid }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -38,7 +39,7 @@ export function AudioContent({ accounts, uid }: any) {
       : null;
 
   const { data, error, isLoading } = useSWR(queryKey, fetcher, {
-    ...swrOptions,
+    ...swrConfig,
   });
 
   const files: FileData[] = data?.files || [];
