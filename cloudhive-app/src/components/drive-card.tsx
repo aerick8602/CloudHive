@@ -43,7 +43,7 @@ export function DriveCard({
             <Skeleton className="w-5 h-5 bg-muted/80 rounded-sm" />
             <Skeleton className="flex-1 h-5 bg-muted/80 rounded-sm" />
           </div>
-          <Skeleton className="w-5 h-5 bg-muted/70 rounded" />
+          {/* <Skeleton className="w-5 h-5 bg-muted/70 rounded" /> */}
         </div>
       </Skeleton>
     ));

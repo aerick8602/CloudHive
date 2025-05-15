@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectTrigger,
@@ -23,44 +23,71 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EarthIcon, UserCheck2 } from "lucide-react";
 import { CopyWithTick } from "../copy-tick";
-import { AvatarImage } from "@radix-ui/react-avatar";
+import { FileData } from "@/interface";
 
 type Permission = "Can edit" | "Can view";
+
 type Person = {
+  displayName?: string;
   email: string;
   permission: Permission;
+  photoLink?: string | null;
 };
 
 interface ShareDialogProps {
+  file: FileData;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const ShareDialog: React.FC<ShareDialogProps> = ({
+  file,
   open,
   onOpenChange,
 }) => {
-  const [people, setPeople] = useState<Person[]>([
-    { email: "katiyara089@gmail.com", permission: "Can edit" },
-    { email: "clashofclans@gmail.com", permission: "Can view" },
-    { email: "maverick@gmail.com", permission: "Can view" },
-    { email: "maerick@gmail.com", permission: "Can view" },
-    { email: "maverck@gmail.com", permission: "Can view" },
-    { email: "marick@gmail.com", permission: "Can view" },
-  ]);
-
+  const [people, setPeople] = useState<Person[]>([]);
   const [openSelect, setOpenSelect] = useState<string | null>(null);
   const [newEmail, setNewEmail] = useState("");
   const [newPermission, setNewPermission] = useState<Permission>("Can view");
+  const [selectedTab, setSelectedTab] = useState<"people" | "public">("people");
+
+  const isEmailInputFilled = newEmail.trim().length > 0;
+  const fileLink = `https://drive.google.com/file/d/${file.id}/view`;
+
+  // Populate initial people from file.permissions
+  useEffect(() => {
+    if (!file.permissions) return;
+
+    // Check if permission for "anyonewithlink" exists
+    const hasAnyoneWithLink = file.permissions.some(
+      (p) => p.id === "anyonewithlink"
+    );
+
+    setSelectedTab(hasAnyoneWithLink ? "public" : "people");
+
+    const existingPeople: Person[] = file.permissions
+      .filter((p) => p.type === "user" && p.role !== "owner" && p.emailAddress)
+      .map((p) => ({
+        displayName: p.displayName ?? undefined,
+        email: p.emailAddress!,
+        permission: p.role === "reader" ? "Can view" : "Can edit",
+        photoLink: p.photoLink ?? undefined,
+      }));
+
+    setPeople(existingPeople);
+  }, [file.permissions]);
 
   const handleAddPerson = () => {
     const trimmed = newEmail.trim();
     if (!trimmed || people.some((p) => p.email === trimmed)) return;
 
-    setPeople([...people, { email: trimmed, permission: newPermission }]);
+    setPeople([
+      ...people,
+      { email: trimmed, permission: newPermission, photoLink: undefined },
+    ]);
     setNewEmail("");
     setNewPermission("Can view");
     setOpenSelect(null);
@@ -78,7 +105,11 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     }
   };
 
-  const isEmailInputFilled = newEmail.trim().length > 0;
+  const getDisplayName = (displayName?: string, email?: string) => {
+    if (displayName && displayName.trim().length > 0) return displayName;
+    if (!email) return "";
+    return email.split("@")[0].replace(/\./g, " ");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -95,34 +126,39 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             <Label htmlFor="link" className="sr-only">
               Link
             </Label>
-            <Input
-              id="link"
-              defaultValue="http://example.com/link/to/document"
-              readOnly
-            />
+            <Input id="link" value={fileLink} readOnly />
           </div>
-          <Button type="button" size="sm" className="px-3">
-            <span className="sr-only">Copy</span>
-            <CopyWithTick value="http://example.com/link/to/document" />
+          <Button
+            type="button"
+            size="sm"
+            className="px-3"
+            aria-label="Copy link"
+          >
+            <CopyWithTick value={fileLink} />
           </Button>
         </div>
 
         <Separator />
 
-        <Tabs defaultValue="people">
+        <Tabs
+          value={selectedTab}
+          onValueChange={(val) => setSelectedTab(val as "people" | "public")}
+          defaultValue="people"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="people">Invited people only</TabsTrigger>
             <TabsTrigger value="public">People with the link</TabsTrigger>
           </TabsList>
 
           <TabsContent value="people" className="pt-4">
-            {/* Add Email Form */}
             <div className="flex flex-row sm:flex-row gap-2 sm:items-center mb-4">
               <Input
                 placeholder="Enter email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 className="flex-1"
+                type="email"
+                aria-label="Enter email to share"
               />
               {isEmailInputFilled && (
                 <Select
@@ -135,7 +171,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                     setNewPermission(val as Permission)
                   }
                 >
-                  <SelectTrigger className="w-full w-[110px] mr-2.5 ">
+                  <SelectTrigger className="w-[110px] mr-2.5">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -146,7 +182,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               )}
             </div>
 
-            {/* List of People */}
             {people.length === 0 ? (
               <div className="text-sm pt-4 text-muted-foreground/90 flex items-center justify-center gap-1">
                 <UserCheck2 className="size-4" />
@@ -163,8 +198,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                     <div className="flex items-center space-x-2 sm:space-x-3">
                       <Avatar>
                         <AvatarImage
-                          src="https://lh3.googleusercontent.com/a-/ALV-UjU3rBkRxBeWHQB68NRK1RXU_-44Z8UbAY2wglMCRxaa8rq9wmod=s64"
-                          alt="ok"
+                          src={person.photoLink ?? ""}
+                          alt={person.email}
                         />
                         <AvatarFallback>
                           {person.email[0].toUpperCase()}
@@ -172,9 +207,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                       </Avatar>
                       <div>
                         <div className="text-sm truncate max-w-[180px] sm:max-w-[250px]">
-                          Ayush Katiyar
+                          {getDisplayName(person.displayName, person.email)}
                         </div>
-
                         <div className="text-xs truncate max-w-[180px] sm:max-w-[250px]">
                           {person.email}
                         </div>
@@ -222,14 +256,13 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               Cancel
             </Button>
           </DialogClose>
-          <DialogClose asChild>
-            <Button
-              type="button"
-              onClick={isEmailInputFilled ? handleAddPerson : undefined}
-            >
-              {isEmailInputFilled ? "Add" : "Save"}
-            </Button>
-          </DialogClose>
+          <Button
+            type="button"
+            onClick={handleAddPerson}
+            disabled={!isEmailInputFilled}
+          >
+            Add
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

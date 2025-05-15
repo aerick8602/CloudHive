@@ -56,7 +56,7 @@ const renderFileSkeleton = (count: number) =>
           <Skeleton className="flex-1 h-5 bg-muted/80 rounded-sm" />
         </div>
       </div>
-      <Skeleton className="flex-1 rounded-sm bg-muted/40" />
+      {/* <Skeleton className="flex-1 rounded-sm bg-muted/40" /> */}
     </Skeleton>
   ));
 

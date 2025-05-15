@@ -137,6 +137,7 @@ export function FileDropdown({ file }: FileDropdownProps) {
 
       {/* Share Dialog */}
       <ShareDialog
+        file={file}
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
       ></ShareDialog>
