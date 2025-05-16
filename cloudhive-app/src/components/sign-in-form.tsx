@@ -72,7 +72,7 @@ export function SignInForm({
       });
 
       if (response.ok) {
-        toast.success("Login successful! Redirecting to your drive...", {
+        toast.success("Login successful!!", {
           id: redirectingToastId,
           position: "top-right",
         });
@@ -113,7 +113,7 @@ export function SignInForm({
       });
 
       if (response.ok) {
-        toast.success("Login successful! Redirecting to your drive...", {
+        toast.success("Login successful!!", {
           id: redirectingToastId,
           position: "top-right",
         });

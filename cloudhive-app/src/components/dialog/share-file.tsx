@@ -196,6 +196,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     try {
       if (val === "public") {
         // Create public permission
+        setSelectedTab("public");
         const response = await axios.post(
           `/api/file/${file.email}/permissions/${file.id}`,
           {
@@ -205,9 +206,9 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
         );
 
         // Update state only after successful API call
-        setSelectedTab("public");
       } else {
         // Find and remove the public permission
+        setSelectedTab("people");
         const publicPermission = file.permissions?.find(
           (p) => p.id === "anyoneWithLink" || p.type === "anyone"
         );
@@ -219,7 +220,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
         }
 
         // Update state only after successful API call
-        setSelectedTab("people");
       }
     } catch (error) {
       // Revert to previous tab if API call fails

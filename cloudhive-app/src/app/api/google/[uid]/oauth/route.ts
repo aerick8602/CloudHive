@@ -1,7 +1,8 @@
 // import redis from "@/lib/cache/redis.config";
+import redis from "@/lib/cache/redis.config";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
-
+const CACHE_EXPIRES_IN = Number(process.env.CACHE_TTL!);
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
@@ -44,7 +45,7 @@ export async function GET(
   // await redis.set(redisKey, authUrl, "EX", 3600 * 24);
 
   console.log("Auth URL generated and cached");
-
+  redis.set(`oauth:${uid}`, authUrl, "EX", CACHE_EXPIRES_IN);
   return new NextResponse(authUrl, {
     status: 200,
     headers: {
