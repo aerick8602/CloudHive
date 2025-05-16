@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { SearchForm } from "@/components/search-form";
 import { Separator } from "@/components/ui/separator";
+import { PulseLoader } from "react-spinners";
 import {
   SidebarInset,
   SidebarProvider,
@@ -16,6 +17,7 @@ import { logoutUser } from "@/utils/apis/post";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { AccountProps } from "@/types/AccountProps";
+import Image from "next/image";
 
 interface CloudHiveProps {
   initialAccounts: AccountProps[];
@@ -114,18 +116,22 @@ export default function CloudHive({
   const Component = contentMap[activeTab];
   if (loading)
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white ">
-        <video
-          src="/loading.mp4"
-          autoPlay
-          loop
-          muted
-          className="w-100 h-100 object-cover"
+      <div className="bg-muted/50 dark:brightness-70 dark:contrast-250 w-screen h-screen flex flex-col items-center justify-center relative overflow-hidden ">
+        <Image
+          src="/Download-bro.svg"
+          alt="Loading..."
+          width={500}
+          height={500}
+          objectFit="cover"
+          priority
         />
-        <div className=" flex flex-col items-center justify-center  select-none  z-10 px-4">
+        <div className=" flex flex-col items-center justify-center  select-none  z-10 px-4 -mt-5">
           <h1 className="text-5xl font-extrabold tracking-wide ">CloudHive</h1>
-          <p className="mt-4 text-md opacity-80">
-            Loading your cloud accounts...
+          <p className="mt-4 text-md opacity-80 flex items-center gap-2">
+            Loading your cloud accounts
+            <span className="mt-1 -ml-1">
+              <PulseLoader size={4} color="#999999" />
+            </span>
           </p>
         </div>
       </div>

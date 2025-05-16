@@ -44,6 +44,7 @@
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.56.3",
     "react-icons": "^5.5.0",
+    "react-spinners": "^0.17.0",
     "sonner": "^2.0.3",
     "swr": "^2.3.3",
     "tailwind-merge": "^3.3.0",

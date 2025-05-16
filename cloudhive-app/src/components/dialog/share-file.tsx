@@ -132,7 +132,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       setNewPermission("Can view");
       setOpenSelect(null);
     } catch (error) {
-      toast.error("Unable to complete the request. Please try again.", {
+      toast.warning("Unable to complete the request. Please try again.", {
         position: "top-center",
       });
 
@@ -177,7 +177,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
       setOpenSelect(null);
     } catch (error) {
-      toast.error("Unable to complete the request. Please try again.", {
+      toast.warning("Unable to complete the request. Please try again.", {
         position: "top-center",
       });
 
@@ -223,7 +223,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       }
     } catch (error) {
       // Revert to previous tab if API call fails
-      toast.error("Unable to complete the request. Please try again.", {
+      toast.warning("Unable to complete the request. Please try again.", {
         position: "top-center",
       });
 
