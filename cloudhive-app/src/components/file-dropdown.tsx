@@ -32,17 +32,17 @@ import { toast } from "sonner";
 
 interface FileDropdownProps {
   file: FileData;
-  trashed: boolean;
+  localtrashed: boolean;
   setName: React.Dispatch<React.SetStateAction<string>>;
   setView: React.Dispatch<React.SetStateAction<boolean>>;
   setStarred: React.Dispatch<React.SetStateAction<boolean>>;
-  starred: boolean;
+  localstarred: boolean;
 }
 
 export function FileDropdown({
-  starred,
+  localstarred,
   file,
-  trashed,
+  localtrashed,
   setName,
   setView,
   setStarred,
@@ -151,7 +151,7 @@ export function FileDropdown({
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="min-w-56 rounded-lg" align="start">
-          {trashed ? (
+          {localtrashed ? (
             <>
               <DropdownMenuItem
                 onClick={async () => {
@@ -229,15 +229,15 @@ export function FileDropdown({
 
               <DropdownMenuItem
                 onClick={() => {
-                  setStarred(!starred);
-                  updateFile({ starred: !file.starred }, true, () =>
-                    undoStar(file.starred)
+                  setStarred(!localstarred);
+                  updateFile({ starred: !localstarred }, true, () =>
+                    undoStar(localstarred)
                   );
                 }}
                 className="gap-2"
               >
                 <Star className="size-4" />
-                {starred ? "Remove from Starred" : "Add to Starred"}
+                {localstarred ? "Remove from Starred" : "Add to Starred"}
               </DropdownMenuItem>
 
               <DropdownMenuItem
@@ -252,7 +252,9 @@ export function FileDropdown({
 
               <DropdownMenuItem
                 onClick={() =>
-                  updateFile({ trashed: true }, true, () => undoTrash(trashed))
+                  updateFile({ trashed: true }, true, () =>
+                    undoTrash(localtrashed)
+                  )
                 }
                 className="gap-2 text-destructive"
               >

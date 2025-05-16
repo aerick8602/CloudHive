@@ -14,11 +14,11 @@ export function FileCard({ file, initialView = true }: FileCardProps) {
   const {
     id,
     email,
-    name: initialName,
+    name,
     mimeType,
     parents,
-    starred: initialStarred,
-    trashed: initialTrashed,
+    starred,
+    trashed,
     createdTime,
     modifiedTime,
     viewedByMe,
@@ -30,9 +30,9 @@ export function FileCard({ file, initialView = true }: FileCardProps) {
 
   // States for fields that might change locally
   const [view, setView] = useState<boolean>(initialView);
-  const [starred, setStarred] = useState<boolean>(initialStarred);
-  const [trashed, setTrashed] = useState<boolean>(initialTrashed);
-  const [name, setName] = useState<string>(initialName);
+  const [localstarred, setStarred] = useState<boolean>(file.starred);
+  const [localtrashed, setTrashed] = useState<boolean>(file.trashed);
+  const [localname, setName] = useState<string>(file.name);
 
   const { icon: Icon, color } = getIconForMimeType(mimeType);
 
@@ -48,11 +48,11 @@ export function FileCard({ file, initialView = true }: FileCardProps) {
             {name}
           </span>
           <FileDropdown
-            starred={starred}
+            localstarred={localstarred}
             setStarred={setStarred}
             setName={setName}
             setView={setView}
-            trashed={trashed}
+            localtrashed={localtrashed}
             file={file}
           />
         </div>
