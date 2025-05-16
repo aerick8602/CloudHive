@@ -16,7 +16,6 @@ import { logoutUser } from "@/utils/apis/post";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { AccountProps } from "@/types/AccountProps";
-import { WarpBackground } from "./magicui/warp-background";
 
 interface CloudHiveProps {
   initialAccounts: AccountProps[];
@@ -115,7 +114,7 @@ export default function CloudHive({
   const Component = contentMap[activeTab];
   if (loading)
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center relative overflow-hidden ">
+      <div className="w-screen h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white ">
         <video
           src="/loading.mp4"
           autoPlay
