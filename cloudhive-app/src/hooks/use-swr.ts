@@ -14,7 +14,7 @@ export const swrConfig = {
    * SWR will avoid making duplicate requests during this time interval.
    * Default is 2000ms (2 seconds).
    */
-  dedupingInterval: 2000, // Deduplicate requests for 2 seconds.
+  dedupingInterval: 3000, // Deduplicate requests for 3 seconds.
 
   /**
    * `revalidateOnFocus`:

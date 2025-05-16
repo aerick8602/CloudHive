@@ -4,6 +4,7 @@ import { FileDropdown } from "../file-dropdown";
 import { FileData } from "@/interface";
 
 interface FolderCardProps {
+  tab?: string;
   initialStarred?: boolean; // Add this line to include the initialStarred prop
   file: FileData;
   onClick?: (folderId: string, email: string, folderName: string) => void;
@@ -11,6 +12,7 @@ interface FolderCardProps {
 }
 
 export function FolderCard({
+  tab,
   file,
   onClick,
   initialView = true,
@@ -45,6 +47,7 @@ export function FolderCard({
           </span>
         </div>
         <FileDropdown
+          tab={tab}
           localstarred={localstarred}
           setName={setName}
           setView={setView}

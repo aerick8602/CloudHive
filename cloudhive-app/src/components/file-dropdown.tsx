@@ -29,8 +29,10 @@ import FileDetailsSheet from "./sheet/file-details";
 import { FileData } from "@/interface";
 
 import { toast } from "sonner";
+import { set } from "date-fns";
 
 interface FileDropdownProps {
+  tab?: string;
   file: FileData;
   localtrashed: boolean;
   setName: React.Dispatch<React.SetStateAction<string>>;
@@ -40,6 +42,8 @@ interface FileDropdownProps {
 }
 
 export function FileDropdown({
+  tab,
+
   localstarred,
   file,
   localtrashed,
@@ -108,6 +112,8 @@ export function FileDropdown({
   function undoStar(oldStarred: boolean) {
     updateFile({ starred: oldStarred }, false);
     toast.info("Action Undone");
+    setStarred(oldStarred); // rollback UI immediately on undo
+    setView(true);
   }
 
   function undoTrash(oldTrashed: boolean) {
@@ -229,6 +235,7 @@ export function FileDropdown({
 
               <DropdownMenuItem
                 onClick={() => {
+                  if (tab == "Starred") setView(false);
                   setStarred(!localstarred);
                   updateFile({ starred: !localstarred }, true, () =>
                     undoStar(localstarred)

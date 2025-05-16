@@ -5,11 +5,12 @@ import { FileDropdown } from "../file-dropdown";
 import { FileData } from "@/interface";
 
 interface FileCardProps {
+  tab?: string;
   file: FileData;
   initialView?: boolean; // optional initial value for view state
 }
 
-export function FileCard({ file, initialView = true }: FileCardProps) {
+export function FileCard({ tab, file, initialView = true }: FileCardProps) {
   // Destructure fields from file prop
   const {
     id,
@@ -48,6 +49,7 @@ export function FileCard({ file, initialView = true }: FileCardProps) {
             {name}
           </span>
           <FileDropdown
+            tab={tab}
             localstarred={localstarred}
             setStarred={setStarred}
             setName={setName}
