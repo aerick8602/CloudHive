@@ -29,7 +29,7 @@ export async function GET(
     const type = searchParams.get("type") || undefined;
 
     // ✅ Extract session cookie and decode
-    const sessionCookie = req.cookies.get("__session")?.value;
+    const sessionCookie = req.cookies.get(process.env.SESSION!)?.value;
     if (!sessionCookie) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
