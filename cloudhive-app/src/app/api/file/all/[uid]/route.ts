@@ -3,6 +3,7 @@ import { createOAuthClient } from "@/lib/google/google.client";
 import { CATEGORY_MIME_MAP } from "@/utils/mimetypes";
 import { FileData } from "@/interface";
 import redis from "@/lib/cache/redis.config";
+import { adminAuth } from "@/lib/firebase/firebase-admin"; // Ensure this is your initialized admin SDK
 
 export async function GET(
   req: NextRequest,
@@ -16,7 +17,6 @@ export async function GET(
 
   try {
     const { searchParams } = new URL(req.url);
-    const userEmail = searchParams.get("userEmail"); // Now optional
     const parentId = searchParams.get("parentId") || "root";
     const pageToken = searchParams.get("pageToken") || undefined;
 
@@ -27,6 +27,21 @@ export async function GET(
     const trashed = trashedParam === null ? undefined : trashedParam === "true";
 
     const type = searchParams.get("type") || undefined;
+
+    // ✅ Extract session cookie and decode
+    const sessionCookie = req.cookies.get("__session")?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let decoded;
+    try {
+      decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
+    } catch {
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+    }
+
+    const userEmail = decoded.email;
 
     const rawAccounts = await redis.get(`accounts:${uid}`);
     if (!rawAccounts) {
@@ -55,37 +70,34 @@ export async function GET(
         for (const file of files) {
           let updatedPermissions = file.permissions || [];
 
-          if (userEmail) {
-            const hasPermission = updatedPermissions.some(
-              (perm: { emailAddress: string }) =>
-                perm.emailAddress === userEmail
-            );
+          const hasPermission = updatedPermissions.some(
+            (perm: { emailAddress: string }) => perm.emailAddress === userEmail
+          );
 
-            if (!hasPermission) {
-              try {
-                await drive.permissions.create({
-                  fileId: file.id,
-                  requestBody: {
-                    type: "user",
-                    role: "reader",
-                    emailAddress: userEmail,
-                  },
-                  fields: "id",
-                });
+          if (!hasPermission) {
+            try {
+              await drive.permissions.create({
+                fileId: file.id,
+                requestBody: {
+                  type: "user",
+                  role: "reader",
+                  emailAddress: userEmail,
+                },
+                fields: "id",
+              });
 
-                const permRes = await drive.permissions.list({
-                  fileId: file.id,
-                  fields:
-                    "permissions(displayName,photoLink,id,type,emailAddress,role)",
-                });
+              const permRes = await drive.permissions.list({
+                fileId: file.id,
+                fields:
+                  "permissions(displayName,photoLink,id,type,emailAddress,role)",
+              });
 
-                updatedPermissions = permRes.data.permissions || [];
-              } catch (permError) {
-                console.error(
-                  `❌ Failed to update permissions for ${file.name}:`,
-                  permError
-                );
-              }
+              updatedPermissions = permRes.data.permissions || [];
+            } catch (permError) {
+              console.error(
+                `❌ Failed to update permissions for ${file.name}:`,
+                permError
+              );
             }
           }
 
