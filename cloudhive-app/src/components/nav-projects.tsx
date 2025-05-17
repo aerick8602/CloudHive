@@ -51,16 +51,16 @@ export function NavProjects({
         { title: "Archives", icon: Package, url: "#" },
       ],
     },
-    {
-      title: "Setting",
-      url: "#",
-      icon: Settings2,
-      isActive: false,
-      items: [
-        { title: "Profile", icon: User, url: "#" },
-        { title: "Accounts", icon: AtSign, url: "#" },
-      ],
-    },
+    // {
+    //   title: "Setting",
+    //   url: "#",
+    //   icon: Settings2,
+    //   isActive: false,
+    //   items: [
+    //     { title: "Profile", icon: User, url: "#" },
+    //     { title: "Accounts", icon: AtSign, url: "#" },
+    //   ],
+    // },
   ];
 
   return (

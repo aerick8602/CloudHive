@@ -162,7 +162,7 @@ export function RecentContent({ accounts, uid }: any) {
 
       {/* Filters */}
       <div className="flex gap-2 px-5 mb-2 justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-1 lg:gap-2">
           <DriveFacetedFilter
             title="Accounts"
             selected={accountFilter}
@@ -184,7 +184,7 @@ export function RecentContent({ accounts, uid }: any) {
 
         {/* Filter Options */}
         <Select value={filterOption} onValueChange={setFilterOption}>
-          {/* <SelectTrigger className="w-16">
+          {/* <SelectTrigger className="w-16 -mr-3 ">
             <SelectValue>
               <IconAdjustmentsHorizontal size={18} />
             </SelectValue>

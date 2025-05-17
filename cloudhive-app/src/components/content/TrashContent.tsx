@@ -179,7 +179,7 @@ export function TrashContent({ accounts, uid }: any) {
 
       {/* Filters */}
       <div className="flex gap-2 px-5 mb-2 justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-1 lg:gap-2">
           <DriveFacetedFilter
             title="Accounts"
             selected={accountFilter}

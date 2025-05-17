@@ -47,12 +47,16 @@ export function AppBreadcrumb({
     const resizeObserver = new ResizeObserver(() => {
       if (!containerRef.current) return;
       const width = containerRef.current.offsetWidth;
-      const avgItemWidth = 120;
-      const padding = 60;
+      // Responsive: smaller avgItemWidth for mobile, larger for desktop
+      const isMobile = window.innerWidth < 640; // Tailwind's sm breakpoint
+      const avgItemWidth = isMobile ? 80 : 120;
+      const padding = isMobile ? 10 : 60;
+      const minVisible = isMobile ? 1 : 3;
       const visibleCount = Math.floor((width - padding) / avgItemWidth);
 
-      // Ensure at least 3 items are always visible: first, last, and one more
-      setMaxVisibleItems(Math.max(3, Math.min(items.length, visibleCount)));
+      setMaxVisibleItems(
+        Math.max(minVisible, Math.min(items.length, visibleCount))
+      );
     });
 
     if (containerRef.current) {
@@ -62,14 +66,12 @@ export function AppBreadcrumb({
     return () => resizeObserver.disconnect();
   }, [items.length]);
 
-  const isCollapsible = items.length > maxVisibleItems;
+  const isCollapsible = items.length > 3;
   const firstItem = items[0];
-
-  const numTailItems = isCollapsible ? maxVisibleItems - 2 : items.length - 1;
-  const tailItems = items.slice(items.length - numTailItems);
-  const collapsedItems = isCollapsible
-    ? items.slice(1, items.length - numTailItems)
-    : [];
+  const lastItem = items[items.length - 1];
+  const hasMiddle = items.length > 2;
+  const middleItem = hasMiddle ? items[1] : null;
+  const collapsedItems = isCollapsible ? items.slice(1, items.length - 1) : [];
 
   return (
     <div ref={containerRef}>
@@ -89,7 +91,7 @@ export function AppBreadcrumb({
             {items.length > 1 && <BreadcrumbSeparator />}
           </span>
 
-          {/* Collapsed Dropdown */}
+          {/* Collapsed Dropdown for middle items if more than 3 */}
           {isCollapsible && collapsedItems.length > 0 && (
             <span className="flex items-center">
               <BreadcrumbItem>
@@ -102,6 +104,7 @@ export function AppBreadcrumb({
                       <DropdownMenuItem
                         key={crumb.id ?? idx}
                         onClick={() => handleClick(crumb)}
+                        className="max-w-[90px] sm:max-w-[180px] truncate"
                       >
                         {crumb.label}
                       </DropdownMenuItem>
@@ -113,30 +116,32 @@ export function AppBreadcrumb({
             </span>
           )}
 
-          {/* Tail Items */}
-          {tailItems.map((crumb, index) => {
-            const isLast = index === tailItems.length - 1;
-            return (
-              <span key={crumb.id ?? index} className="flex items-center">
-                <BreadcrumbItem>
-                  {isLast ? (
-                    <BreadcrumbPage className="text-2xl">
-                      {crumb.label}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink
-                      href="#"
-                      onClick={() => handleClick(crumb)}
-                      className="text-2xl"
-                    >
-                      {crumb.label}
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-                {!isLast && <BreadcrumbSeparator />}
-              </span>
-            );
-          })}
+          {/* Middle Item (only if exactly 3 items) */}
+          {!isCollapsible && hasMiddle && middleItem && (
+            <span className="flex items-center">
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href="#"
+                  onClick={() => handleClick(middleItem)}
+                  className="text-2xl max-w-[70px] sm:max-w-[120px] truncate"
+                >
+                  {middleItem.label}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </span>
+          )}
+
+          {/* Last Item */}
+          {items.length > 1 && (
+            <span className="flex items-center">
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-2xl max-w-[70px] sm:max-w-[120px] truncate">
+                  {lastItem.label}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </span>
+          )}
         </BreadcrumbList>
       </Breadcrumb>
     </div>

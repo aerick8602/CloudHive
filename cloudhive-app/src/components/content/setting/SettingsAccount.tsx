@@ -192,7 +192,7 @@ export default function SettingAccounts() {
           </div>
 
           <Select value={sort} onValueChange={setSort}>
-            <SelectTrigger className="w-16">
+            <SelectTrigger className="w-16 -mr-3 ">
               <SelectValue>
                 <IconAdjustmentsHorizontal size={18} />
               </SelectValue>
