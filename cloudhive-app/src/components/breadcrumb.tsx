@@ -76,13 +76,12 @@ export function AppBreadcrumb({
       <Breadcrumb className={className}>
         <BreadcrumbList className="text-2xl whitespace-nowrap overflow-hidden text-ellipsis">
           {/* First Item */}
-          <span className="flex items-center min-w-0 max-w-[200px]">
-            <BreadcrumbItem className="min-w-0 max-w-[200px]">
+          <span className="flex items-center">
+            <BreadcrumbItem>
               <BreadcrumbLink
                 href="#"
                 onClick={() => handleClick(firstItem)}
-                className="text-2xl truncate block"
-                title={firstItem.label}
+                className="text-2xl"
               >
                 {firstItem.label}
               </BreadcrumbLink>
@@ -92,8 +91,8 @@ export function AppBreadcrumb({
 
           {/* Collapsed Dropdown */}
           {isCollapsible && collapsedItems.length > 0 && (
-            <span className="flex items-center min-w-0 max-w-[200px]">
-              <BreadcrumbItem className="min-w-0 max-w-[200px]">
+            <span className="flex items-center">
+              <BreadcrumbItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <BreadcrumbEllipsis className="cursor-pointer text-2xl" />
@@ -103,8 +102,6 @@ export function AppBreadcrumb({
                       <DropdownMenuItem
                         key={crumb.id ?? idx}
                         onClick={() => handleClick(crumb)}
-                        className="truncate max-w-[200px]"
-                        title={crumb.label}
                       >
                         {crumb.label}
                       </DropdownMenuItem>
@@ -120,24 +117,17 @@ export function AppBreadcrumb({
           {tailItems.map((crumb, index) => {
             const isLast = index === tailItems.length - 1;
             return (
-              <span
-                key={crumb.id ?? index}
-                className="flex items-center min-w-0 max-w-[200px]"
-              >
-                <BreadcrumbItem className="min-w-0 max-w-[200px]">
+              <span key={crumb.id ?? index} className="flex items-center">
+                <BreadcrumbItem>
                   {isLast ? (
-                    <BreadcrumbPage
-                      className="text-2xl truncate block"
-                      title={crumb.label}
-                    >
+                    <BreadcrumbPage className="text-2xl">
                       {crumb.label}
                     </BreadcrumbPage>
                   ) : (
                     <BreadcrumbLink
                       href="#"
                       onClick={() => handleClick(crumb)}
-                      className="text-2xl truncate block"
-                      title={crumb.label}
+                      className="text-2xl"
                     >
                       {crumb.label}
                     </BreadcrumbLink>
