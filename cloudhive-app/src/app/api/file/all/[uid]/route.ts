@@ -16,7 +16,7 @@ export async function GET(
 
   try {
     const { searchParams } = new URL(req.url);
-    const userEmail = searchParams.get("userEmail");
+    const userEmail = searchParams.get("userEmail"); // Now optional
     const parentId = searchParams.get("parentId") || "root";
     const pageToken = searchParams.get("pageToken") || undefined;
 
@@ -27,13 +27,6 @@ export async function GET(
     const trashed = trashedParam === null ? undefined : trashedParam === "true";
 
     const type = searchParams.get("type") || undefined;
-
-    if (!userEmail) {
-      return NextResponse.json(
-        { error: "userEmail is required" },
-        { status: 400 }
-      );
-    }
 
     const rawAccounts = await redis.get(`accounts:${uid}`);
     if (!rawAccounts) {
@@ -62,35 +55,37 @@ export async function GET(
         for (const file of files) {
           let updatedPermissions = file.permissions || [];
 
-          const hasPermission = updatedPermissions.some(
-            (perm: { emailAddress: string }) => perm.emailAddress === userEmail
-          );
+          if (userEmail) {
+            const hasPermission = updatedPermissions.some(
+              (perm: { emailAddress: string }) =>
+                perm.emailAddress === userEmail
+            );
 
-          if (!hasPermission) {
-            try {
-              await drive.permissions.create({
-                fileId: file.id,
-                requestBody: {
-                  type: "user",
-                  role: "reader", // change to "writer" if edit access is needed
-                  emailAddress: userEmail,
-                },
-                fields: "id",
-              });
+            if (!hasPermission) {
+              try {
+                await drive.permissions.create({
+                  fileId: file.id,
+                  requestBody: {
+                    type: "user",
+                    role: "reader",
+                    emailAddress: userEmail,
+                  },
+                  fields: "id",
+                });
 
-              // Fetch updated permissions
-              const permRes = await drive.permissions.list({
-                fileId: file.id,
-                fields:
-                  "permissions(displayName,photoLink,id,type,emailAddress,role)",
-              });
+                const permRes = await drive.permissions.list({
+                  fileId: file.id,
+                  fields:
+                    "permissions(displayName,photoLink,id,type,emailAddress,role)",
+                });
 
-              updatedPermissions = permRes.data.permissions || [];
-            } catch (permError) {
-              console.error(
-                `❌ Failed to add permission or fetch updated permissions for ${file.name}:`,
-                permError
-              );
+                updatedPermissions = permRes.data.permissions || [];
+              } catch (permError) {
+                console.error(
+                  `❌ Failed to update permissions for ${file.name}:`,
+                  permError
+                );
+              }
             }
           }
 
@@ -165,7 +160,7 @@ async function getDriveFilesWithQuery(
   const q = qParts.join(" and ");
 
   const response = await drive.files.list({
-    pageSize: 25,
+    pageSize: 50,
     q,
     orderBy: "modifiedTime desc",
     fields:
