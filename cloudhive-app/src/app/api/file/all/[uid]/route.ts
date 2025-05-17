@@ -16,7 +16,7 @@ export async function GET(
 
   try {
     const { searchParams } = new URL(req.url);
-
+    const userEmail = searchParams.get("userEmail");
     const parentId = searchParams.get("parentId") || "root";
     const pageToken = searchParams.get("pageToken") || undefined;
 
@@ -28,7 +28,13 @@ export async function GET(
 
     const type = searchParams.get("type") || undefined;
 
-    // 🔐 Fetch connected accounts from Redis
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: "userEmail is required" },
+        { status: 400 }
+      );
+    }
+
     const rawAccounts = await redis.get(`accounts:${uid}`);
     if (!rawAccounts) {
       return NextResponse.json(
@@ -38,7 +44,6 @@ export async function GET(
     }
 
     let accounts: { e: string }[] = JSON.parse(rawAccounts);
-
     let allFiles: FileData[] = [];
     let nextTokens: Record<string, string | undefined> = {};
 
@@ -54,37 +59,66 @@ export async function GET(
           type,
         });
 
-        const transformedFiles = files.map((file: FileData) => ({
-          id: file.id,
-          email,
-          name: file.name,
-          mimeType: file.mimeType,
-          parents: file.parents || [],
-          starred: file.starred || false,
-          trashed: file.trashed || false,
-          createdTime: file.createdTime,
-          modifiedTime: file.modifiedTime,
-          permissions: (file.permissions || []).map((perm) => ({
-            id: perm.id,
-            type: perm.type,
-            role: perm.role,
-            emailAddress: perm.emailAddress || null,
-            displayName: perm.displayName || null,
-            photoLink: perm.photoLink || null,
-          })),
-          quotaBytesUsed: file.quotaBytesUsed,
-        }));
+        for (const file of files) {
+          let updatedPermissions = file.permissions || [];
 
-        allFiles.push(...transformedFiles);
+          const hasPermission = updatedPermissions.some(
+            (perm: { emailAddress: string }) => perm.emailAddress === userEmail
+          );
+
+          if (!hasPermission) {
+            try {
+              await drive.permissions.create({
+                fileId: file.id,
+                requestBody: {
+                  type: "user",
+                  role: "reader", // change to "writer" if edit access is needed
+                  emailAddress: userEmail,
+                },
+                fields: "id",
+              });
+
+              // Fetch updated permissions
+              const permRes = await drive.permissions.list({
+                fileId: file.id,
+                fields:
+                  "permissions(displayName,photoLink,id,type,emailAddress,role)",
+              });
+
+              updatedPermissions = permRes.data.permissions || [];
+            } catch (permError) {
+              console.error(
+                `❌ Failed to add permission or fetch updated permissions for ${file.name}:`,
+                permError
+              );
+            }
+          }
+
+          allFiles.push({
+            id: file.id,
+            email,
+            name: file.name,
+            mimeType: file.mimeType,
+            parents: file.parents || [],
+            starred: file.starred || false,
+            trashed: file.trashed || false,
+            createdTime: file.createdTime,
+            modifiedTime: file.modifiedTime,
+            permissions: updatedPermissions,
+            quotaBytesUsed: file.quotaBytesUsed,
+            viewedByMe: file.viewedByMe,
+            viewedByMeTime: file.viewedByMeTime,
+          });
+        }
+
         if (nextPageToken) {
           nextTokens[email] = nextPageToken;
         }
       } catch (err) {
-        console.error(`Error fetching files for ${email}:`, err);
+        console.error(`⚠️ Error processing account ${email}:`, err);
       }
     }
 
-    // Optional: Sort all files by modifiedTime
     allFiles.sort(
       (a, b) =>
         new Date(b.modifiedTime).getTime() - new Date(a.modifiedTime).getTime()
@@ -95,7 +129,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error("❌ Internal error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

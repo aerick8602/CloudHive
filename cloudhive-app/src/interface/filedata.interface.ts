@@ -19,5 +19,9 @@ export interface FileData {
     photoLink?: string | null;
   }[];
   quotaBytesUsed?: number;
-  owners?: { emailAddress: string }[];
+  owners?: {
+    emailAddress: string;
+    displayName?: string | null;
+    photoLink?: string | null;
+  }[];
 }

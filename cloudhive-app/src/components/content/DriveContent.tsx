@@ -19,8 +19,12 @@ import {
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
 import { swrConfig } from "@/hooks/use-swr";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { clientAuth } from "@/lib/firebase/firebase-client";
 
 export function DriveContent({ accounts, uid }: any) {
+  const [user] = useAuthState(clientAuth);
+  if (!user) return null;
   const [currentFolderId, setCurrentFolderId] = useState("root");
   const [activeEmail, setActiveEmail] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
@@ -30,7 +34,7 @@ export function DriveContent({ accounts, uid }: any) {
 
   const queryKey =
     currentFolderId === "root" && !activeEmail
-      ? `/api/file/all/${uid}?trashed=false`
+      ? `/api/file/all/${uid}?trashed=false&userEmail=${user?.email}`
       : activeEmail
       ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
       : null;

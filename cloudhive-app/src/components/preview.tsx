@@ -28,7 +28,7 @@ const PreviewBox: React.FC<PreviewBoxProps> = ({
   return (
     <div
       onClick={() => setShowPreview(false)}
-      className="fixed inset-0 bg-black/30 flex justify-center items-center z-[9999] overflow-hidden"
+      className="fixed inset-0 bg-black/30 flex justify-center items-center z-[9999999] overflow-hidden"
     >
       <div
         onClick={(e) => e.stopPropagation()}

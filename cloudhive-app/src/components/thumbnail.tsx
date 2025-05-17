@@ -20,7 +20,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({
 
   return (
     <div
-      className={`relative overflow-hidden flex items-center justify-center  ${className}`}
+      className={`relative h-full overflow-hidden flex items-center justify-center  ${className}`}
     >
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center">
