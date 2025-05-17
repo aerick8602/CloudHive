@@ -136,7 +136,7 @@ function TotalStorageSummary({
 
   return (
     <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6">
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-300">
@@ -155,12 +155,12 @@ function TotalStorageSummary({
             </div>
           </div>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex justify-between text-sm text-blue-600 dark:text-blue-400">
             <span>Storage Usage</span>
             <span>{percentage.toFixed(1)}%</span>
           </div>
-          <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-3">
+          <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5">
             <div
               className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${percentage}%` }}
