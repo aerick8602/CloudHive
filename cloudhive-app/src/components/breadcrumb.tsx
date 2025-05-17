@@ -77,7 +77,7 @@ export function AppBreadcrumb({
         <BreadcrumbList className="text-2xl whitespace-nowrap overflow-hidden text-ellipsis">
           {/* First Item */}
           <span className="flex items-center min-w-0 max-w-[200px]">
-            <BreadcrumbItem className="min-w-0 max-w-[200px]">
+            <BreadcrumbItem className="min-w-0 max-w-[80px] lg:max-w-[300px]">
               <BreadcrumbLink
                 href="#"
                 onClick={() => handleClick(firstItem)}
