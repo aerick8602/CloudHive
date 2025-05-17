@@ -65,6 +65,7 @@ export function FileDropdown({
         `/api/file/${file.email}/update/${file.id}`,
         updateFields
       );
+
       console.log("File updated:", res.data);
 
       if (showUndoToast) {
@@ -235,11 +236,16 @@ export function FileDropdown({
 
               <DropdownMenuItem
                 onClick={() => {
-                  if (tab == "Starred") setView(false);
                   setStarred(!localstarred);
                   updateFile({ starred: !localstarred }, true, () =>
                     undoStar(localstarred)
                   );
+
+                  if (tab === "Starred") {
+                    setTimeout(() => {
+                      setView(false);
+                    }, 1000); // 1 second delay
+                  }
                 }}
                 className="gap-2"
               >
