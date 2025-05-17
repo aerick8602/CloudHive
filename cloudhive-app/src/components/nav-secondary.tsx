@@ -27,7 +27,7 @@ export function NavSecondary({
   return (
     <SidebarGroup className="!p-0">
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-0">
           {navSecondary.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton tooltip={item.title} asChild size="sm">

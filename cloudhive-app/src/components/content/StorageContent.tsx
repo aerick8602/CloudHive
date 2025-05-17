@@ -147,7 +147,7 @@ function TotalStorageSummary({
             </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+            <div className=" text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-300">
               {formatBytes(totalUsage)}
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">
@@ -183,7 +183,7 @@ export function StorageContent({ accounts, uid }: any) {
 
   if (isLoading) {
     return (
-      <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-4rem)]">
+      <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-2rem)]">
         <div className="px-4 pt-6">
           <h1 className="text-2xl font-bold tracking-tight">
             Storage Overview

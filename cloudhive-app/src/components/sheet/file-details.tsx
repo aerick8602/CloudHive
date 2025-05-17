@@ -127,7 +127,10 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
             <p className="text-sm font-medium">
               {formatDate(file.viewedByMeTime)}
             </p>
-            <Badge variant="outline" className="text-xs h-5 px-1.5">
+            <Badge
+              variant="outline"
+              className="text-xs h-5 px-1.5 border border-muted-foreground/50"
+            >
               me
             </Badge>
           </div>
@@ -142,9 +145,9 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
   return (
     <TooltipProvider>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-[420px] sm:w-[480px] p-0 flex flex-col">
+        <SheetContent className="w-[310px] sm:w-[480px] p-0 flex flex-col">
           {/* Sticky Header */}
-          <div className="sticky top-0 bg-background z-10 px-6  border-b">
+          <div className="sticky top-0 bg-background z-10 px-6 -mt-2 ">
             <SheetHeader>
               <div className="flex items-start gap-2">
                 <div
@@ -169,14 +172,14 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
                   <div className="flex items-center gap-2 ">
                     <Badge
                       variant="outline"
-                      className="text-xs px-2.5 py-0.5 rounded-md capitalize"
+                      className="text-xs px-2.5 py-0.5 rounded-md capitalize border border-muted-foreground/50"
                     >
                       {getFileType()}
                     </Badge>
                     {file.starred && (
                       <Badge
                         variant="outline"
-                        className="text-xs px-2.5 py-0.5 rounded-md flex items-center gap-1"
+                        className="text-xs px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-muted-foreground/50"
                       >
                         <Star className="w-3 h-3" /> Starred
                       </Badge>
@@ -184,7 +187,7 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
                     {file.trashed && (
                       <Badge
                         variant="destructive"
-                        className="text-xs px-2.5 py-0.5 rounded-md flex items-center gap-1"
+                        className="text-xs px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-muted-foreground/50"
                       >
                         <Trash2 className="w-3 h-3" /> Trashed
                       </Badge>
@@ -194,12 +197,13 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
               </div>
             </SheetHeader>
           </div>
+          <Separator className="h-1 -mt-1 w-full bg-muted shadow-xl" />
 
           {/* Content */}
           <div className="overflow-y-auto px-6 pb-8">
             {/* Preview */}
             {!isFolder && (
-              <div className="w-full aspect-video mt-4 mb-6 rounded-xl overflow-hidden border bg-gradient-to-br from-muted/10 to-muted/30">
+              <div className="w-full aspect-square mt-4 mb-6 rounded-xl overflow-hidden border  bg-gradient-to-br from-muted/50 to-muted/30">
                 <Thumbnail
                   src={`https://drive.google.com/thumbnail?id=${file.id}&sz=w1000`}
                   fallback={
@@ -315,7 +319,7 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
                       .map((permission, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between group hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors"
+                          className="flex items-center justify-between group hover:bg-muted/50 rounded-lg p-2 -mx-6 lg:-mx-3 transition-colors"
                         >
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
@@ -358,7 +362,7 @@ export const FileDetailsSheet: React.FC<FileDetailsProps> = ({
                           </div>
                           <Badge
                             variant="outline"
-                            className="capitalize text-xs h-6 px-2.5 py-1 rounded-md"
+                            className="capitalize text-xs h-6 px-2.5 py-1 rounded-md border border-muted-foreground/50"
                           >
                             {permission.role === "owner"
                               ? "Owner"

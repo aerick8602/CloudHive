@@ -196,15 +196,15 @@ export function SettingsAccount({ uid }: { uid: string }) {
           </p>
         </div>
         <div className="px-4 my-4 flex items-end justify-between sm:my-0 sm:items-center">
-          <div className="flex flex-col gap-4 sm:my-4 sm:flex-row">
+          <div className="flex gap-2  lg:gap-4 sm:my-4 sm:flex-row">
             <Input
               placeholder="Search accounts..."
-              className="h-9 w-40 lg:w-[250px]"
+              className="h-9 w-35 lg:w-[250px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Select value={storageType} onValueChange={setStorageType}>
-              <SelectTrigger className="w-36">
+              <SelectTrigger className=" w-30 lg:w-36">
                 <SelectValue>{storageText.get(storageType)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -307,20 +307,20 @@ export function SettingsAccount({ uid }: { uid: string }) {
                           />
                         </div>
 
-                        <div className="mt-4 pt-4 border-t space-y-1">
-                          <div className="flex justify-between text-sm">
+                        <div className="mt-3 pt-3 border-t space-y-1">
+                          <div className="flex justify-between text-xs">
                             <span>Usage Percentage</span>
                             <span className="font-medium">
                               {percentage.toFixed(1)}&nbsp;%
                             </span>
                           </div>
-                          <div className="flex justify-between text-sm">
+                          <div className="flex justify-between text-xs">
                             <span>Drive Usage</span>
                             <span className="font-medium">
                               {formatBytes(parseInt(info.usageInDrive || "0"))}
                             </span>
                           </div>
-                          <div className="flex justify-between text-sm">
+                          <div className="flex justify-between text-xs">
                             <span>Trash Usage</span>
                             <span className="font-medium">
                               {formatBytes(
