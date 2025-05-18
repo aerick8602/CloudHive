@@ -5,55 +5,65 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera } from "lucide-react";
+import { Camera, User, Mail, Key } from "lucide-react";
+import {
+  useAuthState,
+  useUpdateProfile,
+  useDeleteUser,
+} from "react-firebase-hooks/auth";
+import { clientAuth } from "@/lib/firebase/firebase-client";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 
-const formSchema = z
-  .object({
-    username: z
-      .string()
-      .min(2, { message: "Username must be at least 2 characters." })
-      .optional()
-      .or(z.literal("")),
-    email: z
-      .string()
-      .email({ message: "Please enter a valid email." })
-      .optional()
-      .or(z.literal("")),
-    password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters." })
-      .optional()
-      .or(z.literal("")),
-    confirmPassword: z.string().optional().or(z.literal("")),
-  })
-  .refine(
-    (data) => {
-      if (data.password) {
-        return data.password === data.confirmPassword;
-      }
-      return true; // no password => no need to check confirmPassword
-    },
-    {
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    }
-  );
+const formSchema = z.object({
+  username: z
+    .string()
+    .min(2, { message: "Username must be at least 2 characters." })
+    .optional()
+    .or(z.literal("")),
+});
 
 export default function ProfileContent() {
+  const [user] = useAuthState(clientAuth);
+  const [updateProfile, updatingProfile, profileError] =
+    useUpdateProfile(clientAuth);
+  const [deleteUser, deletingUser, deleteError] = useDeleteUser(clientAuth);
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("/avatar.png");
-  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // ref for hidden file input
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (user) {
+      setUsername(user.displayName || "");
+      setEmail(user.email || "");
+      setImagePreview(user.photoURL || "/avatar.png");
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (!imageFile) {
-      setImagePreview("/avatar.png");
       return;
     }
     const objectUrl = URL.createObjectURL(imageFile);
@@ -61,217 +71,220 @@ export default function ProfileContent() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [imageFile]);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = formSchema.safeParse({
-      username,
-      email,
-      password,
-      confirmPassword,
-    });
+    setIsLoading(true);
+    setError(null);
+
+    const result = formSchema.safeParse({ username });
     if (!result.success) {
-      const fieldErrors: Record<string, string | undefined> = {};
-      result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0]] = err.message;
+      setError(result.error.errors[0].message);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      if (username !== user?.displayName) {
+        const success = await updateProfile({ displayName: username });
+        if (!success) {
+          throw new Error("Failed to update username");
         }
-      });
-      setErrors(fieldErrors);
-    } else {
-      setErrors({});
-      console.log("Submitted data:", result.data);
-      console.log("Image file:", imageFile);
-      // Upload logic here
+      }
+
+      toast.success("Profile updated successfully!");
+      router.refresh();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to update profile. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Trigger file input click
+  const handleDeleteAccount = async () => {
+    try {
+      const success = await deleteUser();
+      if (success) {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast.error("Failed to delete account. Please try again.");
+    }
+  };
+
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
   };
 
-  return (
-    <div className="flex flex-col overflow-auto max-h-[calc(100vh-50px)]">
-      {/* Header */}
-      <div className="space-y-0.5 px-4 py-6 flex-shrink-0">
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          Settings
-        </h1>
-        <p className="text-muted-foreground">
-          Manage your account settings and update profile information.
-        </p>
+  if (profileError || deleteError) {
+    return (
+      <div className="p-4 text-red-600">
+        <p>Error: {(profileError || deleteError)?.message}</p>
       </div>
-      <Separator className="shadow-sm" />
+    );
+  }
 
-      {/* Scrollable main content */}
-      <div className="flex flex-1 overflow-auto flex-col lg:flex-row">
-        <div className="flex flex-col lg:flex-row flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 gap-8 overflow-auto">
-          {/* Sidebar with Avatar and upload */}
-          <aside className="flex flex-col items-center lg:items-center justify-center lg:justify-start space-y-0 w-full lg:w-1/3 flex-shrink-0 overflow-auto px-4">
-            <div className="relative w-50 h-50 sm:w-58 sm:h-58 lg:w-66 lg:h-66">
-              <Avatar className="w-full h-full rounded-lg">
-                <AvatarImage src={imagePreview} alt="User avatar" />
-                <AvatarFallback className="w-full h-full rounded-lg">
-                  U
-                </AvatarFallback>
-              </Avatar>
-              {/* Upload button overlay */}
-              <button
-                type="button"
-                onClick={handleUploadClick}
-                className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Upload profile picture"
-              >
-                <Camera className="w-6 h-6 text-gray-700" />
-              </button>
-            </div>
+  if (updatingProfile || deletingUser) {
+    return <div className="p-4">Updating...</div>;
+  }
+
+  return (
+    <div className="flex flex-col min-h-[calc(100vh-80px)] bg-background">
+      {/* Header with Profile Picture */}
+      <div className="relative h-32 bg-gradient-to-r from-primary/20 to-primary/10">
+        <div className="absolute top-2 left-4 right-4 md:right-auto md:top-8">
+          <div className="relative">
+            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+              Settings
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base">
+              Manage your account settings and update profile information.
+            </p>
+          </div>
+        </div>
+        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0">
+          <div className="relative group">
+            <Avatar className="w-24 h-24 rounded-full border-4 border-background shadow-lg">
+              <AvatarImage src={imagePreview} alt="User avatar" />
+              <AvatarFallback className="text-3xl font-medium bg-muted">
+                {username.charAt(0).toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            {/* <button
+              onClick={handleUploadClick}
+              className="absolute bottom-2 right-2 bg-background p-2 rounded-full border shadow-sm hover:bg-accent transition-colors group-hover:opacity-100 opacity-0"
+            >
+              <Camera className="h-4 w-4 text-foreground" />
+              <span className="sr-only">Upload photo</span>
+            </button> */}
             <input
-              type="file"
-              accept="image/*"
               ref={fileInputRef}
+              type="file"
               onChange={handleFileChange}
+              accept="image/*"
               className="hidden"
             />
-          </aside>
+          </div>
+        </div>
+      </div>
 
-          {/* Form area */}
-          <main className="lg:ml-2 pl-2 flex-1  pb-12">
-            <form
-              onSubmit={onSubmit}
-              className="space-y-4 max-w-xl mx-auto lg:mx-0"
+      {/* Main Content */}
+      <div className="flex-1 px-4 md:px-8 pt-16 md:pt-6 pb-6">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="text-center md:text-left mt-4 md:mt-0">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                {username || "Set your display name"}
+              </h2>
+              <Badge
+                variant="secondary"
+                className="mt-2 text-sm font-medium px-3 py-1 inline-flex items-center"
+              >
+                <Mail className="w-3 h-3 mr-1" />
+                <span className="truncate max-w-[200px]">{email}</span>
+              </Badge>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowResetDialog(true)}
+              className="gap-2 w-full md:w-auto mt-9"
             >
-              {/* Username */}
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Username
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="johndoe"
-                  className={`block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none
-                    ${errors.username ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.username ? (
-                  <p className="mt-1 text-xs text-red-600">{errors.username}</p>
-                ) : (
-                  <p className="mt-1 text-xs text-gray-500">
-                    This is your public display name. You can only change this
-                    once every 30 days.
-                  </p>
-                )}
-              </div>
+              <Key className="w-4 h-4" />
+              Change Password
+            </Button>
+          </div>
 
-              {/* Email */}
-              {/* <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className={`block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none
-                    ${errors.email ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.email ? (
-                  <p className="mt-1 text-xs text-red-600">{errors.email}</p>
-                ) : (
-                  <p className="mt-1 text-xs text-gray-500">
-                    You can manage verified email addresses in your{" "}
-                    <a
-                      href="/"
-                      className="underline hover:text-blue-600"
-                      target="_blank"
-                      rel="noreferrer"
+          <Card className="border shadow-sm">
+            <CardContent className="pt-6">
+              <form onSubmit={onSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="username"
+                      className="flex items-center gap-2 text-sm font-medium mb-2"
                     >
-                      email settings
-                    </a>
-                    .
-                  </p>
-                )}
-              </div> */}
+                      <User className="w-4 h-4" />
+                      Display Name
+                    </label>
+                    <Input
+                      id="username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter your display name"
+                      className={error ? "border-red-500" : ""}
+                    />
+                    {error ? (
+                      <p className="mt-2 text-sm text-red-500">{error}</p>
+                    ) : (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        This is your public display name. It should be at least
+                        2 characters long.
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Reset Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="********"
-                  className={`block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none
-                    ${errors.password ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.password ? (
-                  <p className="mt-1 text-xs text-red-600">{errors.password}</p>
-                ) : (
-                  <p className="mt-1 text-xs text-gray-500">
-                    Choose a strong password with at least 6 characters.
-                  </p>
-                )}
-              </div>
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 border-t">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="w-full sm:w-auto"
+                        disabled={isLoading}
+                      >
+                        Delete Account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your account and remove your data from our
+                          servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+                        <AlertDialogCancel className="w-full sm:w-auto">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          className="w-full sm:w-auto"
+                        >
+                          Delete Account
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
 
-              {/* Confirm Password */}
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="********"
-                  className={`block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none
-                    ${
-                      errors.confirmPassword
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {errors.confirmPassword}
-                  </p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full sm:w-auto !mb-5">
-                Update Profile
-              </Button>
-            </form>
-          </main>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || username === user?.displayName}
+                    className="w-full sm:w-auto"
+                  >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

@@ -285,9 +285,10 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
                 : "Are you sure you want to disconnect this account? This will revoke access to the account's storage."}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex w-full !justify-between">
+            <AlertDialogCancel className="m-0">Cancel</AlertDialogCancel>
             <AlertDialogAction
+              className="m-0"
               onClick={() => {
                 if (pendingAction) {
                   handleToggleConnection(

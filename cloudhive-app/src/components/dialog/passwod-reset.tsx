@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 
 import { toast } from "sonner";
@@ -20,11 +20,17 @@ import { clientAuth } from "@/lib/firebase/firebase-client";
 export const PasswordResetDialog = ({
   open,
   onOpenChange,
+  defaultEmail = "",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultEmail?: string;
 }) => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(defaultEmail);
+
+  useEffect(() => {
+    setEmail(defaultEmail);
+  }, [defaultEmail]);
 
   const handlePasswordReset = async () => {
     const actionCodeSettings = {
@@ -53,8 +59,9 @@ export const PasswordResetDialog = ({
         <DialogHeader>
           <DialogTitle>Reset Password</DialogTitle>
           <DialogDescription>
-            Please enter the email linked to your account to reset your
-            password.
+            {defaultEmail 
+              ? "A password reset link will be sent to your email address."
+              : "Please enter the email linked to your account to reset your password."}
           </DialogDescription>
         </DialogHeader>
         <div>

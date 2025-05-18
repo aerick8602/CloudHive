@@ -42,7 +42,7 @@ export const swrConfig = {
    * Number of retries before failing when an error occurs during the fetch.
    * Default is 3 retries.
    */
-  errorRetryCount: 3, // Retry up to 3 times on error.
+  errorRetryCount: 1, // Retry up to 3 times on error.
 
   /**
    * `errorRetryInterval`:

@@ -49,9 +49,13 @@ export function SignUpForm({
       const result = await createUserWithEmailAndPassword(email, password);
       if (result?.user) {
         await sendEmailVerification(result.user);
-        toast.info("Kindly verify your email to activate your account.", {
-          position: "top-right",
-        });
+        toast.info(
+          "A verification email has been sent. Kindly follow the link to activate your account.",
+          {
+            position: "top-right",
+          }
+        );
+
         router.push("/auth/sign-in");
       }
     } catch (error) {

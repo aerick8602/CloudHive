@@ -30,7 +30,11 @@ import { useRouter } from "next/navigation";
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 
-export function NavUser() {
+export function NavUser({
+  setActiveTab,
+}: {
+  setActiveTab: (tab: string) => void;
+}) {
   const { isMobile } = useSidebar();
 
   const router = useRouter();
@@ -143,9 +147,13 @@ export function NavUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setActiveTab("Profile");
+                }}
+              >
                 <BadgeCheck />
-                Account
+                Profile
               </DropdownMenuItem>
               {/* <DropdownMenuItem>
                 <CreditCard />

@@ -58,7 +58,7 @@ export function AppSidebar({
       </SidebarContent>
       <SidebarFooter>
         <NavSecondary />
-        <NavUser />
+        <NavUser setActiveTab={setActiveTab} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
