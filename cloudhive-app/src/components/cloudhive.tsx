@@ -18,6 +18,7 @@ import { clientAuth } from "@/lib/firebase/firebase-client";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { AccountProps } from "@/types/AccountProps";
 import Image from "next/image";
+import { Account } from "@/interface";
 
 interface CloudHiveProps {
   initialAccounts: AccountProps[];
@@ -40,7 +41,10 @@ export default function CloudHive({
       try {
         const resAccounts = await fetch(`/api/${uid}/accounts`);
         const dataAccounts = await resAccounts.json();
-        setAccounts(dataAccounts.accounts?.[0] || []);
+        const accounts = dataAccounts.accounts?.[0].filter(
+          (acc: Partial<Account>) => acc.a && acc.c
+        );
+        setAccounts(accounts || []);
 
         const resOauth = await fetch(`/api/google/${uid}/oauth`);
         const dataOauth = await resOauth.text();

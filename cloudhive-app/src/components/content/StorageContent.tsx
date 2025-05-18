@@ -90,7 +90,7 @@ function StorageMeterGroup({
   return (
     <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
       {meters.map((meter) => {
-        const percentage = (meter.value / meter.total) * 100;
+        const percentage = meter.total === 0 ? 0 : (meter.value / meter.total) * 100;
         const Icon = meter.icon;
         return (
           <div
@@ -140,7 +140,7 @@ function TotalStorageSummary({
     (sum, [, info]) => sum + parseInt(info.usage || "0"),
     0
   );
-  const percentage = (totalUsage / totalLimit) * 100;
+  const percentage = totalLimit === 0 ? 0 : (totalUsage / totalLimit) * 100;
 
   const inactiveCount = Object.values(accounts).filter(
     (info) => info.active === false || info.connected === false

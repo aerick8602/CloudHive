@@ -116,7 +116,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-60px)] bg-background relative">
+    <div className="flex flex-col min-h-[calc(100vh-40px)] bg-background relative">
       {(updatingProfile || deletingUser) && (
         <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50 flex items-center justify-center">
           <div className="text-muted-foreground">
@@ -125,7 +125,7 @@ export default function ProfileContent() {
         </div>
       )}
       {/* Header with Profile Picture */}
-      <div className="relative h-32 bg-gradient-to-r from-primary/20 to-primary/10">
+      <div className="relative h-32 bg-gradient-to-r from-red-500/30 via-yellow-500/30 via-green-500/30 via-blue-500/30 via-indigo-500/30 to-purple-500/30">
         <div className="absolute top-2 left-4 right-4 md:right-auto md:top-8">
           <div className="relative">
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
@@ -158,7 +158,7 @@ export default function ProfileContent() {
               </h2>
               <Badge
                 variant="secondary"
-                className="mt-2 text-xs md:text-sm font-medium px-3 py-1 inline-flex items-center"
+                className="mt-2 text-sm font-medium px-3 py-1 inline-flex items-center bg-gradient-to-r from-red-500/30 via-yellow-500/30 via-green-500/30 via-blue-500/30 via-indigo-500/30 to-purple-500/30"
               >
                 <Mail className="w-3 h-3 mr-1" />
                 <span className="truncate max-w-[200px]">{email}</span>
