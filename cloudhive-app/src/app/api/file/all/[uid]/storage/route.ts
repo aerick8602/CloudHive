@@ -31,30 +31,48 @@ export async function GET(
     for (const account of accounts) {
       const email = account.e;
       try {
-        if (account.c) {
-          const drive = await createOAuthClient(email);
-          const about = await drive.about.get({
-            fields: "storageQuota,user",
-          });
+        if (account.a) {
+          if (account.c) {
+            const drive = await createOAuthClient(email);
+            const about = await drive.about.get({
+              fields: "storageQuota,user",
+            });
 
-          storageInfo[email] = {
-            active: account.a,
-            connected: account.c,
-            limit: about.data.storageQuota?.limit,
-            usage: about.data.storageQuota?.usage,
-            usageInDrive: about.data.storageQuota?.usageInDrive,
-            usageInDriveTrash: about.data.storageQuota?.usageInDriveTrash,
-            user: {
-              displayName: about.data.user?.displayName,
-              emailAddress: about.data.user?.emailAddress,
-              photoLink: about.data.user?.photoLink,
-            },
-          };
+            storageInfo[email] = {
+              active: account.a,
+              connected: account.c,
+              limit: about.data.storageQuota?.limit,
+              usage: about.data.storageQuota?.usage,
+              usageInDrive: about.data.storageQuota?.usageInDrive,
+              usageInDriveTrash: about.data.storageQuota?.usageInDriveTrash,
+              user: {
+                displayName: about.data.user?.displayName,
+                emailAddress: about.data.user?.emailAddress,
+                photoLink: about.data.user?.photoLink,
+              },
+            };
+          } else {
+            const drive = await createOAuthClient(email);
+            const about = await drive.about.get({
+              fields: "user",
+            });
+
+            storageInfo[email] = {
+              active: account.a,
+              connected: account.c,
+              error: "Account is disconnected",
+              user: {
+                displayName: about.data.user?.displayName,
+                emailAddress: about.data.user?.emailAddress,
+                photoLink: about.data.user?.photoLink,
+              },
+            };
+          }
         } else {
           storageInfo[email] = {
             active: account.a,
             connected: account.c,
-            error: "Account is disconnected",
+            error: "Account is inactive",
             user: {
               emailAddress: email,
             },

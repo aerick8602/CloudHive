@@ -145,7 +145,7 @@ export default function ProfileContent() {
           <main className="lg:ml-2 pl-2 flex-1  pb-12">
             <form
               onSubmit={onSubmit}
-              className="space-y-4 max-w-2xl mx-auto lg:mx-0"
+              className="space-y-4 max-w-xl mx-auto lg:mx-0"
             >
               {/* Username */}
               <div>
@@ -176,7 +176,7 @@ export default function ProfileContent() {
               </div>
 
               {/* Email */}
-              <div>
+              {/* <div>
                 <label
                   htmlFor="email"
                   className="block text-sm font-medium mb-1"
@@ -209,7 +209,7 @@ export default function ProfileContent() {
                     .
                   </p>
                 )}
-              </div>
+              </div> */}
 
               {/* Password */}
               <div>

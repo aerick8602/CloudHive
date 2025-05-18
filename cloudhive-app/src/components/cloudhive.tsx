@@ -64,9 +64,11 @@ export default function CloudHive({
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("currentActiveAccount");
-    if (savedEmail) {
+    if (savedEmail && accounts.length > 0) {
       // Check if the saved email exists in accounts
-      const accountExists = accounts.some(account => account.e === savedEmail);
+      const accountExists = accounts.some(
+        (account) => account.e === savedEmail
+      );
       if (accountExists) {
         setCurrentActiveAccount(savedEmail);
       } else if (accounts.length > 0) {
@@ -76,6 +78,9 @@ export default function CloudHive({
     } else if (accounts.length > 0) {
       // If no saved account, set the first account as active
       setCurrentActiveAccount(accounts[0].e);
+    } else {
+      // If no accounts, clear the active account
+      setCurrentActiveAccount("");
     }
   }, [accounts]);
 

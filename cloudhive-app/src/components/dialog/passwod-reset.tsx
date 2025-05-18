@@ -28,7 +28,7 @@ export const PasswordResetDialog = ({
 
   const handlePasswordReset = async () => {
     const actionCodeSettings = {
-      url: "http://localhost:3000/auth/sign-in",
+      url: process.env.NEXT_PUBLIC_BASE_URL!,
       handleCodeInApp: true,
     };
     try {

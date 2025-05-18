@@ -148,7 +148,7 @@ export function UploadMenu({
       <SidebarMenu>
         <SidebarMenuItem className="p-0">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={isUploading}>
+            <DropdownMenuTrigger asChild disabled={isUploading || !currentActiveAccount}>
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground  disabled:opacity-50 disabled:cursor-not-allowed"

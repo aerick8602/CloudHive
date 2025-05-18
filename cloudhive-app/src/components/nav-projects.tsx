@@ -57,7 +57,7 @@ export function NavProjects({
       icon: Settings2,
       isActive: false,
       items: [
-        // { title: "Profile", icon: User, url: "#" },
+        { title: "Profile", icon: User, url: "#" },
         { title: "Accounts", icon: AtSign, url: "#" },
       ],
     },
