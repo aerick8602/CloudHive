@@ -1,11 +1,11 @@
 "use client";
 
 import { z } from "zod";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, User, Mail, Key } from "lucide-react";
+import { User, Mail, Key, Loader2 } from "lucide-react";
 import {
   useAuthState,
   useUpdateProfile,
@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import { PasswordResetDialog } from "@/components/dialog/passwod-reset";
 
 const formSchema = z.object({
   username: z
@@ -46,13 +47,10 @@ export default function ProfileContent() {
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("/avatar.png");
   const [isLoading, setIsLoading] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -61,15 +59,6 @@ export default function ProfileContent() {
       setImagePreview(user.photoURL || "/avatar.png");
     }
   }, [user]);
-
-  useEffect(() => {
-    if (!imageFile) {
-      return;
-    }
-    const objectUrl = URL.createObjectURL(imageFile);
-    setImagePreview(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [imageFile]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,22 +98,12 @@ export default function ProfileContent() {
     try {
       const success = await deleteUser();
       if (success) {
-        router.push("/");
+        router.push("/auth/sign-in");
         router.refresh();
       }
     } catch (error) {
       console.error("Error deleting account:", error);
       toast.error("Failed to delete account. Please try again.");
-    }
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
     }
   };
 
@@ -136,12 +115,15 @@ export default function ProfileContent() {
     );
   }
 
-  if (updatingProfile || deletingUser) {
-    return <div className="p-4">Updating...</div>;
-  }
-
   return (
-    <div className="flex flex-col min-h-[calc(100vh-80px)] bg-background">
+    <div className="flex flex-col min-h-[calc(100vh-50px)] bg-background relative">
+      {(updatingProfile || deletingUser) && (
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50 flex items-center justify-center">
+          <div className="text-muted-foreground">
+            <Loader2 className="animate-spin" />
+          </div>
+        </div>
+      )}
       {/* Header with Profile Picture */}
       <div className="relative h-32 bg-gradient-to-r from-primary/20 to-primary/10">
         <div className="absolute top-2 left-4 right-4 md:right-auto md:top-8">
@@ -154,28 +136,14 @@ export default function ProfileContent() {
             </p>
           </div>
         </div>
-        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0">
-          <div className="relative group">
+        <div className="absolute -bottom-15 md:-bottom-12  left-1/2 transform -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0">
+          <div className="relative">
             <Avatar className="w-24 h-24 rounded-full border-4 border-background shadow-lg">
               <AvatarImage src={imagePreview} alt="User avatar" />
               <AvatarFallback className="text-3xl font-medium bg-muted">
                 {username.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
-            {/* <button
-              onClick={handleUploadClick}
-              className="absolute bottom-2 right-2 bg-background p-2 rounded-full border shadow-sm hover:bg-accent transition-colors group-hover:opacity-100 opacity-0"
-            >
-              <Camera className="h-4 w-4 text-foreground" />
-              <span className="sr-only">Upload photo</span>
-            </button> */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
           </div>
         </div>
       </div>
@@ -190,7 +158,7 @@ export default function ProfileContent() {
               </h2>
               <Badge
                 variant="secondary"
-                className="mt-2 text-sm font-medium px-3 py-1 inline-flex items-center"
+                className="mt-2 text-xs md:text-sm font-medium px-3 py-1 inline-flex items-center"
               >
                 <Mail className="w-3 h-3 mr-1" />
                 <span className="truncate max-w-[200px]">{email}</span>
@@ -200,7 +168,7 @@ export default function ProfileContent() {
               variant="outline"
               size="sm"
               onClick={() => setShowResetDialog(true)}
-              className="gap-2 w-full md:w-auto mt-9"
+              className="gap-2 w-full md:w-auto mt-5 md:mt-10"
             >
               <Key className="w-4 h-4" />
               Change Password
@@ -238,7 +206,14 @@ export default function ProfileContent() {
                   </div>
                 </div>
 
-                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 border-t">
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 ">
+                  <Button
+                    type="submit"
+                    disabled={isLoading || username === user?.displayName}
+                    className="w-full sm:w-auto"
+                  >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                  </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -260,7 +235,7 @@ export default function ProfileContent() {
                           servers.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+                      <AlertDialogFooter className="flex-col sm:flex-row !justify-between">
                         <AlertDialogCancel className="w-full sm:w-auto">
                           Cancel
                         </AlertDialogCancel>
@@ -273,20 +248,17 @@ export default function ProfileContent() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-
-                  <Button
-                    type="submit"
-                    disabled={isLoading || username === user?.displayName}
-                    className="w-full sm:w-auto"
-                  >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                  </Button>
                 </div>
               </form>
             </CardContent>
           </Card>
         </div>
       </div>
+      <PasswordResetDialog
+        open={showResetDialog}
+        onOpenChange={setShowResetDialog}
+        defaultEmail={email}
+      ></PasswordResetDialog>
     </div>
   );
 }

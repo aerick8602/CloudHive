@@ -101,52 +101,53 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
             </p>
           </div>
           <div className="px-4 my-4 flex items-end justify-between sm:my-0 sm:items-center">
-            <div className="flex flex-col gap-4 sm:my-4 sm:flex-row">
-              <div className="h-9 w-40 lg:w-[250px]">
-                <Input
-                  placeholder="Search accounts..."
-                  className="h-9 w-full"
-                  disabled
-                />
-              </div>
-              <div className="h-9 w-36">
-                <Select disabled>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Accounts" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Accounts</SelectItem>
-                    <SelectItem value="used">Most Used</SelectItem>
-                    <SelectItem value="free">Most Free</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="connected">Connected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="h-9 w-16">
-              <Select disabled>
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    <IconAdjustmentsHorizontal size={18} />
-                  </SelectValue>
+            <div className="flex gap-2 lg:gap-4 sm:my-4 sm:flex-row">
+              <Input
+                disabled
+                placeholder="Search accounts..."
+                className="h-9 w-35 lg:w-[250px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Select
+                disabled
+                value={storageType}
+                onValueChange={setStorageType}
+              >
+                <SelectTrigger className="w-30 lg:w-36">
+                  <SelectValue>{storageText.get(storageType)}</SelectValue>
                 </SelectTrigger>
-                <SelectContent align="end">
-                  <SelectItem value="ascending">
-                    <div className="flex items-center gap-4">
-                      <IconSortAscendingLetters size={16} />
-                      <span>Ascending</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="descending">
-                    <div className="flex items-center gap-4">
-                      <IconSortDescendingLetters size={16} />
-                      <span>Descending</span>
-                    </div>
-                  </SelectItem>
+                <SelectContent>
+                  <SelectItem value="all">All Accounts</SelectItem>
+                  <SelectItem value="used">Most Used</SelectItem>
+                  <SelectItem value="free">Most Free</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="connected">Connected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            <Select disabled value={sort} onValueChange={setSort}>
+              <SelectTrigger className="w-16 -mr-3">
+                <SelectValue>
+                  <IconAdjustmentsHorizontal size={18} />
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent align="end">
+                <SelectItem value="ascending">
+                  <div className="flex items-center gap-4">
+                    <IconSortAscendingLetters size={16} />
+                    <span>Ascending</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="descending">
+                  <div className="flex items-center gap-4">
+                    <IconSortDescendingLetters size={16} />
+                    <span>Descending</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Separator className="shadow-sm" />
           <div className="flex-1 min-h-0 overflow-y-auto">

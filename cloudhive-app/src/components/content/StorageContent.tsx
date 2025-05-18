@@ -216,17 +216,17 @@ export function StorageContent({ accounts, uid }: any) {
             <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Skeleton className="h-8 w-48 mb-2" />
-                  <Skeleton className="h-4 w-64" />
+                  <Skeleton className="h-6 md:h-8 w-32 md:w-48 mb-2" />
+                  <Skeleton className="h-6 md:h-8 w-24 md:w-32" />
                 </div>
                 <div className="text-right">
-                  <Skeleton className="h-8 w-32 mb-2" />
-                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-32 md:w-48 mb-2" />
+                  <Skeleton className="h-4 w-32 md:w-48 mb-2 " />
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-24 md:w-32" />
                   <Skeleton className="h-4 w-12" />
                 </div>
                 <Skeleton className="h-2.5 w-full rounded-full" />
