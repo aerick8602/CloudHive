@@ -55,7 +55,7 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
               intuitive interface making file organization and access easier
               than ever.
               <a
-                href="https://github.com/ayushkatiyar/cloudhive-app"
+                href="https://github.com/aerick8602/CloudHive"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md text-xs flex items-center gap-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors w-fit mt-2"
