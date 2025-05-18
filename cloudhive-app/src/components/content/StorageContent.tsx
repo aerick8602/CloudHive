@@ -269,18 +269,13 @@ export function StorageContent({ accounts, uid }: any) {
 
   if (error) {
     return (
-      <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-4rem)]">
-        <div className="px-4 pt-4 md:pt-6">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
-            Storage Overview
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Here&apos;s a list of your connected accounts and their storage
-            usage!
-          </p>
-        </div>
-        <div className="p-3 md:p-4 border rounded-lg bg-red-50 text-red-600 text-sm">
-          Failed to load storage information
+      <div className="flex-1 min-h-0 flex items-center justify-center">
+        <div className="text-center space-y-2">
+          <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
+          <p className="text-red-500">Failed to load storage information</p>
+          <Button variant="outline" onClick={() => mutate()} className="mt-2">
+            Try Again
+          </Button>
         </div>
       </div>
     );
