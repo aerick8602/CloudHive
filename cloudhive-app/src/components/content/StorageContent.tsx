@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { formatBytes } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -28,6 +28,7 @@ import { swrConfig } from "@/hooks/use-swr";
 import { SettingsAccount } from "./setting/SettingsAccount";
 import { StorageInfo } from "@/types/storage";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AlertCircle } from "lucide-react";
 
 const storageText = new Map<string, string>([
   ["all", "All Accounts"],
@@ -190,7 +191,7 @@ function TotalStorageSummary({
 
 export function StorageContent({ accounts, uid }: any) {
   const isMobile = useIsMobile();
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     `/api/file/all/${uid}/storage`,
     fetcher,
     {
