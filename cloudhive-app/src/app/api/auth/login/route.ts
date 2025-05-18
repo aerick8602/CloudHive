@@ -6,13 +6,33 @@ const SESSION_COOKIE_NAME = process.env.SESSION!;
 const SESSION_EXPIRES_IN = Number(process.env.SESSION_TTL!); // 24 hours in ms
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight requests
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400",
+      },
+    });
+  }
+
   try {
     const { idToken } = await request.json();
 
     if (!idToken) {
       return NextResponse.json(
         { success: false, error: "ID token is required." },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          }
+        }
       );
     }
 
@@ -22,13 +42,19 @@ export async function POST(request: NextRequest) {
       expiresIn: SESSION_EXPIRES_IN,
     });
 
-    // ✅ Get mutable cookies object from the response
+    // Create response with CORS headers
     const response = NextResponse.json({
       success: true,
       uid: decodedToken.uid,
+    }, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      }
     });
 
-    // ✅ Set the cookie on the response, not globally
+    // Set the cookie on the response
     response.cookies.set({
       name: SESSION_COOKIE_NAME,
       value: sessionCookie,
@@ -43,8 +69,19 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Sign in error:", error);
     return NextResponse.json(
-      { success: false, error: "Authentication failed." },
-      { status: 401 }
+      { 
+        success: false, 
+        error: "Authentication failed.",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
+      { 
+        status: 401,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        }
+      }
     );
   }
 }
