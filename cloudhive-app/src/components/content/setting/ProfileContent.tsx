@@ -116,7 +116,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-40px)] bg-background relative">
+    <div className="flex flex-col min-h-[calc(100vh-30px)] bg-background relative">
       {(updatingProfile || deletingUser) && (
         <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50 flex items-center justify-center">
           <div className="text-muted-foreground">
@@ -211,7 +211,7 @@ export default function ProfileContent() {
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="destructive"
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                         disabled={isLoading}
                       >
                         Delete Account

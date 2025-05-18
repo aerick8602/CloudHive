@@ -105,7 +105,7 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
               <Input
                 disabled
                 placeholder="Search accounts..."
-                className="h-9 w-35 lg:w-[250px]"
+                className="h-9 w-36 lg:w-[250px]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -318,7 +318,7 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
           <div className="flex gap-2 lg:gap-4 sm:my-4 sm:flex-row">
             <Input
               placeholder="Search accounts..."
-              className="h-9 w-35 lg:w-[250px]"
+              className="h-9 w-36 lg:w-[250px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
