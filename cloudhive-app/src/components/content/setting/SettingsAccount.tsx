@@ -150,37 +150,40 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
           </div>
           <Separator className="shadow-sm" />
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-4 py-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="px-4 py-6 grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-lg border p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Skeleton className="h-10 w-10 rounded-full" />
+                <div
+                  key={i}
+                  className="rounded-lg border p-4 hover:shadow-md transition-shadow h-[240px] flex flex-col"
+                >
+                  <div className="mb-2 flex items-center justify-between">
+                    <Skeleton className="size-10 rounded-full" />
                     <div className="flex gap-2">
-                      <Skeleton className="h-8 w-24" />
+                      <Skeleton className="h-8 w-20" />
                       <Skeleton className="h-8 w-24" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-4 w-48" />
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
+                  <div className="flex-1 flex flex-col">
+                    <Skeleton className="h-5 w-32 mb-1" />
+                    <Skeleton className="h-4 w-48 mb-3" />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between text-sm">
                         <Skeleton className="h-4 w-24" />
                         <Skeleton className="h-4 w-32" />
                       </div>
-                      <Skeleton className="h-2 w-full" />
-                      <div className="mt-4 pt-4 border-t space-y-2">
-                        <div className="flex justify-between">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-2 w-full rounded-full" />
+                      <div className="mt-2 pt-2 border-t space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <Skeleton className="h-3 w-20" />
+                          <Skeleton className="h-3 w-16" />
                         </div>
-                        <div className="flex justify-between">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-4 w-24" />
+                        <div className="flex justify-between text-xs">
+                          <Skeleton className="h-3 w-20" />
+                          <Skeleton className="h-3 w-24" />
                         </div>
-                        <div className="flex justify-between">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-4 w-24" />
+                        <div className="flex justify-between text-xs">
+                          <Skeleton className="h-3 w-20" />
+                          <Skeleton className="h-3 w-24" />
                         </div>
                       </div>
                     </div>
@@ -244,12 +247,6 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
 
       const data = await response.json();
       if (data.success) {
-        toast.success(
-          data.account.c
-            ? "Account connected successfully!"
-            : "Account disconnected successfully!"
-        );
-
         const connectedAccounts = data.accounts.filter(
           (acc: any) => acc.c && acc.a
         );
@@ -257,6 +254,11 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
 
         await mutate();
       }
+      toast.success(
+        data.account.c
+          ? "Account connected successfully!"
+          : "Account disconnected successfully!"
+      );
     } catch (error) {
       console.error("Error toggling connection:", error);
       toast.error("Failed to toggle account connection");

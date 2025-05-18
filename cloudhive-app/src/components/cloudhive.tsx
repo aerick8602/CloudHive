@@ -65,9 +65,19 @@ export default function CloudHive({
   useEffect(() => {
     const savedEmail = localStorage.getItem("currentActiveAccount");
     if (savedEmail) {
-      setCurrentActiveAccount(savedEmail);
+      // Check if the saved email exists in accounts
+      const accountExists = accounts.some(account => account.e === savedEmail);
+      if (accountExists) {
+        setCurrentActiveAccount(savedEmail);
+      } else if (accounts.length > 0) {
+        // If saved account doesn't exist, set the first account as active
+        setCurrentActiveAccount(accounts[0].e);
+      }
+    } else if (accounts.length > 0) {
+      // If no saved account, set the first account as active
+      setCurrentActiveAccount(accounts[0].e);
     }
-  }, []);
+  }, [accounts]);
 
   useEffect(() => {
     if (currentActiveAccount) {
@@ -90,10 +100,6 @@ export default function CloudHive({
 
   //   checkSession();
   // }, [sessionValid]);
-
-  // if (sessionError) {
-  //   throw new Error("Session Error");
-  // }
 
   //   const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
   //     user?.uid ? `api/${user?.uid}/accounts` : null,

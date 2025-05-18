@@ -43,23 +43,21 @@ function StorageMeterGroup({
   accounts: Record<string, StorageInfo>;
 }) {
   const isMobile = useIsMobile();
-  const activeAccounts = Object.entries(accounts).filter(
-    ([, info]) => info.active !== false
-  );
+  const allAccounts = Object.entries(accounts);
 
-  const totalLimit = activeAccounts.reduce(
+  const totalLimit = allAccounts.reduce(
     (sum, [, info]) => sum + parseInt(info.limit || "0"),
     0
   );
-  const totalUsage = activeAccounts.reduce(
+  const totalUsage = allAccounts.reduce(
     (sum, [, info]) => sum + parseInt(info.usage || "0"),
     0
   );
-  const totalDriveUsage = activeAccounts.reduce(
+  const totalDriveUsage = allAccounts.reduce(
     (sum, [, info]) => sum + parseInt(info.usageInDrive || "0"),
     0
   );
-  const totalTrashUsage = activeAccounts.reduce(
+  const totalTrashUsage = allAccounts.reduce(
     (sum, [, info]) => sum + parseInt(info.usageInDriveTrash || "0"),
     0
   );
@@ -131,22 +129,20 @@ function TotalStorageSummary({
   accounts: Record<string, StorageInfo>;
 }) {
   const isMobile = useIsMobile();
-  const activeAccounts = Object.entries(accounts).filter(
-    ([, info]) => info.active !== false
-  );
+  const allAccounts = Object.entries(accounts);
 
-  const totalLimit = activeAccounts.reduce(
+  const totalLimit = allAccounts.reduce(
     (sum, [, info]) => sum + parseInt(info.limit || "0"),
     0
   );
-  const totalUsage = activeAccounts.reduce(
+  const totalUsage = allAccounts.reduce(
     (sum, [, info]) => sum + parseInt(info.usage || "0"),
     0
   );
   const percentage = (totalUsage / totalLimit) * 100;
 
   const inactiveCount = Object.values(accounts).filter(
-    (info) => info.active === false
+    (info) => info.active === false || info.connected === false
   ).length;
 
   return (
@@ -218,12 +214,21 @@ export function StorageContent({ accounts, uid }: any) {
           <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 md:p-6">
             <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex items-center justify-between">
-                <Skeleton className="h-6 md:h-8 w-32 md:w-48" />
-                <Skeleton className="h-6 md:h-8 w-24 md:w-32" />
+                <div>
+                  <Skeleton className="h-8 w-48 mb-2" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+                <div className="text-right">
+                  <Skeleton className="h-8 w-32 mb-2" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
               </div>
               <div className="space-y-2">
-                <Skeleton className="h-3 md:h-4 w-full" />
-                <Skeleton className="h-2 md:h-2.5 w-full" />
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+                <Skeleton className="h-2.5 w-full rounded-full" />
               </div>
             </div>
           </div>
@@ -235,18 +240,21 @@ export function StorageContent({ accounts, uid }: any) {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="rounded-lg border p-3 md:p-4 space-y-2"
+                    className="rounded-lg border p-4 space-y-2 hover:shadow-md transition-shadow"
                   >
-                    <Skeleton className="h-4 md:h-5 w-24 md:w-32" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-5 w-5" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
                     <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <Skeleton className="h-3 md:h-4 w-12 md:w-16" />
-                        <Skeleton className="h-3 md:h-4 w-16 md:w-24" />
+                      <div className="flex justify-between text-sm">
+                        <Skeleton className="h-4 w-12" />
+                        <Skeleton className="h-4 w-20" />
                       </div>
-                      <Skeleton className="h-1.5 md:h-2 w-full" />
-                      <div className="flex justify-between">
-                        <Skeleton className="h-2.5 md:h-3 w-6 md:w-8" />
-                        <Skeleton className="h-2.5 md:h-3 w-12 md:w-16" />
+                      <Skeleton className="h-2 w-full rounded-full" />
+                      <div className="flex justify-between text-xs">
+                        <Skeleton className="h-3 w-6" />
+                        <Skeleton className="h-3 w-16" />
                       </div>
                     </div>
                   </div>
