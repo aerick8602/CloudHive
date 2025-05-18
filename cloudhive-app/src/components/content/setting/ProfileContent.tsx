@@ -51,6 +51,7 @@ export default function ProfileContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -228,6 +229,23 @@ export default function ProfileContent() {
                           servers.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
+                      <div className="py-4">
+                        <div className="space-y-2">
+                          <label htmlFor="delete-confirm" className="text-sm font-medium">
+                            To verify, type "delete my account" below:
+                          </label>
+                          <p className="text-sm text-muted-foreground">
+                            Account to be deleted: {email}
+                          </p>
+                          <Input
+                            id="delete-confirm"
+                            value={deleteConfirmation}
+                            onChange={(e) => setDeleteConfirmation(e.target.value)}
+                           
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
                       <AlertDialogFooter className="flex-col sm:flex-row !justify-between">
                         <AlertDialogCancel className="w-full sm:w-auto">
                           Cancel
@@ -235,6 +253,7 @@ export default function ProfileContent() {
                         <AlertDialogAction
                           onClick={handleDeleteAccount}
                           className="w-full sm:w-auto"
+                          disabled={deleteConfirmation !== "delete my account"}
                         >
                           Delete Account
                         </AlertDialogAction>
