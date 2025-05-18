@@ -90,13 +90,13 @@ import redis from "../cache/redis.config";
 import { oauth2Client } from "./google.oauth2";
 
 export async function validateAccessToken(email: string) {
-  console.log(`[validateAccessToken] Checking token for email: ${email}`);
+  // console.log(`[validateAccessToken] Checking token for email: ${email}`);
 
   // Check if token exists in Redis first
   try {
     const cachedToken = await redis.get(`access_token:${email}`);
     if (cachedToken) {
-      console.log(`[validateAccessToken] Cache hit for email: ${email}`);
+      // console.log(`[validateAccessToken] Cache hit for email: ${email}`);
       return cachedToken;
     }
   } catch (err) {
@@ -113,15 +113,15 @@ export async function validateAccessToken(email: string) {
   const currentTime = Date.now();
   const tokenExpiry = convertISTToMillis(token.atv!);
 
-  console.log(
-    `[validateAccessToken] Current time: ${currentTime}, Token expiry time: ${tokenExpiry}`
-  );
+  // console.log(
+  //   `[validateAccessToken] Current time: ${currentTime}, Token expiry time: ${tokenExpiry}`
+  // );
 
   // Check if token is expired (with 5-minute buffer)
   if (currentTime > tokenExpiry - 5 * 60 * 1000) {
-    console.log(
-      `[validateAccessToken] Token expired or about to expire, refreshing...`
-    );
+    // console.log(
+    //   `[validateAccessToken] Token expired or about to expire, refreshing...`
+    // );
 
     const { accessToken, expiryDate } = await refreshAccessToken(
       token.rt!,
@@ -160,9 +160,9 @@ export async function refreshAccessToken(
   accessToken: string;
   expiryDate: number;
 }> {
-  console.log(
-    `[refreshAccessToken] Refreshing access token for email: ${email}`
-  );
+  // console.log(
+  //   `[refreshAccessToken] Refreshing access token for email: ${email}`
+  // );
 
   // const oauth2Client = new google.auth.OAuth2(
   //   process.env.GOOGLE_CLIENT_ID!,
@@ -184,9 +184,9 @@ export async function refreshAccessToken(
       Date.now() + credentials.refresh_token_expires_in! * 1000
     );
 
-    console.log(
-      `[refreshAccessToken] New token expires at: ${accessExpiryIST}`
-    );
+    // console.log(
+    //   `[refreshAccessToken] New token expires at: ${accessExpiryIST}`
+    // );
 
     // Update MongoDB with new token info
     await updateTokenToMongo(
@@ -196,9 +196,9 @@ export async function refreshAccessToken(
       refreshExpiryIST
     );
 
-    console.log(
-      `[refreshAccessToken] Token updated in MongoDB for email: ${email}`
-    );
+    // console.log(
+    //   `[refreshAccessToken] Token updated in MongoDB for email: ${email}`
+    // );
 
     return { accessToken, expiryDate };
   } catch (error) {

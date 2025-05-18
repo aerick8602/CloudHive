@@ -155,6 +155,8 @@ export async function GET(req: NextRequest) {
                 ),
                 q: { l: totalQuota, u: usedQuota },
                 sync: convertMillisToIST(Date.now()),
+                c: true,
+                a: true,
               },
               $addToSet: { uids: state },
             }
@@ -173,6 +175,8 @@ export async function GET(req: NextRequest) {
             q: { l: totalQuota, u: usedQuota },
             sync: convertMillisToIST(Date.now()),
             uids: [state],
+            c: true,
+            a: true,
           });
           account = await accountsCollection.findOne({
             _id: result.insertedId,
@@ -195,21 +199,21 @@ export async function GET(req: NextRequest) {
           }
         })();
 
-        (async () => {
-          if (account) {
-            console.log("Linking account to user...");
-            await usersCollection.updateOne(
-              { uid: state },
-              { $addToSet: { aids: account._id } },
-              { upsert: true }
-            );
-            console.log("User document updated/created");
-          } else {
-            console.error(
-              "Failed to find or create account after insert/update"
-            );
-          }
-        })();
+        // (async () => {
+        //   if (account) {
+        //     console.log("Linking account to user...");
+        //     await usersCollection.updateOne(
+        //       { uid: state },
+        //       { $addToSet: { aids: account._id } },
+        //       { upsert: true }
+        //     );
+        //     console.log("User document updated/created");
+        //   } else {
+        //     console.error(
+        //       "Failed to find or create account after insert/update"
+        //     );
+        //   }
+        // })();
       } catch (dbError) {
         console.error("Background database task error:", dbError);
       }

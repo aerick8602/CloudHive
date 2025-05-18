@@ -27,6 +27,7 @@ import {
 import { swrConfig } from "@/hooks/use-swr";
 import { SettingsAccount } from "./setting/SettingsAccount";
 import { StorageInfo } from "@/types/storage";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const storageText = new Map<string, string>([
   ["all", "All Accounts"],
@@ -41,20 +42,25 @@ function StorageMeterGroup({
 }: {
   accounts: Record<string, StorageInfo>;
 }) {
-  const totalLimit = Object.values(accounts).reduce(
-    (sum, info) => sum + parseInt(info.limit || "0"),
+  const isMobile = useIsMobile();
+  const activeAccounts = Object.entries(accounts).filter(
+    ([, info]) => info.active !== false
+  );
+
+  const totalLimit = activeAccounts.reduce(
+    (sum, [, info]) => sum + parseInt(info.limit || "0"),
     0
   );
-  const totalUsage = Object.values(accounts).reduce(
-    (sum, info) => sum + parseInt(info.usage || "0"),
+  const totalUsage = activeAccounts.reduce(
+    (sum, [, info]) => sum + parseInt(info.usage || "0"),
     0
   );
-  const totalDriveUsage = Object.values(accounts).reduce(
-    (sum, info) => sum + parseInt(info.usageInDrive || "0"),
+  const totalDriveUsage = activeAccounts.reduce(
+    (sum, [, info]) => sum + parseInt(info.usageInDrive || "0"),
     0
   );
-  const totalTrashUsage = Object.values(accounts).reduce(
-    (sum, info) => sum + parseInt(info.usageInDriveTrash || "0"),
+  const totalTrashUsage = activeAccounts.reduce(
+    (sum, [, info]) => sum + parseInt(info.usageInDriveTrash || "0"),
     0
   );
 
@@ -83,7 +89,7 @@ function StorageMeterGroup({
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
       {meters.map((meter) => {
         const percentage = (meter.value / meter.total) * 100;
         const Icon = meter.icon;
@@ -124,45 +130,59 @@ function TotalStorageSummary({
 }: {
   accounts: Record<string, StorageInfo>;
 }) {
-  const totalLimit = Object.values(accounts).reduce(
-    (sum, info) => sum + parseInt(info.limit || "0"),
+  const isMobile = useIsMobile();
+  const activeAccounts = Object.entries(accounts).filter(
+    ([, info]) => info.active !== false
+  );
+
+  const totalLimit = activeAccounts.reduce(
+    (sum, [, info]) => sum + parseInt(info.limit || "0"),
     0
   );
-  const totalUsage = Object.values(accounts).reduce(
-    (sum, info) => sum + parseInt(info.usage || "0"),
+  const totalUsage = activeAccounts.reduce(
+    (sum, [, info]) => sum + parseInt(info.usage || "0"),
     0
   );
   const percentage = (totalUsage / totalLimit) * 100;
 
+  const inactiveCount = Object.values(accounts).filter(
+    (info) => info.active === false
+  ).length;
+
   return (
-    <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+    <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 md:p-6">
+      <div className="flex flex-col gap-3 md:gap-4">
+        <div className={`flex ${"items-center justify-between"}`}>
           <div>
-            <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+            <h2 className="text-xl md:text-2xl font-bold text-blue-700 dark:text-blue-300">
               Total Storage
             </h2>
-            <p className="text-sm text-blue-600 dark:text-blue-400">
+            <p className="text-xs md:text-sm text-blue-600 dark:text-blue-400">
               Across all connected accounts
+              {inactiveCount > 0 && (
+                <div className=" text-red-600 dark:text-red-400">
+                  ({inactiveCount} Inactive)
+                </div>
+              )}
             </p>
           </div>
-          <div className="text-right">
-            <div className=" text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-300">
+          <div className={`text-right ${isMobile ? "mt-2" : ""}`}>
+            <div className="text-xl md:text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-300">
               {formatBytes(totalUsage)}
             </div>
-            <div className="text-sm text-blue-600 dark:text-blue-400">
+            <div className="text-xs md:text-sm text-blue-600 dark:text-blue-400">
               of {formatBytes(totalLimit)}
             </div>
           </div>
         </div>
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-blue-600 dark:text-blue-400">
+          <div className="flex justify-between text-xs md:text-sm text-blue-600 dark:text-blue-400">
             <span>Storage Usage</span>
             <span>{percentage.toFixed(1)}%</span>
           </div>
-          <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5">
+          <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 md:h-2.5">
             <div
-              className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full transition-all duration-300"
+              className="bg-blue-600 dark:bg-blue-400 h-2 md:h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${percentage}%` }}
             />
           </div>
@@ -173,6 +193,7 @@ function TotalStorageSummary({
 }
 
 export function StorageContent({ accounts, uid }: any) {
+  const isMobile = useIsMobile();
   const { data, error, isLoading } = useSWR(
     `/api/file/all/${uid}/storage`,
     fetcher,
@@ -184,45 +205,48 @@ export function StorageContent({ accounts, uid }: any) {
   if (isLoading) {
     return (
       <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-2rem)]">
-        <div className="px-4 pt-6">
-          <h1 className="text-2xl font-bold tracking-tight">
+        <div className="px-4 pt-4 md:pt-6">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
             Storage Overview
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Here&apos;s a list of your connected accounts and their storage
             usage!
           </p>
         </div>
-        <div className="px-4 my-4">
-          <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6">
-            <div className="flex flex-col gap-4">
+        <div className="px-4 my-3 md:my-4">
+          <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 md:p-6">
+            <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex items-center justify-between">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-6 md:h-8 w-32 md:w-48" />
+                <Skeleton className="h-6 md:h-8 w-24 md:w-32" />
               </div>
               <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-2.5 w-full" />
+                <Skeleton className="h-3 md:h-4 w-full" />
+                <Skeleton className="h-2 md:h-2.5 w-full" />
               </div>
             </div>
           </div>
         </div>
         <div className="flex-1 min-h-0">
           <div className="h-full overflow-y-auto">
-            <div className="px-4 my-4">
-              <div className="grid gap-4 md:grid-cols-3">
+            <div className="px-4 my-3 md:my-4">
+              <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-lg border p-4 space-y-2">
-                    <Skeleton className="h-5 w-32" />
+                  <div
+                    key={i}
+                    className="rounded-lg border p-3 md:p-4 space-y-2"
+                  >
+                    <Skeleton className="h-4 md:h-5 w-24 md:w-32" />
                     <div className="space-y-1">
                       <div className="flex justify-between">
-                        <Skeleton className="h-4 w-16" />
-                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 md:h-4 w-12 md:w-16" />
+                        <Skeleton className="h-3 md:h-4 w-16 md:w-24" />
                       </div>
-                      <Skeleton className="h-2 w-full" />
+                      <Skeleton className="h-1.5 md:h-2 w-full" />
                       <div className="flex justify-between">
-                        <Skeleton className="h-3 w-8" />
-                        <Skeleton className="h-3 w-16" />
+                        <Skeleton className="h-2.5 md:h-3 w-6 md:w-8" />
+                        <Skeleton className="h-2.5 md:h-3 w-12 md:w-16" />
                       </div>
                     </div>
                   </div>
@@ -238,16 +262,16 @@ export function StorageContent({ accounts, uid }: any) {
   if (error) {
     return (
       <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-4rem)]">
-        <div className="px-4 pt-6">
-          <h1 className="text-2xl font-bold tracking-tight">
+        <div className="px-4 pt-4 md:pt-6">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
             Storage Overview
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Here&apos;s a list of your connected accounts and their storage
             usage!
           </p>
         </div>
-        <div className="p-4 border rounded-lg bg-red-50 text-red-600">
+        <div className="p-3 md:p-4 border rounded-lg bg-red-50 text-red-600 text-sm">
           Failed to load storage information
         </div>
       </div>
@@ -256,20 +280,22 @@ export function StorageContent({ accounts, uid }: any) {
 
   return (
     <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-4rem)]">
-      <div className="px-4 pt-6">
-        <h1 className="text-2xl font-bold tracking-tight">Storage Overview</h1>
-        <p className="text-muted-foreground">
+      <div className="px-4 pt-4 md:pt-6">
+        <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+          Storage Overview
+        </h1>
+        <p className="text-sm text-muted-foreground">
           Here&apos;s a list of your connected accounts and their storage usage!
         </p>
       </div>
-      <div className="px-4 my-4">
+      <div className="px-4 my-3 md:my-4">
         <TotalStorageSummary
           accounts={data?.storageInfo as Record<string, StorageInfo>}
         />
       </div>
       <div className="flex-1 min-h-0">
-        <div className="h-full overflow-y-auto">
-          <div className="px-4 my-4">
+        <div className="h-full overflow-y-auto pb-4">
+          <div className="px-4 my-3 md:my-4">
             <StorageMeterGroup
               accounts={data?.storageInfo as Record<string, StorageInfo>}
             />

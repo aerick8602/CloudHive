@@ -1,12 +1,15 @@
 export interface StorageInfo {
-  limit: string;
-  usage: string;
-  usageInDrive: string;
-  usageInDriveTrash: string;
+  limit?: string;
+  usage?: string;
+  usageInDrive?: string;
+  usageInDriveTrash?: string;
   user: {
-    displayName: string;
+    displayName?: string;
     emailAddress: string;
-    photoLink: string;
+    photoLink?: string;
   };
   error?: string;
+  errorDetails?: string;
+  active?: boolean;
+  connected?: boolean;
 }

@@ -27,14 +27,14 @@ export async function GET(
 
     const type = searchParams.get("type") || undefined;
 
-    console.log("⚡ Params:", {
-      email,
-      parentId,
-      pageToken,
-      starred,
-      trashed,
-      type,
-    });
+    // console.log("⚡ Params:", {
+    //   email,
+    //   parentId,
+    //   pageToken,
+    //   starred,
+    //   trashed,
+    //   type,
+    // });
 
     const drive = await createOAuthClient(email);
 

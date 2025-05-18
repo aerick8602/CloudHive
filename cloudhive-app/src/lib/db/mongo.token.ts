@@ -6,22 +6,22 @@ export async function getTokenFromMongo(
   email: string
 ): Promise<Partial<Account> | null> {
   try {
-    console.log(
-      `[getTokenFromMongo] Connecting to DB to fetch token for: ${email}`
-    );
+    // console.log(
+    //   `[getTokenFromMongo] Connecting to DB to fetch token for: ${email}`
+    // );
     const { db } = await connectToDatabase();
     const accountsCollection = db.collection("accounts");
 
     const account = await accountsCollection.findOne({ e: email });
-    console.log(`[getTokenFromMongo] Account fetched:`, account);
+    // console.log(`[getTokenFromMongo] Account fetched:`, account);
 
     if (!account) {
-      console.warn(`[getTokenFromMongo] No account found for email: ${email}`);
+      // console.warn(`[getTokenFromMongo] No account found for email: ${email}`);
       return null;
     }
 
     const { at, rt, atv, rtv } = account;
-    console.log(`[getTokenFromMongo] Token details extracted for: ${email}`);
+    // console.log(`[getTokenFromMongo] Token details extracted for: ${email}`);
     return { at, rt, atv, rtv };
   } catch (error) {
     console.error("[getTokenFromMongo] Error fetching token:", error);
@@ -36,9 +36,9 @@ export async function updateTokenToMongo(
   refreshExpiry: string
 ): Promise<void> {
   try {
-    console.log(
-      `[updateTokenToMongo] Connecting to DB to update token for: ${email}`
-    );
+    // console.log(
+    //   `[updateTokenToMongo] Connecting to DB to update token for: ${email}`
+    // );
     const { db } = await connectToDatabase();
     const accountsCollection = db.collection("accounts");
 
@@ -54,7 +54,7 @@ export async function updateTokenToMongo(
       }
     );
 
-    console.log(`[updateTokenToMongo] Update result for ${email}:`, result);
+    // console.log(`[updateTokenToMongo] Update result for ${email}:`, result);
   } catch (error) {
     console.error("[updateTokenToMongo] Error updating token:", error);
     throw new Error("Failed to update token");

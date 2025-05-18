@@ -51,7 +51,19 @@ export async function GET(
       );
     }
 
-    let accounts: { e: string }[] = JSON.parse(rawAccounts);
+    let accounts: { e: string; c: boolean; a: boolean }[] =
+      JSON.parse(rawAccounts);
+
+    // Filter accounts to only include those that are both connected and active
+    accounts = accounts.filter((account) => account.c && account.a);
+
+    // if (accounts.length === 0) {
+    //   return NextResponse.json(
+    //     { error: "No active accounts found for this UID" },
+    //     { status: 404 }
+    //   );
+    // }
+
     let allFiles: FileData[] = [];
     let nextTokens: Record<string, string | undefined> = {};
 

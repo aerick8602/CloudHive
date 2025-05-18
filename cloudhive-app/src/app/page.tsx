@@ -6,6 +6,7 @@ import redis from "@/lib/cache/redis.config";
 import MaintenanceError from "./errors/maintenance-error";
 import GeneralError from "./errors/general-error";
 import axios from "axios";
+import { Account } from "@/interface";
 
 const CACHE_EXPIRES_IN = Number(process.env.CACHE_TTL!);
 
@@ -90,9 +91,15 @@ export default async function Home() {
     // Try fetching cached data from Redis
     const cachedAccounts = await redis.get(`accounts:${uid}`);
     const cachedOauthUrl = await redis.get(`oauth:${uid}`);
+    const parsedAccounts = cachedAccounts ? JSON.parse(cachedAccounts) : [];
 
-    // If cache missing, fallback to empty/default values
-    const accounts = cachedAccounts ? JSON.parse(cachedAccounts) : [];
+    console.log("🔍 Parsed Cached Accounts:", parsedAccounts);
+
+    const accounts = parsedAccounts.filter(
+      (acc: Partial<Account>) => acc.a && acc.c
+    );
+
+    console.log("🔍 Connected  Accounts:", accounts);
     const oauthUrl = cachedOauthUrl || "";
 
     return (

@@ -44,7 +44,7 @@ export async function GET(
   // Cache in Redis for 24 hours
   // await redis.set(redisKey, authUrl, "EX", 3600 * 24);
 
-  console.log("Auth URL generated and cached");
+  // console.log("Auth URL generated and cached");
   redis.set(`oauth:${uid}`, authUrl, "EX", CACHE_EXPIRES_IN);
   return new NextResponse(authUrl, {
     status: 200,

@@ -10,4 +10,6 @@ export interface Account {
     u: number; // quota usage
   } | null;
   uids: string[]; // Firebase UIDs linked to this account
+  c: boolean; // connected status
+  a: boolean; // active status
 }
