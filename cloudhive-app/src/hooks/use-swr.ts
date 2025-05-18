@@ -35,7 +35,7 @@ export const swrConfig = {
    * If true, SWR will retry fetching the data on errors.
    * Set it to `false` if you don't want automatic retries on error.
    */
-  shouldRetryOnError: true, // Retry fetching on error.
+  shouldRetryOnError: false, // Retry fetching on error.
 
   /**
    * `errorRetryCount`:

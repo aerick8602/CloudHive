@@ -269,6 +269,34 @@ export function StorageContent({ accounts, uid }: any) {
   }
 
   if (error) {
+    // Check if it's a 404 error (no accounts found)
+    if (error.status === 404) {
+      return (
+        <div className="peer-[.header-fixed]/header:mt-16 fixed-main flex grow flex-col h-[calc(100vh-4rem)]">
+          <div className="px-4 pt-4 md:pt-6">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+              Storage Overview
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Here&apos;s a list of your connected accounts and their storage usage!
+            </p>
+          </div>
+          <div className="flex-1 min-h-0 flex items-center justify-center">
+            <div className="text-center space-y-2">
+              <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800 mx-auto w-fit">
+                <IconDatabase className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+              </div>
+              <p className="text-gray-700 dark:text-gray-300">No accounts connected</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Connect your accounts to view storage information
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // For other errors, show the error message
     return (
       <div className="flex-1 min-h-0 flex items-center justify-center">
         <div className="text-center space-y-2">

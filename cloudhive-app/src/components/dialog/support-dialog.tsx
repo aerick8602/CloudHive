@@ -226,14 +226,14 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
             Made with ❤️ by{" "}
             <HoverCard>
               <HoverCardTrigger asChild>
-                <span className="text-black font-semibold cursor-pointer hover:underline">
+                <span className="font-semibold cursor-pointer hover:underline text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
                   Ayush Katiyar
                 </span>
               </HoverCardTrigger>
               <HoverCardContent className="w-80">
                 <div className="flex justify-between space-x-4">
                   <div className="space-y-1">
-                    <h4 className="text-sm font-semibold">Ayush Katiyar</h4>
+                    <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">Ayush Katiyar</h4>
                     <p className="text-sm text-muted-foreground">
                       Full Stack Developer
                     </p>

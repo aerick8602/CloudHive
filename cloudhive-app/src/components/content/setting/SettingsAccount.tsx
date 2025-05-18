@@ -7,6 +7,7 @@ import {
   IconAdjustmentsHorizontal,
   IconSortAscendingLetters,
   IconSortDescendingLetters,
+  IconDatabase,
 } from "@tabler/icons-react";
 import {
   Select,
@@ -75,6 +76,24 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
   } | null>(null);
 
   if (storageError) {
+    // Check if it's a 404 error (no accounts found)
+    if (storageError.status === 404) {
+      return (
+        <div className="flex-1 min-h-0 flex items-center justify-center">
+          <div className="text-center space-y-2">
+            <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800 mx-auto w-fit">
+              <IconDatabase className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+            </div>
+            <p className="text-gray-700 dark:text-gray-300">No accounts connected</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Connect your accounts to view storage information
+            </p>
+          </div>
+        </div>
+      );
+    }
+    
+    // For other errors, show the error message
     return (
       <div className="flex-1 min-h-0 flex items-center justify-center">
         <div className="text-center space-y-2">
@@ -126,73 +145,29 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
                 </SelectContent>
               </Select>
             </div>
-
-            <Select disabled value={sort} onValueChange={setSort}>
-              <SelectTrigger className="w-16 -mr-3">
-                <SelectValue>
-                  <IconAdjustmentsHorizontal size={18} />
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent align="end">
-                <SelectItem value="ascending">
-                  <div className="flex items-center gap-4">
-                    <IconSortAscendingLetters size={16} />
-                    <span>Ascending</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="descending">
-                  <div className="flex items-center gap-4">
-                    <IconSortDescendingLetters size={16} />
-                    <span>Descending</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           <Separator className="shadow-sm" />
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-4 py-6 grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border p-4 hover:shadow-md transition-shadow h-[240px] flex flex-col"
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <Skeleton className="size-10 rounded-full" />
-                    <div className="flex gap-2">
-                      <Skeleton className="h-8 w-20" />
-                      <Skeleton className="h-8 w-24" />
-                    </div>
-                  </div>
-                  <div className="flex-1 flex flex-col">
-                    <Skeleton className="h-5 w-32 mb-1" />
-                    <Skeleton className="h-4 w-48 mb-3" />
-                    <div className="flex-1 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-4 w-32" />
-                      </div>
-                      <Skeleton className="h-2 w-full rounded-full" />
-                      <div className="mt-2 pt-2 border-t space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <Skeleton className="h-3 w-20" />
-                          <Skeleton className="h-3 w-16" />
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <Skeleton className="h-3 w-20" />
-                          <Skeleton className="h-3 w-24" />
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <Skeleton className="h-3 w-20" />
-                          <Skeleton className="h-3 w-24" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="px-4 py-6 grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <AccountCardSkeleton key={i} />
+            ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (Object.keys(storageData.storageInfo).length === 0) {
+    return (
+      <div className="flex-1 min-h-0 flex items-center justify-center">
+        <div className="text-center space-y-2">
+          <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800 mx-auto w-fit">
+            <IconDatabase className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+          </div>
+          <p className="text-gray-700 dark:text-gray-300">No accounts connected</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Connect your accounts to view storage information
+          </p>
         </div>
       </div>
     );
