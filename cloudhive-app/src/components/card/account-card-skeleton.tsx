@@ -1,5 +1,4 @@
 import { Skeleton } from "../ui/skeleton";
-
 export default function AccountCardSkeleton() {
   return (
     <li className="rounded-lg border p-4 hover:shadow-md transition-shadow h-[280px] flex flex-col">
