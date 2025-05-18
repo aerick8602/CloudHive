@@ -116,7 +116,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-50px)] bg-background relative">
+    <div className="flex flex-col min-h-[calc(100vh-60px)] bg-background relative">
       {(updatingProfile || deletingUser) && (
         <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50 flex items-center justify-center">
           <div className="text-muted-foreground">
@@ -136,7 +136,7 @@ export default function ProfileContent() {
             </p>
           </div>
         </div>
-        <div className="absolute -bottom-15 md:-bottom-12  left-1/2 transform -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0">
+        <div className="absolute -bottom-12  left-1/2 transform -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0">
           <div className="relative">
             <Avatar className="w-24 h-24 rounded-full border-4 border-background shadow-lg">
               <AvatarImage src={imagePreview} alt="User avatar" />
@@ -175,7 +175,7 @@ export default function ProfileContent() {
             </Button>
           </div>
 
-          <Card className="border shadow-sm">
+          <Card className="border shadow-sm mb-10">
             <CardContent className="pt-6">
               <form onSubmit={onSubmit} className="space-y-6">
                 <div className="space-y-4">
@@ -207,13 +207,6 @@ export default function ProfileContent() {
                 </div>
 
                 <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 ">
-                  <Button
-                    type="submit"
-                    disabled={isLoading || username === user?.displayName}
-                    className="w-full sm:w-auto"
-                  >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                  </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -248,6 +241,13 @@ export default function ProfileContent() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || username === user?.displayName}
+                    className="w-full sm:w-auto"
+                  >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                  </Button>
                 </div>
               </form>
             </CardContent>
