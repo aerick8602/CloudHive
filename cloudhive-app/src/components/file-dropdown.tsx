@@ -45,7 +45,7 @@ interface FileDropdownProps {
   setStarred: React.Dispatch<React.SetStateAction<boolean>>;
   localstarred: boolean;
 
-  setShowPreview: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowPreview: (show: boolean) => void;
 }
 
 export function FileDropdown({
