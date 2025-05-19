@@ -185,7 +185,7 @@ async function getDriveFilesWithQuery(
   const q = qParts.join(" and ");
 
   const response = await drive.files.list({
-    pageSize: 50,
+    // pageSize: 50,
     q,
     orderBy: "modifiedTime desc",
     fields:
