@@ -26,11 +26,13 @@ export function DriveContent({
   accounts, 
   uid, 
   setCurrentParentId,
+  setFolderEmail,
   searchQuery 
 }: { 
   accounts: any[]; 
   uid: string; 
   setCurrentParentId: (id: string) => void;
+  setFolderEmail: (email: string) => void;
   searchQuery: string;
 }) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
@@ -59,6 +61,7 @@ export function DriveContent({
     folderName: string
   ) => {
     setCurrentParentId(folderId);
+    setFolderEmail(email);
     setCurrentFolderId(folderId);
     setActiveEmail(email);
     setBreadcrumb((prev) => [
@@ -78,6 +81,7 @@ export function DriveContent({
   const handleBreadcrumbClick = (folderId: string, email: string | null) => {
     setCurrentFolderId(folderId);
     setActiveEmail(email);
+    if (email) setFolderEmail(email);
     setCurrentParentId(folderId);
 
     if (folderId === "root") {

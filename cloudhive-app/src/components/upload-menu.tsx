@@ -58,11 +58,15 @@ async function prepareUploadData(
 interface UploadMenuProps {
   currentActiveAccount: string | undefined;
   currentParentId: string | undefined;
+  folderEmail: string;
+  setFolderEmail: (email: string) => void;
 }
 
 export function UploadMenu({
   currentActiveAccount,
   currentParentId = undefined,
+  folderEmail,
+  setFolderEmail,
 }: UploadMenuProps) {
   const { isMobile } = useSidebar();
   const [folderName, setFolderName] = React.useState("Untitled Folder");
@@ -92,7 +96,7 @@ export function UploadMenu({
             isFolder,
             email: currentActiveAccount,
             currentParentId: currentParentId,
-            userAppEmail: user!.email!,
+            userAppEmail: folderEmail,
           }),
         });
 
@@ -137,7 +141,7 @@ export function UploadMenu({
           email: currentActiveAccount,
           newFolderName: folderName,
           currentParentId: currentParentId,
-          userAppEmail: user!.email,
+          userAppEmail: folderEmail,
         }),
       });
       if (res.ok) {
@@ -169,7 +173,7 @@ export function UploadMenu({
           <DropdownMenu>
             <DropdownMenuTrigger
               asChild
-              disabled={isUploading || !currentActiveAccount}
+              disabled={isUploading || !currentActiveAccount || !folderEmail}
             >
               <SidebarMenuButton
                 size="lg"

@@ -26,6 +26,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   setActiveTab: (tab: string) => void;
   accounts: AccountProps[];
   oauthUrl: string | undefined;
+  folderEmail: string;
+  setFolderEmail: (email: string) => void;
 }
 
 export function AppSidebar({
@@ -35,6 +37,8 @@ export function AppSidebar({
   setActiveTab,
   accounts,
   oauthUrl,
+  folderEmail,
+  setFolderEmail,
   ...props
 }: AppSidebarProps) {
   return (
@@ -50,6 +54,8 @@ export function AppSidebar({
         <UploadMenu
           currentParentId={currentParentId}
           currentActiveAccount={currentActiveAccount}
+          folderEmail={folderEmail}
+          setFolderEmail={setFolderEmail}
         ></UploadMenu>
       </SidebarHeader>
       <SidebarContent>

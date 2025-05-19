@@ -35,6 +35,11 @@ export default function CloudHive({
   const [oauthUrl, setOauthUrl] = useState(initialOauthUrl);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentActiveAccount, setCurrentActiveAccount] = useState<string>("");
+  const [currentParentId, setCurrentParentId] = useState<string>("");
+  const [folderEmail, setFolderEmail] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("Drive");
+  const [user] = useAuthState(clientAuth);
 
   useEffect(() => {
     async function fetchAccountsAndOauth() {
@@ -61,11 +66,6 @@ export default function CloudHive({
       fetchAccountsAndOauth();
     }
   }, [uid, initialAccounts.length, initialOauthUrl]);
-
-  const [currentActiveAccount, setCurrentActiveAccount] = useState<string>("");
-  const [currentParentId, setCurrentParentId] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("Drive");
-  const [user] = useAuthState(clientAuth);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("currentActiveAccount");
@@ -94,40 +94,6 @@ export default function CloudHive({
       localStorage.setItem("currentActiveAccount", currentActiveAccount);
     }
   }, [currentActiveAccount]);
-
-  // const { data: sessionValid, error: sessionError } = useSWR(
-  //   "api/auth/verify",
-  //   fetcher
-  // );
-
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //     console.log(sessionValid);
-  //     if (sessionValid == false) {
-  //       await logoutUser("api/auth/logout"); // Log out the user if session is invalid
-  //     }
-  //   };
-
-  //   checkSession();
-  // }, [sessionValid]);
-
-  //   const { data: accounts = [], error: accountsError } = useSWR<Account[]>(
-  //     user?.uid ? `api/${user?.uid}/accounts` : null,
-  //     fetcher
-  //   );
-
-  //   const { data: oauthUrl, error: oauthUrlError } = useSWR<string>(
-  //     user?.uid ? `api/google/${user?.uid}/oauth` : null,
-  //     fetcher
-  //   );
-
-  //   if (accountsError) {
-  //     throw new Error("Failed to fetch accounts");
-  //   }
-
-  //   if (oauthUrlError) {
-  //     throw new Error("Failed to fetch OAuth URL");
-  //   }
 
   const Component = contentMap[activeTab];
   if (loading)
@@ -163,6 +129,8 @@ export default function CloudHive({
         setCurrentActiveAccount={setCurrentActiveAccount}
         currentParentId={currentParentId}
         setActiveTab={setActiveTab}
+        folderEmail={folderEmail}
+        setFolderEmail={setFolderEmail}
       />
       <SidebarInset className="h-[calc(100vh-1rem)]">
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 justify-between">
@@ -189,6 +157,8 @@ export default function CloudHive({
             accounts={accounts}
             setAccounts={setAccounts}
             searchQuery={searchQuery}
+            folderEmail={folderEmail}
+            setFolderEmail={setFolderEmail}
           />
         </main>
       </SidebarInset>
