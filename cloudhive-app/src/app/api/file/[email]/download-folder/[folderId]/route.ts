@@ -5,10 +5,11 @@ import { Readable } from "stream";
 
 export async function GET(
   request: Request,
-  { params }: { params: { email: string; folderId: string } }
+  { params }: { params: Promise<{ email: string; folderId: string }> }
+  
 ) {
   try {
-    const { email, folderId } = params;
+    const { email, folderId } = await  params;
     const drive = await createOAuthClient(email);
     const zip = new JSZip();
 
