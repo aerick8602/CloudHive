@@ -3,6 +3,7 @@ export interface FileData {
   email: string;
   name: string;
   mimeType: string;
+  thumbnailLink?: string;
   parents: string[];
   starred: boolean;
   trashed: boolean;

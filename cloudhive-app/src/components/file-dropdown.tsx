@@ -8,11 +8,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import {
   Download,
   ExternalLinkIcon,
+  EyeIcon,
   Info,
   PencilLine,
   Share2Icon,
@@ -21,7 +25,7 @@ import {
 } from "lucide-react";
 
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
-import { MdRestore } from "react-icons/md";
+import { MdOpenWith, MdRestore } from "react-icons/md";
 
 import ShareDialog from "./dialog/share-file";
 import RenameFolderDialog from "./dialog/rename-folder";
@@ -30,6 +34,7 @@ import { FileData } from "@/interface";
 
 import { toast } from "sonner";
 import { set } from "date-fns";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 interface FileDropdownProps {
   tab?: string;
@@ -39,11 +44,13 @@ interface FileDropdownProps {
   setView: React.Dispatch<React.SetStateAction<boolean>>;
   setStarred: React.Dispatch<React.SetStateAction<boolean>>;
   localstarred: boolean;
+
+  setShowPreview: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function FileDropdown({
   tab,
-
+  setShowPreview,
   localstarred,
   file,
   localtrashed,
@@ -183,19 +190,35 @@ export function FileDropdown({
             <>
               {file.mimeType !== "application/vnd.google-apps.folder" && (
                 <>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      window.open(
-                        `https://drive.google.com/file/d/${file.id}/view`,
-                        "_blank"
-                      )
-                    }
-                    className="gap-2"
-                  >
-                    <ExternalLinkIcon className="size-4" />
-                    Open
-                    <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
-                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="gap-2">
+                      <MdOpenWith className="size-4" />
+                      Open
+                      {/* <DropdownMenuShortcut>⌘O</DropdownMenuShortcut> */}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          window.open(
+                            `https://drive.google.com/file/d/${file.id}/view`,
+                            "_blank"
+                          )
+                        }
+                        className="gap-2"
+                      >
+                        <ExternalLinkIcon className="size-4" />
+                        Open in New tab
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setShowPreview(true)}
+                        className="gap-2"
+                      >
+                        <EyeIcon className="size-4" />
+                        Preview
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
                   <DropdownMenuSeparator />
                 </>
               )}
@@ -273,6 +296,7 @@ export function FileDropdown({
               >
                 <Trash2 className="size-4" />
                 Move to Trash
+                <DropdownMenuShortcut>⌘T</DropdownMenuShortcut>
               </DropdownMenuItem>
             </>
           )}

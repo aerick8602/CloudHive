@@ -231,17 +231,21 @@ export default function ProfileContent() {
                       </AlertDialogHeader>
                       <div className="py-4">
                         <div className="space-y-2">
-                          <label htmlFor="delete-confirm" className="text-sm font-medium">
+                          <label
+                            htmlFor="delete-confirm"
+                            className="text-sm font-medium"
+                          >
                             To verify, type "delete my account" below:
                           </label>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             Account to be deleted: {email}
                           </p>
                           <Input
                             id="delete-confirm"
                             value={deleteConfirmation}
-                            onChange={(e) => setDeleteConfirmation(e.target.value)}
-                           
+                            onChange={(e) =>
+                              setDeleteConfirmation(e.target.value)
+                            }
                             className="w-full"
                           />
                         </div>

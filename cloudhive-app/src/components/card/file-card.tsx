@@ -3,7 +3,7 @@ import { getIconForMimeType } from "@/utils/icons";
 import { Thumbnail } from "../thumbnail";
 import { FileDropdown } from "../file-dropdown";
 import { FileData } from "@/interface";
-import PreviewBox from "../preview";
+import PreviewBox from "../dialog/preview";
 
 interface FileCardProps {
   tab?: string;
@@ -61,6 +61,7 @@ export function FileCard({ tab, file, initialView = true }: FileCardProps) {
               {localname}
             </span>
             <FileDropdown
+              setShowPreview={() => setShowPreview(!showPreview)}
               tab={tab}
               localstarred={localstarred}
               setStarred={setStarred}
@@ -73,6 +74,7 @@ export function FileCard({ tab, file, initialView = true }: FileCardProps) {
         </div>
 
         <Thumbnail
+          thumnailLink={file.thumbnailLink}
           src={`https://drive.google.com/thumbnail?id=${id}`}
           fallback={
             <Icon
@@ -89,6 +91,7 @@ export function FileCard({ tab, file, initialView = true }: FileCardProps) {
           downloadUrl={`https://drive.google.com/uc?id=${file.id}&export=download`}
           previewUrl={previewUrl}
           localname={localname}
+          showPreview={showPreview}
           setShowPreview={() => setShowPreview(false)}
         />
       )}

@@ -118,6 +118,7 @@ export async function GET(
             email,
             name: file.name,
             mimeType: file.mimeType,
+            thumbnailLink: file.thumbnailLink,
             parents: file.parents || [],
             starred: file.starred || false,
             trashed: file.trashed || false,
@@ -188,7 +189,8 @@ async function getDriveFilesWithQuery(
     q,
     orderBy: "modifiedTime desc",
     fields:
-      "nextPageToken, files(id,name,mimeType,parents,starred,trashed,createdTime,modifiedTime,permissions(displayName,photoLink,id,type,emailAddress,role),quotaBytesUsed,viewedByMe,viewedByMeTime)",
+      "nextPageToken, files(id,name,mimeType,thumbnailLink,parents,starred,trashed,createdTime,modifiedTime,permissions(displayName,photoLink,id,type,emailAddress,role),quotaBytesUsed,viewedByMe,viewedByMeTime)",
+
     pageToken,
   });
 
