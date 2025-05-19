@@ -15,10 +15,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // If we're in a folder (currentParentId exists), use userAppEmail (folder owner's email)
-    // Otherwise, use the current user's email
-    const effectiveUserEmail = currentParentId ? userAppEmail : email;
-
     // Create OAuth client for Google Drive API
     const drive = await createOAuthClient(email);
 
@@ -55,7 +51,8 @@ export async function POST(request: Request) {
       requestBody: {
         name: newFolderName, // Name of the new folder
         mimeType: "application/vnd.google-apps.folder", // Folder MIME type
-        parents: [currentParentId || "root"], // Use currentParentId if provided, otherwise use root
+        // parents: [currentParentId ? currentParentId : cloudHiveRootId], Use when using CloudHive Folder
+        // parents: [currentParentId ? currentParentId : "root"], // Parent folder ID
       },
       fields: "id",
       // "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed,permissions",
@@ -63,12 +60,12 @@ export async function POST(request: Request) {
 
     const folderId = res.data.id!;
     // await
-    await drive.permissions.create({
+    drive.permissions.create({
       fileId: folderId,
       requestBody: {
         type: "user",
-        role: "writer",
-        emailAddress: effectiveUserEmail,
+        role: "writer", // or "reader"
+        emailAddress: userAppEmail,
       },
       sendNotificationEmail: false,
     });

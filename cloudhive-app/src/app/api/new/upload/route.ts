@@ -19,7 +19,6 @@ export async function POST(request: Request) {
   try {
     const { files, email, isFolder, currentParentId, userAppEmail } =
       await request.json();
-    console.log("KKKKKKKKKKKKKKKK", currentParentId);
 
     if (!files || !email || !isFolder === undefined || !userAppEmail) {
       return NextResponse.json(
@@ -27,10 +26,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    // If we're in a folder (currentParentId exists), use userAppEmail (folder owner's email)
-    // Otherwise, use the current user's email
-    const effectiveUserEmail = currentParentId ? userAppEmail : email;
     const drive = await createOAuthClient(email);
 
     // const { db } = await connectToDatabase();
@@ -68,11 +63,6 @@ export async function POST(request: Request) {
 
     // Recursive folder creation utility
     const getOrCreateFolder = async (path: string): Promise<string> => {
-      // If path is empty and we have a currentParentId, use that
-      if (path === "" && currentParentId) {
-        return currentParentId;
-      }
-      
       if (folderIds.has(path)) return folderIds.get(path)!;
 
       const parts = path.split("/");
@@ -96,12 +86,12 @@ export async function POST(request: Request) {
 
       // 2. Share it with your app-signed-in user
       // await
-      await drive.permissions.create({
+      drive.permissions.create({
         fileId: folderId,
         requestBody: {
           type: "user",
           role: "writer", // or "reader"
-          emailAddress: effectiveUserEmail,
+          emailAddress: userAppEmail,
         },
         sendNotificationEmail: false,
       });
@@ -166,7 +156,7 @@ export async function POST(request: Request) {
         requestBody: {
           type: "user",
           role: "writer",
-          emailAddress: effectiveUserEmail,
+          emailAddress: userAppEmail,
         },
         sendNotificationEmail: false,
       });

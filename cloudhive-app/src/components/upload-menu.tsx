@@ -94,9 +94,9 @@ export function UploadMenu({
           body: JSON.stringify({
             files: fileData,
             isFolder,
-            email: currentActiveAccount,
+            email: currentParentId ? folderEmail :currentActiveAccount,
             currentParentId: currentParentId,
-            userAppEmail: currentParentId ? folderEmail : user!.email!,
+            userAppEmail:  user!.email!,
           }),
         });
 
@@ -138,10 +138,10 @@ export function UploadMenu({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: currentActiveAccount,
+          email: currentParentId ? folderEmail :currentActiveAccount,
           newFolderName: folderName,
           currentParentId: currentParentId,
-          userAppEmail: currentParentId ? folderEmail : user!.email!,
+          userAppEmail:  user!.email!,
         }),
       });
       if (res.ok) {
