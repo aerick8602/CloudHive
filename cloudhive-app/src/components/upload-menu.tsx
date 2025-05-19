@@ -64,9 +64,9 @@ interface UploadMenuProps {
 
 export function UploadMenu({
   currentActiveAccount,
-  currentParentId = undefined,
   folderEmail,
   setFolderEmail,
+  currentParentId = undefined,
 }: UploadMenuProps) {
   const { isMobile } = useSidebar();
   const [folderName, setFolderName] = React.useState("Untitled Folder");
@@ -96,7 +96,7 @@ export function UploadMenu({
             isFolder,
             email: currentActiveAccount,
             currentParentId: currentParentId,
-            userAppEmail: folderEmail,
+            userAppEmail: currentParentId ? folderEmail : user!.email!,
           }),
         });
 
@@ -141,7 +141,7 @@ export function UploadMenu({
           email: currentActiveAccount,
           newFolderName: folderName,
           currentParentId: currentParentId,
-          userAppEmail: folderEmail,
+          userAppEmail: currentParentId ? folderEmail : user!.email!,
         }),
       });
       if (res.ok) {
@@ -173,7 +173,7 @@ export function UploadMenu({
           <DropdownMenu>
             <DropdownMenuTrigger
               asChild
-              disabled={isUploading || !currentActiveAccount || !folderEmail}
+              disabled={isUploading || !currentActiveAccount}
             >
               <SidebarMenuButton
                 size="lg"
