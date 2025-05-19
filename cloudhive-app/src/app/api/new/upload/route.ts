@@ -19,6 +19,7 @@ export async function POST(request: Request) {
   try {
     const { files, email, isFolder, currentParentId, userAppEmail } =
       await request.json();
+    console.log("KKKKKKKKKKKKKKKK", currentParentId);
 
     if (!files || !email || !isFolder === undefined || !userAppEmail) {
       return NextResponse.json(
@@ -63,6 +64,11 @@ export async function POST(request: Request) {
 
     // Recursive folder creation utility
     const getOrCreateFolder = async (path: string): Promise<string> => {
+      // If path is empty and we have a currentParentId, use that
+      if (path === "" && currentParentId) {
+        return currentParentId;
+      }
+      
       if (folderIds.has(path)) return folderIds.get(path)!;
 
       const parts = path.split("/");

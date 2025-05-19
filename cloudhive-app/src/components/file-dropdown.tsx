@@ -44,7 +44,7 @@ interface FileDropdownProps {
   setView: React.Dispatch<React.SetStateAction<boolean>>;
   setStarred: React.Dispatch<React.SetStateAction<boolean>>;
   localstarred: boolean;
-
+  onFolderClick?: (folderId: string, email: string, folderName: string) => void;
   setShowPreview?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -57,6 +57,7 @@ export function FileDropdown({
   setName,
   setView,
   setStarred,
+  onFolderClick,
 }: FileDropdownProps) {
   const [showRenameDialog, setShowRenameDialog] = React.useState(false);
   const [showShareDialog, setShowShareDialog] = React.useState(false);
@@ -154,6 +155,26 @@ export function FileDropdown({
     setShowRenameDialog(false);
   }
 
+  const handleDownload = async () => {
+    if (file.mimeType === "application/vnd.google-apps.folder") {
+      // For folders, use our custom download endpoint
+      const link = document.createElement("a");
+      link.href = `/api/file/${file.email}/download-folder/${file.id}`;
+      link.download = `${file.name}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // For files, use the existing Google Drive download URL
+      const link = document.createElement("a");
+      link.href = `https://drive.google.com/uc?id=${file.id}&export=download`;
+      link.download = file.name || "download";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -188,15 +209,23 @@ export function FileDropdown({
             </>
           ) : (
             <>
-              {file.mimeType !== "application/vnd.google-apps.folder" && (
+              {file.mimeType === "application/vnd.google-apps.folder" ? (
+                <DropdownMenuItem
+                  onClick={() => onFolderClick?.(file.id, file.email, file.name)}
+                  className="gap-2"
+                >
+                  <MdOpenWith className="size-4" />
+                  Open
+                </DropdownMenuItem>
+                
+              ) : (
                 <>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger className="gap-2">
                       <MdOpenWith className="size-4" />
                       Open
-                      {/* <DropdownMenuShortcut>⌘O</DropdownMenuShortcut> */}
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
+                    <DropdownMenuSubContent className="min-w-56 rounded-lg">
                       <DropdownMenuItem
                         onClick={() =>
                           window.open(
@@ -208,6 +237,7 @@ export function FileDropdown({
                       >
                         <ExternalLinkIcon className="size-4" />
                         Open in New tab
+                        <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -216,22 +246,16 @@ export function FileDropdown({
                       >
                         <EyeIcon className="size-4" />
                         Preview
+                        <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
-                  <DropdownMenuSeparator />
+               
                 </>
               )}
-
+<DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = `https://drive.google.com/uc?id=${file.id}&export=download`;
-                  link.download = file.name || "download";
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
+                onClick={handleDownload}
                 className="gap-2"
               >
                 <Download className="size-4" />

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, Key, Loader2 } from "lucide-react";
+import { User, Mail, Key, Loader2, AlertCircle } from "lucide-react";
 import {
   useAuthState,
   useUpdateProfile,
@@ -110,8 +110,21 @@ export default function ProfileContent() {
 
   if (profileError || deleteError) {
     return (
-      <div className="p-4 text-red-600">
-        <p>Error: {(profileError || deleteError)?.message}</p>
+      <div className="flex-1 min-h-0 flex items-center justify-center">
+        <div className="text-center space-y-2">
+          <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
+          <p className="text-red-500">Failed to Delete User</p>
+          <p className="text-red-500">
+            Error: {(profileError || deleteError)?.message}
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleDeleteAccount}
+            className="mt-2"
+          >
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }

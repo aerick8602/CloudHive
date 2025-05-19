@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { mutate } from "swr";
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
@@ -97,6 +98,14 @@ export function UploadMenu({
 
         if (response.ok) {
           console.log("Upload successful!");
+          // Mutate all relevant queries to refresh the data
+          if (currentParentId === "root" || !currentParentId) {
+            // If in root, refresh all files
+            mutate(`/api/file/all/${user!.uid}?trashed=false`);
+          } else {
+            // If in a specific folder, refresh that folder's contents
+            mutate(`/api/file/${currentActiveAccount}?parentId=${currentParentId}&trashed=false`);
+          }
         } else {
           console.error("Upload failed!");
         }
@@ -104,6 +113,7 @@ export function UploadMenu({
         console.error("Error during upload:", error);
       } finally {
         setIsUploading(false);
+        setFiles(null);
       }
     }
   };
@@ -132,6 +142,14 @@ export function UploadMenu({
       });
       if (res.ok) {
         console.log("Folder created!");
+        // Mutate all relevant queries to refresh the data
+        if (currentParentId === "root" || !currentParentId) {
+          // If in root, refresh all files
+          mutate(`/api/file/all/${user!.uid}?trashed=false`);
+        } else {
+          // If in a specific folder, refresh that folder's contents
+          mutate(`/api/file/${currentActiveAccount}?parentId=${currentParentId}&trashed=false`);
+        }
       } else {
         console.error("Folder creation failed.");
       }
@@ -140,6 +158,7 @@ export function UploadMenu({
     } finally {
       setIsUploading(false);
       setOpenNewFolderDialog(false);
+      setFolderName("Untitled Folder");
     }
   };
 
@@ -148,7 +167,10 @@ export function UploadMenu({
       <SidebarMenu>
         <SidebarMenuItem className="p-0">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={isUploading || !currentActiveAccount}>
+            <DropdownMenuTrigger
+              asChild
+              disabled={isUploading || !currentActiveAccount}
+            >
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground  disabled:opacity-50 disabled:cursor-not-allowed"

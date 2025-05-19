@@ -178,7 +178,12 @@ export default function CloudHive({
           </div>
         </header>
         <main className=" relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
-          <Component uid={uid} accounts={accounts} setAccounts={setAccounts} />
+          <Component
+            setCurrentParentId={setCurrentParentId}
+            uid={uid}
+            accounts={accounts}
+            setAccounts={setAccounts}
+          />
         </main>
       </SidebarInset>
     </SidebarProvider>

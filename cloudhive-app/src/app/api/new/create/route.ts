@@ -51,8 +51,7 @@ export async function POST(request: Request) {
       requestBody: {
         name: newFolderName, // Name of the new folder
         mimeType: "application/vnd.google-apps.folder", // Folder MIME type
-        // parents: [currentParentId ? currentParentId : cloudHiveRootId], Use when using CloudHive Folder
-        // parents: [currentParentId ? currentParentId : "root"], // Parent folder ID
+        parents: [currentParentId || "root"], // Use currentParentId if provided, otherwise use root
       },
       fields: "id",
       // "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed,permissions",

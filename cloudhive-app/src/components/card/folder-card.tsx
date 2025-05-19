@@ -54,7 +54,7 @@ export function FolderCard({
           localtrashed={localtrashed}
           file={file}
           setStarred={setStarred}
-          // If you want to allow name updates from FileDropdown, you can pass setName here too
+          onFolderClick={onClick}
         />
       </div>
     </div>

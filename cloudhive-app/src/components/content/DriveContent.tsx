@@ -22,7 +22,7 @@ import { swrConfig } from "@/hooks/use-swr";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 
-export function DriveContent({ accounts, uid }: any) {
+export function DriveContent({ accounts, uid, setCurrentParentId }: any) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
   const [activeEmail, setActiveEmail] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
@@ -34,8 +34,8 @@ export function DriveContent({ accounts, uid }: any) {
     currentFolderId === "root" && !activeEmail
       ? `/api/file/all/${uid}?trashed=false`
       : activeEmail
-      ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
-      : null;
+        ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
+        : null;
 
   const { data, error, isLoading } = useSWR(queryKey, fetcher, {
     ...swrConfig,
@@ -48,6 +48,7 @@ export function DriveContent({ accounts, uid }: any) {
     email: string,
     folderName: string
   ) => {
+    setCurrentParentId(folderId);
     setCurrentFolderId(folderId);
     setActiveEmail(email);
     setBreadcrumb((prev) => [
@@ -67,6 +68,7 @@ export function DriveContent({ accounts, uid }: any) {
   const handleBreadcrumbClick = (folderId: string, email: string | null) => {
     setCurrentFolderId(folderId);
     setActiveEmail(email);
+    setCurrentParentId(folderId);
 
     if (folderId === "root") {
       // Reset to root
