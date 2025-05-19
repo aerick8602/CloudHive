@@ -27,6 +27,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // If we're in a folder (currentParentId exists), use userAppEmail (folder owner's email)
+    // Otherwise, use the current user's email
+    const effectiveUserEmail = currentParentId ? userAppEmail : email;
     const drive = await createOAuthClient(email);
 
     // const { db } = await connectToDatabase();
@@ -92,12 +96,12 @@ export async function POST(request: Request) {
 
       // 2. Share it with your app-signed-in user
       // await
-      drive.permissions.create({
+      await drive.permissions.create({
         fileId: folderId,
         requestBody: {
           type: "user",
           role: "writer", // or "reader"
-          emailAddress: userAppEmail,
+          emailAddress: effectiveUserEmail,
         },
         sendNotificationEmail: false,
       });
@@ -162,7 +166,7 @@ export async function POST(request: Request) {
         requestBody: {
           type: "user",
           role: "writer",
-          emailAddress: userAppEmail,
+          emailAddress: effectiveUserEmail,
         },
         sendNotificationEmail: false,
       });

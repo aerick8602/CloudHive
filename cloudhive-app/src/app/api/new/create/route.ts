@@ -15,6 +15,10 @@ export async function POST(request: Request) {
       );
     }
 
+    // If we're in a folder (currentParentId exists), use userAppEmail (folder owner's email)
+    // Otherwise, use the current user's email
+    const effectiveUserEmail = currentParentId ? userAppEmail : email;
+
     // Create OAuth client for Google Drive API
     const drive = await createOAuthClient(email);
 
@@ -59,12 +63,12 @@ export async function POST(request: Request) {
 
     const folderId = res.data.id!;
     // await
-    drive.permissions.create({
+    await drive.permissions.create({
       fileId: folderId,
       requestBody: {
         type: "user",
-        role: "writer", // or "reader"
-        emailAddress: userAppEmail,
+        role: "writer",
+        emailAddress: effectiveUserEmail,
       },
       sendNotificationEmail: false,
     });
