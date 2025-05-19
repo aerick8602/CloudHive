@@ -61,7 +61,7 @@ export function FileCard({ tab, file, initialView = true }: FileCardProps) {
               {localname}
             </span>
             <FileDropdown
-              setShowPreview={() => setShowPreview(false)}
+              setShowPreview={setShowPreview}
               tab={tab}
               localstarred={localstarred}
               setStarred={setStarred}

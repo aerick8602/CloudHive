@@ -45,7 +45,7 @@ interface FileDropdownProps {
   setStarred: React.Dispatch<React.SetStateAction<boolean>>;
   localstarred: boolean;
 
-  setShowPreview: (show: boolean) => void;
+  setShowPreview?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function FileDropdown({
@@ -211,7 +211,7 @@ export function FileDropdown({
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() => setShowPreview(true)}
+                        onClick={() => setShowPreview?.(true)}
                         className="gap-2"
                       >
                         <EyeIcon className="size-4" />
