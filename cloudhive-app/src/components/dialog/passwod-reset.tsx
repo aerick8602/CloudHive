@@ -40,7 +40,7 @@ export const PasswordResetDialog = ({
     try {
       await sendPasswordResetEmail(clientAuth, email, actionCodeSettings);
       toast.success(
-        "A password reset link has been sent to your email address.",
+        "A reset link has been sent to your registered email.",
         {
           position: "top-right",
         }

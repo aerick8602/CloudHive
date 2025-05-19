@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { PasswordResetDialog } from "@/components/dialog/passwod-reset";
+import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 
 const formSchema = z.object({
   username: z
@@ -42,7 +43,7 @@ export default function ProfileContent() {
   const [user] = useAuthState(clientAuth);
   const [updateProfile, updatingProfile, profileError] =
     useUpdateProfile(clientAuth);
-  const [deleteUser, deletingUser, deleteError] = useDeleteUser(clientAuth);
+  const [deleteUser, deletingUser, deleteUserError] = useDeleteUser(clientAuth);
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -51,7 +52,9 @@ export default function ProfileContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -96,26 +99,43 @@ export default function ProfileContent() {
   };
 
   const handleDeleteAccount = async () => {
+    if (!user?.email || !deletePassword) return;
+    
+    setIsDeleting(true);
+    setPasswordError(null);
+
     try {
+      // First re-authenticate
+      const credential = EmailAuthProvider.credential(user.email, deletePassword);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Then delete the account
       const success = await deleteUser();
       if (success) {
         router.push("/auth/sign-in");
         router.refresh();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting account:", error);
-      toast.error("Failed to delete account. Please try again.");
+      setPasswordError(
+        error.code === "auth/wrong-password" 
+          ? "Incorrect password. Please try again." 
+          : "Failed to delete account. Please try again."
+      );
+    } finally {
+      setIsDeleting(false);
+      setDeletePassword("");
     }
   };
 
-  if (profileError || deleteError) {
+  if (profileError || deleteUserError) {
     return (
       <div className="flex-1 min-h-0 flex items-center justify-center">
         <div className="text-center space-y-2">
           <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
           <p className="text-red-500">Failed to Delete User</p>
           <p className="text-red-500">
-            Error: {(profileError || deleteError)?.message}
+            Error: {(profileError || deleteUserError)?.message}
           </p>
           <Button
             variant="outline"
@@ -220,7 +240,7 @@ export default function ProfileContent() {
                   </div>
                 </div>
 
-                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 ">
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -245,34 +265,43 @@ export default function ProfileContent() {
                       <div className="py-4">
                         <div className="space-y-2">
                           <label
-                            htmlFor="delete-confirm"
+                            htmlFor="delete-password"
                             className="text-sm font-medium"
                           >
-                            To verify, type "delete my account" below:
+                            Enter your password to confirm deletion:
                           </label>
                           <p className="text-xs text-muted-foreground">
                             Account to be deleted: {email}
                           </p>
                           <Input
-                            id="delete-confirm"
-                            value={deleteConfirmation}
-                            onChange={(e) =>
-                              setDeleteConfirmation(e.target.value)
-                            }
-                            className="w-full"
+                            id="delete-password"
+                            type="password"
+                            value={deletePassword}
+                            onChange={(e) => setDeletePassword(e.target.value)}
+                            className={passwordError ? "border-red-500" : ""}
+                            placeholder="Enter your password"
                           />
+                          {passwordError && (
+                            <p className="text-sm text-red-500">{passwordError}</p>
+                          )}
                         </div>
                       </div>
                       <AlertDialogFooter className="flex-col sm:flex-row !justify-between">
-                        <AlertDialogCancel className="w-full sm:w-auto">
+                        <AlertDialogCancel 
+                          onClick={() => {
+                            setDeletePassword("");
+                            setPasswordError(null);
+                          }}
+                          className="w-full sm:w-auto"
+                        >
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleDeleteAccount}
                           className="w-full sm:w-auto"
-                          disabled={deleteConfirmation !== "delete my account"}
+                          disabled={isDeleting || !deletePassword}
                         >
-                          Delete Account
+                          {isDeleting ? "Deleting..." : "Delete Account"}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
