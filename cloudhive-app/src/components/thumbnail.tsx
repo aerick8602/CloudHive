@@ -62,29 +62,30 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({
 }) => {
   const [currentSrc, setCurrentSrc] = useState<string | null>(src);
   const [loaded, setLoaded] = useState(false);
-  const [attempted, setAttempted] = useState<Set<string>>(new Set());
+  const [failedAttempts, setFailedAttempts] = useState<string[]>([]);
 
   // Handle failure of current image
   const handleError = () => {
-    setAttempted((prev) => {
-      const updated = new Set(prev);
-      updated.add(currentSrc!);
-
-      // Try thumbnailLink if not tried
-      if (thumnailLink && !updated.has(thumnailLink)) {
+    setFailedAttempts(prev => {
+      const updated = [...prev, currentSrc!];
+      
+      // If we haven't tried thumbnailLink yet, try it
+      if (thumnailLink && !updated.includes(thumnailLink)) {
         setCurrentSrc(thumnailLink);
       } else {
-        setCurrentSrc(null); // No image to show, fallback will render
+        // If we've tried both URLs, show fallback
+        setCurrentSrc(null);
       }
-
+      
       return updated;
     });
   };
 
   useEffect(() => {
-    setCurrentSrc(src); // reset on src change
+    // Reset everything when src or thumbnailLink changes
+    setCurrentSrc(src);
     setLoaded(false);
-    setAttempted(new Set());
+    setFailedAttempts([]);
   }, [src, thumnailLink]);
 
   return (
