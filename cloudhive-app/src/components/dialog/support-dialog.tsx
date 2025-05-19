@@ -33,6 +33,10 @@ import {
   Tag,
   ExternalLink,
   ArrowUpRight,
+  Filter,
+  Eye,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import { IconExternalLink } from "@tabler/icons-react";
 
@@ -83,14 +87,15 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
                 <Layers className="w-3 h-3 " />
                 Multi-Cloud Support
               </Badge>
-
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-cyan-100 to-blue-200 dark:from-cyan-900/50 dark:to-blue-800/50 text-cyan-700 dark:text-cyan-300 border-0"
+                className="bg-gradient-to-r from-blue-100 to-cyan-200 dark:from-blue-900/50 dark:to-cyan-800/50 text-blue-700 dark:text-blue-300 border-0"
               >
-                <Search className="w-3 h-3 " />
-                Advanced Search
+                <Upload className="w-3 h-3 " />
+                Effortless Uploads
               </Badge>
+
+           
 
               <Badge
                 variant="secondary"
@@ -135,7 +140,14 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
                 <Heart className="w-3 h-3 " />
                 Favorites
               </Badge>
-
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-cyan-100 to-blue-200 dark:from-cyan-900/50 dark:to-blue-800/50 text-cyan-700 dark:text-cyan-300 border-0"
+              >
+                <Search className="w-3 h-3 " />
+                Advanced Search
+              </Badge>
+              
               <Badge
                 variant="secondary"
                 className="bg-gradient-to-r from-rose-100 to-red-200 dark:from-rose-900/50 dark:to-red-800/50 text-rose-700 dark:text-rose-300 border-0"
@@ -143,6 +155,36 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
                 <Lock className="w-3 h-3 " />
                 Access Control
               </Badge>
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-gray-100 to-slate-200 dark:from-gray-900/50 dark:to-slate-800/50 text-gray-700 dark:text-gray-300 border-0"
+              >
+                <Trash2 className="w-3 h-3 " />
+                Unified Bin
+              </Badge>
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-indigo-100 to-violet-200 dark:from-indigo-900/50 dark:to-violet-800/50 text-indigo-700 dark:text-indigo-300 border-0"
+              >
+                <Filter className="w-3 h-3 " />
+                Smart Filters
+              </Badge>
+
+             
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-emerald-100 to-green-200 dark:from-emerald-900/50 dark:to-green-800/50 text-emerald-700 dark:text-emerald-300 border-0"
+              >
+                <Eye className="w-3 h-3 " />
+                Quick Preview
+              </Badge>
+
+
+              
+              
+              
+
+             
             </div>
           </div>
 

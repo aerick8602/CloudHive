@@ -84,14 +84,19 @@ export default function ProfileContent() {
         }
       }
 
-      toast.success("Profile updated successfully!");
+      toast.success("Profile updated successfully!", {
+        position: "top-right"
+      });
       router.refresh();
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to update profile. Please try again."
+          : "Failed to update profile. Please try again.",
+        {
+          position: "top-right"
+        }
       );
     } finally {
       setIsLoading(false);
@@ -112,16 +117,22 @@ export default function ProfileContent() {
       // Then delete the account
       const success = await deleteUser();
       if (success) {
+        toast.success("Account deleted successfully", {
+          position: "top-right"
+        });
         router.push("/auth/sign-in");
         router.refresh();
       }
     } catch (error: any) {
       console.error("Error deleting account:", error);
-      setPasswordError(
-        error.code === "auth/wrong-password" 
-          ? "Incorrect password. Please try again." 
-          : "Failed to delete account. Please try again."
-      );
+      const errorMessage = error.code === "auth/wrong-password" 
+        ? "Incorrect password. Please try again." 
+        : "Failed to delete account. Please try again.";
+      
+      setPasswordError(errorMessage);
+      toast.error(errorMessage, {
+        position: "top-right"
+      });
     } finally {
       setIsDeleting(false);
       setDeletePassword("");
@@ -251,7 +262,7 @@ export default function ProfileContent() {
                         Delete Account
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                    <AlertDialogContent className="max-w-[500px]">
                       <AlertDialogHeader>
                         <AlertDialogTitle>
                           Are you absolutely sure?
@@ -262,7 +273,7 @@ export default function ProfileContent() {
                           servers.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <div className="py-4">
+                      <div >
                         <div className="space-y-2">
                           <label
                             htmlFor="delete-password"
@@ -292,13 +303,13 @@ export default function ProfileContent() {
                             setDeletePassword("");
                             setPasswordError(null);
                           }}
-                          className="w-full sm:w-auto"
+                          className=""
                         >
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleDeleteAccount}
-                          className="w-full sm:w-auto"
+                          className=""
                           disabled={isDeleting || !deletePassword}
                         >
                           {isDeleting ? "Deleting..." : "Delete Account"}

@@ -376,36 +376,38 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
                           >
                             {isActive ? "Active" : "Inactive"}
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setPendingAction({
-                                email,
-                                action: isConnected ? "disconnect" : "connect",
-                              });
-                              setShowConfirmDialog(true);
-                            }}
-                            disabled={isToggling}
-                            className={`${
-                              isConnected
-                                ? "border border-blue-600 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:border-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-300"
-                                : "border border-gray-600 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:border-gray-700 dark:bg-gray-950 dark:hover:bg-gray-900 dark:text-gray-300"
-                            }`}
-                          >
-                            {isToggling ? (
-                              <>
-                                <Loader2 className=" animate-spin" />
-                                {isConnected
-                                  ? "Disconnecting..."
-                                  : "Connecting..."}
-                              </>
-                            ) : isConnected ? (
-                              "Connected"
-                            ) : (
-                              "Reconnect"
-                            )}
-                          </Button>
+                          {isActive && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setPendingAction({
+                                  email,
+                                  action: isConnected ? "disconnect" : "connect",
+                                });
+                                setShowConfirmDialog(true);
+                              }}
+                              disabled={isToggling}
+                              className={`${
+                                isConnected
+                                  ? "border border-blue-600 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:border-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-300"
+                                  : "border border-gray-600 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:border-gray-700 dark:bg-gray-950 dark:hover:bg-gray-900 dark:text-gray-300"
+                              }`}
+                            >
+                              {isToggling ? (
+                                <>
+                                  <Loader2 className=" animate-spin" />
+                                  {isConnected
+                                    ? "Disconnecting..."
+                                    : "Connecting..."}
+                                </>
+                              ) : isConnected ? (
+                                "Connected"
+                              ) : (
+                                "Reconnect"
+                              )}
+                            </Button>
+                          )}
                         </div>
                       </div>
                       <div className="flex-1 flex flex-col">
@@ -413,7 +415,21 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
                           {info.user?.displayName || email}
                         </h2>
                         <p className="text-sm text-gray-500 mb-3">{email}</p>
-                        {!isConnected ? (
+                        {!isActive ? (
+                          <div className="flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
+                            <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800">
+                              <AlertCircle className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Account Inactive
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Please re-authenticate to activate this account
+                              </p>
+                            </div>
+                          </div>
+                        ) : !isConnected ? (
                           <div className="flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
                             <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800">
                               <AlertCircle className="w-6 h-6 text-gray-500 dark:text-gray-300" />
