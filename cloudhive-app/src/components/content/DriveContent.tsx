@@ -22,7 +22,17 @@ import { swrConfig } from "@/hooks/use-swr";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 
-export function DriveContent({ accounts, uid, setCurrentParentId }: any) {
+export function DriveContent({ 
+  accounts, 
+  uid, 
+  setCurrentParentId,
+  searchQuery 
+}: { 
+  accounts: any[]; 
+  uid: string; 
+  setCurrentParentId: (id: string) => void;
+  searchQuery: string;
+}) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
   const [activeEmail, setActiveEmail] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
@@ -37,7 +47,7 @@ export function DriveContent({ accounts, uid, setCurrentParentId }: any) {
         ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
         : null;
 
-  const { data, error, isLoading } = useSWR(queryKey, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR(queryKey, fetcher, {
     ...swrConfig,
   });
 
@@ -159,7 +169,12 @@ export function DriveContent({ accounts, uid, setCurrentParentId }: any) {
 
     const matchesTime = filterFilesByTime(file);
 
-    return matchesAccount && matchesType && matchesTime;
+    const matchesSearch = searchQuery === "" || 
+      file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (file.mimeType === "application/vnd.google-apps.folder" && 
+       file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesAccount && matchesType && matchesTime && matchesSearch;
   });
 
   const sortedFiles = sortFiles(filteredFiles);

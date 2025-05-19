@@ -34,6 +34,7 @@ export default function CloudHive({
   const [accounts, setAccounts] = useState(initialAccounts);
   const [oauthUrl, setOauthUrl] = useState(initialOauthUrl);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchAccountsAndOauth() {
@@ -171,18 +172,23 @@ export default function CloudHive({
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <SearchForm className="w-full sm:ml-auto sm:w-auto" />
+            <SearchForm 
+              className="w-full sm:ml-auto sm:w-auto" 
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
           </div>
           <div className="px-3">
             <ModeToggle />
           </div>
         </header>
-        <main className=" relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
+        <main className="relative flex-1 rounded-md bg-muted/25 mb-2 ml-2 mr-2 flex flex-col overflow-hidden">
           <Component
             setCurrentParentId={setCurrentParentId}
             uid={uid}
             accounts={accounts}
             setAccounts={setAccounts}
+            searchQuery={searchQuery}
           />
         </main>
       </SidebarInset>

@@ -226,6 +226,15 @@ export function FileDropdown({
                       Open
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent className="min-w-56 rounded-lg">
+                    <DropdownMenuItem
+                        onClick={() => setShowPreview?.(true)}
+                        className="gap-2"
+                      >
+                        <EyeIcon className="size-4" />
+                        Preview
+                        <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() =>
                           window.open(
@@ -236,18 +245,11 @@ export function FileDropdown({
                         className="gap-2"
                       >
                         <ExternalLinkIcon className="size-4" />
-                        Open in New tab
+                        Open in New Tab
                         <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => setShowPreview?.(true)}
-                        className="gap-2"
-                      >
-                        <EyeIcon className="size-4" />
-                        Preview
-                        <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
-                      </DropdownMenuItem>
+                
+                     
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
                

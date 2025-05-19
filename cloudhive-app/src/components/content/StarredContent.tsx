@@ -20,7 +20,15 @@ import {
 } from "@tabler/icons-react";
 import { swrConfig } from "@/hooks/use-swr";
 
-export function StarredContent({ accounts, uid }: any) {
+export function StarredContent({ 
+  accounts, 
+  uid,
+  searchQuery 
+}: { 
+  accounts: any[]; 
+  uid: string;
+  searchQuery: string;
+}) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
   const [activeEmail, setActiveEmail] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
@@ -155,7 +163,12 @@ export function StarredContent({ accounts, uid }: any) {
 
     const matchesTime = filterFilesByTime(file);
 
-    return matchesAccount && matchesType && matchesTime;
+    const matchesSearch = searchQuery === "" || 
+      file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (file.mimeType === "application/vnd.google-apps.folder" && 
+       file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesAccount && matchesType && matchesTime && matchesSearch;
   });
 
   const sortedFiles = sortFiles(filteredFiles);

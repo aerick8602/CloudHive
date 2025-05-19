@@ -22,7 +22,15 @@ import { AppBreadcrumb } from "@/components/breadcrumb";
 import { DriveFacetedFilter } from "@/components/faceted-filter";
 import { DriveCard } from "@/components/drive-card";
 
-export function DocumentContent({ accounts, uid }: any) {
+export function DocumentContent({ 
+  accounts, 
+  uid,
+  searchQuery 
+}: { 
+  accounts: any[]; 
+  uid: string;
+  searchQuery: string;
+}) {
   const [currentFolderId, setCurrentFolderId] = useState("root");
   const [activeEmail, setActiveEmail] = useState<string | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>(
@@ -37,7 +45,7 @@ export function DocumentContent({ accounts, uid }: any) {
       ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
       : null;
 
-  const { data, error, isLoading } = useSWR(queryKey, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR(queryKey, fetcher, {
     ...swrConfig,
   });
 
@@ -140,7 +148,12 @@ export function DocumentContent({ accounts, uid }: any) {
 
     const matchesTime = filterFilesByTime(file);
 
-    return matchesAccount && matchesType && matchesTime;
+    const matchesSearch = searchQuery === "" || 
+      file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (file.mimeType === "application/vnd.google-apps.folder" && 
+       file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesAccount && matchesType && matchesTime && matchesSearch;
   });
 
   const sortedFiles = sortFiles(filteredFiles);
