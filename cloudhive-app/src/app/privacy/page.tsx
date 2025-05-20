@@ -9,27 +9,40 @@ export default function PrivacyPolicy() {
   return (
     <div className="min-h-svh bg-background relative">
       {/* Watermark */}
-      <div className="fixed inset-0 pointer-events-none select-none opacity-[0.02] z-0">
+      <div className="fixed inset-0 pointer-events-none select-none z-0">
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-[20rem] font-black text-foreground/5 rotate-[-15deg]">
+          <div className="text-[18rem] font-black text-blue-500/8 rotate-[-15deg] flex flex-col items-center gap-0">
+            <IconCloudCode className="size-[25rem] -mb-36 -mt-24" />
             CloudHive
           </div>
+        </div>
+        {/* Cloud Pattern */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -left-40 w-[40rem] h-[40rem] bg-gradient-to-br from-blue-400/25 to-indigo-500/35 rounded-full blur-[80px]"></div>
+          <div className="absolute top-1/4 -right-40 w-[40rem] h-[40rem] bg-gradient-to-bl from-blue-300/25 to-indigo-400/35 rounded-full blur-[80px]"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-tr from-blue-400/25 to-indigo-500/35 rounded-full blur-[80px]"></div>
+          <div className="absolute -bottom-40 right-1/4 w-[40rem] h-[40rem] bg-gradient-to-tl from-blue-300/25 to-indigo-400/35 rounded-full blur-[80px]"></div>
+          {/* Additional smaller clouds */}
+          <div className="absolute top-1/3 left-1/3 w-[20rem] h-[20rem] bg-gradient-to-br from-blue-300/20 to-indigo-400/30 rounded-full blur-[60px]"></div>
+          <div className="absolute bottom-1/3 right-1/3 w-[20rem] h-[20rem] bg-gradient-to-tl from-blue-300/20 to-indigo-400/30 rounded-full blur-[60px]"></div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-12 max-w-4xl relative z-10">
         <div className="flex items-center gap-2 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/80 text-primary-foreground">
             <IconCloudCode className="size-7" />
           </div>
-          <div>
-            <span className="text-2xl font-semibold">CloudHive</span>
-            <p className="text-sm text-muted-foreground">Privacy Policy</p>
-          </div>
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <div>
+              <span className="text-2xl font-semibold cursor-pointer">CloudHive</span>
+              <p className="text-sm text-muted-foreground">Privacy Policy</p>
+            </div>
+          </Link>
         </div>
 
         <div className="prose dark:prose-invert max-w-none space-y-8">
-          <section className="bg-card p-6 rounded-lg border shadow-sm">
+          <section className="p-6 rounded-lg border shadow-xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold mb-6 text-primary relative inline-block">
               Information We Collect
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
@@ -43,7 +56,7 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="bg-card p-6 rounded-lg border shadow-sm">
+          <section className="p-6 rounded-lg border shadow-xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold mb-6 text-primary relative inline-block">
               How We Use Your Information
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
@@ -58,7 +71,7 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="bg-card p-6 rounded-lg border shadow-sm">
+          <section className="p-6 rounded-lg border shadow-xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold mb-6 text-primary relative inline-block">
               Data Security
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
@@ -74,7 +87,7 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="bg-card p-6 rounded-lg border shadow-sm">
+          <section className="p-6 rounded-lg border shadow-xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold mb-6 text-primary relative inline-block">
               Third-Party Services
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
@@ -87,7 +100,7 @@ export default function PrivacyPolicy() {
             </p>
           </section>
 
-          <section className="bg-card p-6 rounded-lg border shadow-sm">
+          <section className="p-6 rounded-lg border shadow-xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold mb-6 text-primary relative inline-block">
               Your Rights
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
@@ -103,7 +116,7 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="bg-card p-6 rounded-lg border shadow-sm">
+          <section className="p-6 rounded-lg border shadow-xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold mb-6 text-primary relative inline-block">
               Contact
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
