@@ -48,7 +48,7 @@ export const PasswordResetDialog = ({
       onOpenChange(false);
     } catch (err: any) {
       toast.error("Failed to send reset email.", {
-        position: "top-right",
+        position: defaultEmail?"bottom-right":"top-right",
       });
     }
   };

@@ -86,7 +86,7 @@ export function SignUpForm({
       });
 
       if (response.ok) {
-        toast.success("Login successful!!", {
+        toast.success("Signed in successfully !!", {
           id: loadingToastId,
           position: "top-right",
         });

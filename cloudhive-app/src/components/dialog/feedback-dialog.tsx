@@ -28,7 +28,7 @@ export function FeedbackDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedback.trim()) {
-      toast.error("Please enter your feedback");
+      toast.error("Please enter your feedback.");
       return;
     }
 
@@ -36,7 +36,7 @@ export function FeedbackDialog({
 
     // Simulate API call with setTimeout
     setTimeout(() => {
-      toast.success("Thank you for your feedback!");
+      toast.success("Thank you for your feedback !!");
       setFeedback("");
       onOpenChange(false);
       setIsSubmitting(false);

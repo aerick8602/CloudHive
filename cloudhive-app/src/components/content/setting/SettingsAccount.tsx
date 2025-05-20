@@ -236,12 +236,12 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
       }
       toast.success(
         data.account.c
-          ? "Account connected successfully!"
-          : "Account disconnected successfully!"
+          ? "Account connected successfully !!"
+          : "Account disconnected successfully !!"
       );
     } catch (error) {
       console.error("Error toggling connection:", error);
-      toast.error("Failed to toggle account connection");
+      toast.error("Failed to toggle account connection.");
     } finally {
       setTogglingEmail(null);
       setPendingAction(null);

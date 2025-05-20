@@ -1,0 +1,19 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/check-tokens",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/cron/check-tokens",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        }
+      ]
+    }
+  ]
+} 

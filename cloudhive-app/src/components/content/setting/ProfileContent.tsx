@@ -84,20 +84,11 @@ export default function ProfileContent() {
         }
       }
 
-      toast.success("Profile updated successfully!", {
-        position: "top-right"
-      });
+      toast.success("Profile updated successfully !!");
       router.refresh();
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to update profile. Please try again.",
-        {
-          position: "top-right"
-        }
-      );
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -117,9 +108,9 @@ export default function ProfileContent() {
       // Then delete the account
       const success = await deleteUser();
       if (success) {
-        toast.success("Account deleted successfully", {
-          position: "top-right"
-        });
+        // toast.success("Account deleted successfully", {
+        //   position: "top-right"
+        // });
         router.push("/auth/sign-in");
         router.refresh();
       }
@@ -130,9 +121,9 @@ export default function ProfileContent() {
         : "Failed to delete account. Please try again.";
       
       setPasswordError(errorMessage);
-      toast.error(errorMessage, {
-        position: "top-right"
-      });
+      // toast.error(errorMessage, {
+      //   position: "top-right"
+      // });
     } finally {
       setIsDeleting(false);
       setDeletePassword("");
