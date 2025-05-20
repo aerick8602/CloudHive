@@ -34,34 +34,34 @@ CloudHive is a modern, unified cloud storage management platform that revolution
 
 ### Authentication
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/d-auth.png" alt="Desktop Authentication" style="height: 380px;"/>
-  <img src="cloudhive-app/public/demo/m-auth.jpeg" alt="Mobile Authentication" style="height: 380px;"/>
+  <img src="cloudhive-app/public/demo/d-auth.png" alt="Desktop Authentication" style="height: 345px;"/>
+  <img src="cloudhive-app/public/demo/m-auth.jpeg" alt="Mobile Authentication" style="height: 345px;"/>
 </div>
 
 ### Storage Overview
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/d-storage.png" alt="Desktop Storage View" style="height: 380px;"/>
-  <img src="cloudhive-app/public/demo/m-storage.jpeg" alt="Mobile Storage" style="height: 380px;"/>
+  <img src="cloudhive-app/public/demo/d-storage.png" alt="Desktop Storage View" style="height: 345px;"/>
+  <img src="cloudhive-app/public/demo/m-storage.jpeg" alt="Mobile Storage" style="height: 345px;"/>
 </div>
 
 ### Account Management
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/d-accounts.png" alt="Desktop Accounts Management" style="height: 380px;"/>
-  <img src="cloudhive-app/public/demo/m-accounts.jpeg" alt="Mobile Accounts" style="height: 380px;"/>
+  <img src="cloudhive-app/public/demo/d-accounts.png" alt="Desktop Accounts Management" style="height: 345px;"/>
+  <img src="cloudhive-app/public/demo/m-accounts.jpeg" alt="Mobile Accounts" style="height: 345px;"/>
 </div>
 
 ### User Profile
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/d-profile.png" alt="Desktop Profile" style="height: 380px;"/>
-  <img src="cloudhive-app/public/demo/m-profile.jpeg" alt="Mobile Profile" style="height: 380px;"/>
+  <img src="cloudhive-app/public/demo/d-profile.png" alt="Desktop Profile" style="height: 345px;"/>
+  <img src="cloudhive-app/public/demo/m-profile.jpeg" alt="Mobile Profile" style="height: 345px;"/>
 </div>
 
 ### Additional  Features
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/m-preview.jpeg" alt="Mobile Preview" style="height: 450px;"/>
-  <img src="cloudhive-app/public/demo/m-filter.jpeg" alt="Mobile Filter" style="height: 450px;"/>
-  <img src="cloudhive-app/public/demo/m-detail.jpeg" alt="Mobile Detail" style="height: 450px;"/>
-  <img src="cloudhive-app/public/demo/m-share.jpeg" alt="Mobile Share" style="height: 450px;"/>
+  <img src="cloudhive-app/public/demo/m-preview.jpeg" alt="Mobile Preview" style="height: 430px;"/>
+  <img src="cloudhive-app/public/demo/m-filter.jpeg" alt="Mobile Filter" style="height: 430px;"/>
+  <img src="cloudhive-app/public/demo/m-detail.jpeg" alt="Mobile Detail" style="height: 430px;"/>
+  <img src="cloudhive-app/public/demo/m-share.jpeg" alt="Mobile Share" style="height: 430px;"/>
 </div>
 
 
