@@ -84,7 +84,9 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
             <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800 mx-auto w-fit">
               <IconDatabase className="w-6 h-6 text-gray-500 dark:text-gray-300" />
             </div>
-            <p className="text-gray-700 dark:text-gray-300">No accounts connected</p>
+            <p className="text-gray-700 dark:text-gray-300">
+              No accounts connected
+            </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Connect your accounts to view storage information
             </p>
@@ -92,7 +94,7 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
         </div>
       );
     }
-    
+
     // For other errors, show the error message
     return (
       <div className="flex-1 min-h-0 flex items-center justify-center">
@@ -164,7 +166,9 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
           <div className="p-3 rounded-full bg-gray-200 dark:bg-gray-800 mx-auto w-fit">
             <IconDatabase className="w-6 h-6 text-gray-500 dark:text-gray-300" />
           </div>
-          <p className="text-gray-700 dark:text-gray-300">No accounts connected</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            No accounts connected
+          </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Connect your accounts to view storage information
           </p>
@@ -209,7 +213,7 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
   ) => {
     try {
       setTogglingEmail(email);
-      const response = await fetch("/api/account/toggle", {
+      const response = await fetch("/api/account/toggle-connectivity", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -383,7 +387,9 @@ export function SettingsAccount({ uid, accounts, setAccounts }: any) {
                               onClick={() => {
                                 setPendingAction({
                                   email,
-                                  action: isConnected ? "disconnect" : "connect",
+                                  action: isConnected
+                                    ? "disconnect"
+                                    : "connect",
                                 });
                                 setShowConfirmDialog(true);
                               }}
