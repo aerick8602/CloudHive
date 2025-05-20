@@ -278,7 +278,7 @@ export function DriveContent({
           hasFolders={true}
           bgImage="Drive.svg"
           bgfirstMessage="A place for all of your files"
-          bgsecondMessage="Drag your files and folders here or use the 'New' button to upload"
+          bgsecondMessage="Use the 'New' button to upload your files and folders"
         />
       </div>
     </div>
