@@ -58,10 +58,10 @@ CloudHive is a modern, unified cloud storage management platform that revolution
 
 ### Additional  Features
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/m-preview.jpeg" alt="Mobile Preview" style="height: 425px;"/>
-  <img src="cloudhive-app/public/demo/m-filter.jpeg" alt="Mobile Filter" style="height: 425px;"/>
-  <img src="cloudhive-app/public/demo/m-detail.jpeg" alt="Mobile Detail" style="height: 425px;"/>
-  <img src="cloudhive-app/public/demo/m-share.jpeg" alt="Mobile Share" style="height: 425px;"/>
+  <img src="cloudhive-app/public/demo/m-preview.jpeg" alt="Mobile Preview" style="height: 420px;"/>
+  <img src="cloudhive-app/public/demo/m-filter.jpeg" alt="Mobile Filter" style="height: 420px;"/>
+  <img src="cloudhive-app/public/demo/m-detail.jpeg" alt="Mobile Detail" style="height: 420px;"/>
+  <img src="cloudhive-app/public/demo/m-share.jpeg" alt="Mobile Share" style="height: 420px;"/>
 </div>
 
 
