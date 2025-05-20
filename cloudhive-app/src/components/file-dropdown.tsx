@@ -225,14 +225,15 @@ export function FileDropdown({
                       <MdOpenWith className="size-4" />
                       Open
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="min-w-56 rounded-lg">
+                    <DropdownMenuSubContent
+              className="md:min-w-56 rounded-lg">
                     <DropdownMenuItem
                         onClick={() => setShowPreview?.(true)}
                         className="gap-2"
                       >
                         <EyeIcon className="size-4" />
                         Preview
-                        <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+                        {/* <DropdownMenuShortcut>⌘P</DropdownMenuShortcut> */}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -246,7 +247,7 @@ export function FileDropdown({
                       >
                         <ExternalLinkIcon className="size-4" />
                         Open in New Tab
-                        <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
+                        {/* <DropdownMenuShortcut>⌘O</DropdownMenuShortcut> */}
                       </DropdownMenuItem>
                 
                      

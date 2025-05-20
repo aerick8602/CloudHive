@@ -11,20 +11,20 @@ export default function TermsOfService() {
       {/* Watermark */}
       <div className="fixed inset-0 pointer-events-none select-none z-0">
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-[18rem] font-black text-blue-500/8 rotate-[-15deg] flex flex-col items-center gap-0">
+          <div className="text-[18rem] font-black text-muted-foreground/10 rotate-[-15deg] flex flex-col items-center gap-0">
             <IconCloudCode className="size-[25rem] -mb-36 -mt-24" />
             CloudHive
           </div>
         </div>
         {/* Cloud Pattern */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -left-40 w-[40rem] h-[40rem] bg-gradient-to-br from-blue-400/25 to-indigo-500/35 rounded-full blur-[80px]"></div>
-          <div className="absolute top-1/4 -right-40 w-[40rem] h-[40rem] bg-gradient-to-bl from-blue-300/25 to-indigo-400/35 rounded-full blur-[80px]"></div>
-          <div className="absolute bottom-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-tr from-blue-400/25 to-indigo-500/35 rounded-full blur-[80px]"></div>
-          <div className="absolute -bottom-40 right-1/4 w-[40rem] h-[40rem] bg-gradient-to-tl from-blue-300/25 to-indigo-400/35 rounded-full blur-[80px]"></div>
+          <div className="absolute -top-40 -left-40 w-[40rem] h-[40rem] bg-gradient-to-br from-muted/25 to-muted/35 rounded-full blur-[80px]"></div>
+          <div className="absolute top-1/4 -right-40 w-[40rem] h-[40rem] bg-gradient-to-bl from-muted/25 to-muted/35 rounded-full blur-[80px]"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-tr from-muted/25 to-muted/35 rounded-full blur-[80px]"></div>
+          <div className="absolute -bottom-40 right-1/4 w-[40rem] h-[40rem] bg-gradient-to-tl from-muted/25 to-muted/35 rounded-full blur-[80px]"></div>
           {/* Additional smaller clouds */}
-          <div className="absolute top-1/3 left-1/3 w-[20rem] h-[20rem] bg-gradient-to-br from-blue-300/20 to-indigo-400/30 rounded-full blur-[60px]"></div>
-          <div className="absolute bottom-1/3 right-1/3 w-[20rem] h-[20rem] bg-gradient-to-tl from-blue-300/20 to-indigo-400/30 rounded-full blur-[60px]"></div>
+          <div className="absolute top-1/3 left-1/3 w-[20rem] h-[20rem] bg-gradient-to-br from-muted/20 to-muted/30 rounded-full blur-[60px]"></div>
+          <div className="absolute bottom-1/3 right-1/3 w-[20rem] h-[20rem] bg-gradient-to-tl from-muted/20 to-muted/30 rounded-full blur-[60px]"></div>
         </div>
       </div>
 
