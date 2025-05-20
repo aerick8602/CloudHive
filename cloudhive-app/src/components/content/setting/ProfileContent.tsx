@@ -262,7 +262,7 @@ export default function ProfileContent() {
                         Delete Account
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="max-w-[500px]">
+                    <AlertDialogContent className="md:max-w-[500px]">
                       <AlertDialogHeader>
                         <AlertDialogTitle>
                           Are you absolutely sure?

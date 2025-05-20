@@ -11,7 +11,10 @@ export function middleware(request: NextRequest) {
   const isPublicPath =
     pathname.startsWith("/auth/sign-in") ||
     pathname.startsWith("/auth/sign-up") ||
-    pathname.startsWith("/api/auth/");
+    pathname.startsWith("/api/auth/") ||
+    pathname === "/about" ||
+    pathname === "/terms" ||
+    pathname === "/privacy";
 
   // ✅ Allow public paths always
   if (isPublicPath) {

@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { SearchForm } from "@/components/search-form";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { PulseLoader } from "react-spinners";
 import {
   SidebarInset,
@@ -19,6 +20,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { AccountProps } from "@/types/AccountProps";
 import Image from "next/image";
 import { Account } from "@/interface";
+import { IconCloudCode, IconInfoCircle } from "@tabler/icons-react";
+import Link from "next/link";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CloudHiveProps {
   initialAccounts: AccountProps[];
@@ -146,7 +156,23 @@ export default function CloudHive({
               setSearchQuery={setSearchQuery}
             />
           </div>
-          <div className="px-3">
+          <div className="px-3 flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/about"
+                  >
+                    <Button variant="outline" size="icon" className="cursor-pointer">
+                      <QuestionMarkCircledIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>About</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <ModeToggle />
           </div>
         </header>

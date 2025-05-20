@@ -8,7 +8,11 @@ interface SearchFormProps extends React.ComponentProps<"form"> {
   setSearchQuery: (query: string) => void;
 }
 
-export function SearchForm({ searchQuery, setSearchQuery, ...props }: SearchFormProps) {
+export function SearchForm({
+  searchQuery,
+  setSearchQuery,
+  ...props
+}: SearchFormProps) {
   return (
     <form {...props}>
       <div className="relative">

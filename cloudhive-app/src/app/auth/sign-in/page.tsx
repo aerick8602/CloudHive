@@ -2,6 +2,7 @@
 
 import { SignInForm } from "@/components/sign-in-form";
 import { IconCloudCode } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function SignIn() {
   return (
@@ -28,19 +29,19 @@ export default function SignIn() {
         </div>
         <div className="text-balance text-center text-xs text-muted-foreground">
           By continuing, you agree to our{" "}
-          <a
-            href="#"
+          <Link
+            href="/terms"
             className="underline underline-offset-4 hover:text-primary"
           >
             Terms of Service
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a
-            href="#"
+          <Link
+            href="/privacy"
             className="underline underline-offset-4 hover:text-primary"
           >
             Privacy Policy
-          </a>
+          </Link>
           .
         </div>
       </div>
