@@ -35,7 +35,9 @@ export default function TermsOfService() {
           </div>
           <Link href="/" className="hover:opacity-80 transition-opacity">
             <div>
-              <span className="text-2xl font-semibold cursor-pointer">CloudHive</span>
+              <span className="text-2xl font-semibold cursor-pointer">
+                CloudHive
+              </span>
               <p className="text-sm text-muted-foreground">Terms of Service</p>
             </div>
           </Link>
@@ -48,10 +50,17 @@ export default function TermsOfService() {
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
             </h2>
             <p className="text-muted-foreground mb-4">
-              By using CloudHive, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. These terms form a legally binding agreement between you and CloudHive. If you do not agree with any of these terms, you must not use our service.
+              By using CloudHive, you acknowledge that you have read,
+              understood, and agree to be bound by these Terms of Service. These
+              terms form a legally binding agreement between you and CloudHive.
+              If you do not agree with any of these terms, you must not use our
+              service.
             </p>
             <p className="text-muted-foreground">
-              Your continued use of CloudHive after any changes to these terms constitutes your acceptance of the modified terms. We reserve the right to update these terms at any time, and it is your responsibility to review them periodically.
+              Your continued use of CloudHive after any changes to these terms
+              constitutes your acceptance of the modified terms. We reserve the
+              right to update these terms at any time, and it is your
+              responsibility to review them periodically.
             </p>
           </section>
 
@@ -61,7 +70,10 @@ export default function TermsOfService() {
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
             </h2>
             <p className="text-muted-foreground mb-4">
-              CloudHive is a unified cloud storage management platform that simplifies how you interact with your cloud storage services. Our platform provides a seamless experience for managing your files across different cloud providers.
+              CloudHive is a unified cloud storage management platform that
+              simplifies how you interact with your cloud storage services. Our
+              platform provides a seamless experience for managing your files
+              across different cloud providers.
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>Connect and manage multiple cloud storage accounts</li>
@@ -77,11 +89,16 @@ export default function TermsOfService() {
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
             </h2>
             <p className="text-muted-foreground mb-4">
-              As a user of CloudHive, you are responsible for maintaining the security and integrity of your account. You must use our service in accordance with these terms and all applicable laws.
+              As a user of CloudHive, you are responsible for maintaining the
+              security and integrity of your account. You must use our service
+              in accordance with these terms and all applicable laws.
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>Keep your account information accurate and up-to-date</li>
-              <li>Protect your account credentials and notify us of any unauthorized access</li>
+              <li>
+                Protect your account credentials and notify us of any
+                unauthorized access
+              </li>
               <li>Use the service only for lawful purposes</li>
               <li>Respect the rights of other users and third parties</li>
             </ul>
@@ -93,7 +110,9 @@ export default function TermsOfService() {
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
             </h2>
             <p className="text-muted-foreground mb-4">
-              To ensure a safe and reliable service for all users, we maintain certain rules and restrictions. We may take action, including account suspension, if these rules are violated.
+              To ensure a safe and reliable service for all users, we maintain
+              certain rules and restrictions. We may take action, including
+              account suspension, if these rules are violated.
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>We may update or modify the service as needed</li>
@@ -108,7 +127,7 @@ export default function TermsOfService() {
               Contact
               <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></span>
             </h2>
-            <div className="flex flex-wrap gap-4 mb-4">
+            <div className="flex flex-wrap gap-3 md:gap-5 mb-4">
               <Button
                 size="sm"
                 className="p-2 bg-gradient-to-r from-gray-200 to-gray-400 text-gray-700 hover:from-gray-300 hover:to-gray-500 flex items-center gap-2"
@@ -161,14 +180,16 @@ export default function TermsOfService() {
               </Button>
             </div>
             <p className="text-muted-foreground">
-              For any questions or concerns about these terms, please contact us at{" "}
-              <a 
-                href="mailto:katiyarayush02@gmail.com" 
+              For any questions or concerns about these terms, please contact us
+              at{" "}
+              <a
+                href="mailto:katiyarayush02@gmail.com"
                 className="text-primary hover:underline"
               >
                 katiyarayush02@gmail.com
               </a>
-              . We aim to respond to all inquiries promptly and will work to address any issues you may have with our service.
+              . We aim to respond to all inquiries promptly and will work to
+              address any issues you may have with our service.
             </p>
           </section>
         </div>
@@ -176,22 +197,40 @@ export default function TermsOfService() {
         <div className="mt-12 pt-6 border-t flex flex-col items-center">
           <div className="flex flex-col sm:flex-row justify-between w-full items-center gap-4 sm:gap-0">
             <div className="flex flex-wrap justify-center gap-4">
-              <Link 
-                href="/about" 
+              <Link
+                href="/about"
                 className="text-primary hover:underline flex items-center gap-2"
               >
                 About Us
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </Link>
-              <Link 
-                href="/privacy" 
+              <Link
+                href="/privacy"
                 className="text-primary hover:underline flex items-center gap-2"
               >
                 Privacy Policy
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </Link>
             </div>
@@ -201,4 +240,4 @@ export default function TermsOfService() {
       </div>
     </div>
   );
-} 
+}
