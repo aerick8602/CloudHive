@@ -28,8 +28,8 @@ CloudHive is a modern, unified cloud storage management platform that revolution
 
 ### Drive Management
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; width:100%; gap: 50px;">
-  <img src="cloudhive-app/public/demo/d-drive.png" alt="Desktop Drive Interface" style="height: 340px;"/>
-  <img src="cloudhive-app/public/demo/m-drive.jpeg" alt="Mobile Drive" style="height: 340px;"/>
+  <img src="cloudhive-app/public/demo/d-drive.png" alt="Desktop Drive Interface" style="height: 345px;"/>
+  <img src="cloudhive-app/public/demo/m-drive.jpeg" alt="Mobile Drive" style="height: 345px;"/>
 </div>
 
 ### Authentication
