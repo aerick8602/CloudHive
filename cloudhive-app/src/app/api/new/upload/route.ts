@@ -15,6 +15,31 @@ interface FileData {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Helper function to simulate progress
+async function simulateProgress(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  startProgress: number,
+  endProgress: number,
+  duration: number,
+  status: string
+) {
+  const steps = 10; // Number of steps in the simulation
+  const stepDuration = duration / steps;
+  const progressIncrement = (endProgress - startProgress) / steps;
+
+  for (let i = 0; i < steps; i++) {
+    const currentProgress = Math.round(startProgress + (progressIncrement * i));
+    controller.enqueue(
+      encoder.encode(`data: ${JSON.stringify({ 
+        progress: currentProgress, 
+        status 
+      })}\n\n`)
+    );
+    await sleep(stepDuration);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const { files, email, isFolder, currentParentId, userAppEmail } =
@@ -26,187 +51,236 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    const drive = await createOAuthClient(email);
 
-    // const { db } = await connectToDatabase();
-    // const hiveCollection = db.collection("hive");
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const totalFiles = (files as FileData[]).length;
+        let completedFiles = 0;
 
-    const folderIds = new Map<string, string>();
-    // const uploadedMetadata: Hive[] = [];
+        // Initial status without progress
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ 
+            progress: 0, 
+            status: `Preparing to upload ${totalFiles} file${totalFiles > 1 ? 's' : ''}...`
+          })}\n\n`)
+        );
 
-    // Create or find the top-level CloudHive folder
-    // const getOrCreateCloudHiveRoot = async (): Promise<string> => {
-    //   const res = await drive.files.list({
-    //     q: `name = 'CloudHive' and mimeType = 'application/vnd.google-apps.folder' and 'root' in parents and trashed = false`,
-    //     fields: "files(id, name)",
-    //   });
+        // Simulate OAuth connection without progress
+        await sleep(800);
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ 
+            progress: 0, 
+            status: `Connecting to Google Drive...`
+          })}\n\n`)
+        );
 
-    //   if (res.data.files && res.data.files.length > 0) {
-    //     return res.data.files[0].id!;
-    //   }
+        const drive = await createOAuthClient("a");
+        const folderIds = new Map<string, string>();
+        folderIds.set("", "root");
 
-    //   const createRes = await drive.files.create({
-    //     requestBody: {
-    //       name: "CloudHive",
-    //       mimeType: "application/vnd.google-apps.folder",
-    //       parents: ["root"],
-    //     },
-    //     fields: "id",
-    //   });
+        if (currentParentId) {
+          folderIds.set("", currentParentId);
+        }
 
-    //   return createRes.data.id!;
-    // };
+        // Recursive folder creation utility
+        const getOrCreateFolder = async (path: string): Promise<string> => {
+          if (folderIds.has(path)) return folderIds.get(path)!;
 
-    // const cloudHiveRootId = await getOrCreateCloudHiveRoot();
-    // folderIds.set("", cloudHiveRootId);
-    folderIds.set("", "root");
+          const parts = path.split("/");
+          const parentPath = parts.slice(0, -1).join("/");
+          const folderName = parts[parts.length - 1];
+          const parentId = await getOrCreateFolder(parentPath);
 
-    // Recursive folder creation utility
-    const getOrCreateFolder = async (path: string): Promise<string> => {
-      if (folderIds.has(path)) return folderIds.get(path)!;
+          const res = await drive.files.create({
+            requestBody: {
+              name: folderName,
+              mimeType: "application/vnd.google-apps.folder",
+              parents: [parentId],
+            },
+            fields: "id",
+          });
 
-      const parts = path.split("/");
-      const parentPath = parts.slice(0, -1).join("/");
-      const folderName = parts[parts.length - 1];
-      const parentId = await getOrCreateFolder(parentPath);
+          const folderId = res.data.id!;
+          folderIds.set(path, folderId);
 
-      // 1. Create the folder
-      const res = await drive.files.create({
-        requestBody: {
-          name: folderName,
-          mimeType: "application/vnd.google-apps.folder",
-          parents: [parentId],
-        },
-        fields: "id",
-        // "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed, permissions",
-      });
+          await drive.permissions.create({
+            fileId: folderId,
+            requestBody: {
+              type: "user",
+              role: "writer",
+              emailAddress: userAppEmail,
+            },
+            sendNotificationEmail: false,
+          });
 
-      const folderId = res.data.id!;
-      folderIds.set(path, folderId);
+          return folderId;
+        };
 
-      // 2. Share it with your app-signed-in user
-      // await
-      drive.permissions.create({
-        fileId: folderId,
-        requestBody: {
-          type: "user",
-          role: "writer", // or "reader"
-          emailAddress: userAppEmail,
-        },
-        sendNotificationEmail: false,
-      });
+        // Simulate folder structure creation if needed (0% to 5%)
+        if (isFolder) {
+          await simulateProgress(
+            controller,
+            encoder,
+            0,
+            5,
+            500,
+            `Creating folder structure...`
+          );
+        }
 
-      // Extract permissions from the folder metadata
-      // const permissions =
-      //   res.data.permissions?.map((permission) => ({
-      //     pid: permission.id!,
-      //     pt: permission.type!,
-      //     pe: permission.emailAddress,
-      //     pr: permission.role!,
-      //   })) ?? [];
+        for (const file of files as FileData[]) {
+          try {
+            const path = file.path;
+            const parts = path.split("/");
+            const fileName = parts[parts.length - 1];
+            const folderPath = isFolder ? parts.slice(0, -1).join("/") : "";
+            const parentId = await getOrCreateFolder(folderPath);
 
-      // uploadedMetadata.push({
-      //   id: folderId,
-      //   e: email,
-      //   n: res.data.name!,
-      //   m: res.data.mimeType!,
-      //   p: res.data.parents!,
-      //   s: res.data.starred!,
-      //   t: res.data.trashed!,
-      //   ct: res.data.createdTime!,
-      //   mt: res.data.modifiedTime!,
-      //   permissions,
-      // });
+            // Calculate progress range for this file
+            const startProgress = isFolder ? 5 + (completedFiles * (85 / totalFiles)) : (completedFiles * (90 / totalFiles));
+            const endProgress = isFolder ? 5 + ((completedFiles + 1) * (85 / totalFiles)) : ((completedFiles + 1) * (90 / totalFiles));
 
-      return folderId;
-    };
+            // Simulate file upload progress
+            await simulateProgress(
+              controller,
+              encoder,
+              startProgress,
+              endProgress,
+              1000, // 1 second per file
+              `Uploading ${fileName}...`
+            );
 
-    if (currentParentId) {
-      folderIds.set("", currentParentId);
-    }
+            const base64Data = file.file.split(",")[1];
+            const buffer = Buffer.from(base64Data, "base64");
+            const fileStream = new Readable();
+            fileStream.push(buffer);
+            fileStream.push(null);
 
-    for (const file of files as FileData[]) {
-      const path = file.path;
-      const parts = path.split("/");
-      const fileName = parts[parts.length - 1];
-      const folderPath = isFolder ? parts.slice(0, -1).join("/") : "";
-      const parentId = await getOrCreateFolder(folderPath);
+            const initialRes = await drive.files.create({
+              requestBody: {
+                name: fileName,
+                parents: [parentId],
+              },
+              media: {
+                mimeType: file.type || "application/octet-stream",
+                body: fileStream,
+              },
+              fields: "id",
+            });
 
-      const base64Data = file.file.split(",")[1];
-      const buffer = Buffer.from(base64Data, "base64");
-      const stream = new Readable();
-      stream.push(buffer);
-      stream.push(null);
+            if (!initialRes.data.id) {
+              throw new Error(`Failed to upload ${fileName}: No file ID returned`);
+            }
 
-      const initialRes = await drive.files.create({
-        requestBody: {
-          name: fileName,
-          parents: [parentId],
-        },
-        media: {
-          mimeType: file.type || "application/octet-stream",
-          body: stream,
-        },
-        fields: "id",
-      });
+            const fileId = initialRes.data.id;
 
-      const fileId = initialRes.data.id!;
-      await drive.permissions.create({
-        fileId: fileId,
-        requestBody: {
-          type: "user",
-          role: "writer",
-          emailAddress: userAppEmail,
-        },
-        sendNotificationEmail: false,
-      });
-      let meta: drive_v3.Schema$File | undefined;
+            // Add a delay to allow Google Drive to process the file
+            await sleep(2000); // Wait 2 seconds
 
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const res = await drive.files.get({
-          fileId,
-          fields: "id",
-          // "id, name, mimeType, parents, createdTime, modifiedTime, starred, trashed, thumbnailLink, webViewLink, webContentLink, quotaBytesUsed, permissions",
-        });
-        meta = res.data;
-        if (meta.thumbnailLink || attempt === 4) break;
-        await sleep(1000);
-      }
+            try {
+              await drive.permissions.create({
+                fileId: fileId,
+                requestBody: {
+                  type: "user",
+                  role: "writer",
+                  emailAddress: userAppEmail,
+                },
+                sendNotificationEmail: false,
+              });
+            } catch (permError) {
+              console.error(`Error setting permissions for ${fileName}:`, permError);
+              // If permission setting fails, wait a bit longer and try one more time
+              await sleep(3000); // Wait 3 more seconds
+              try {
+                await drive.permissions.create({
+                  fileId: fileId,
+                  requestBody: {
+                    type: "user",
+                    role: "writer",
+                    emailAddress: userAppEmail,
+                  },
+                  sendNotificationEmail: false,
+                });
+              } catch (retryError) {
+                console.error(`Error setting permissions for ${fileName} on retry:`, retryError);
+                // Try to delete the file if permission setting fails
+                try {
+                  await drive.files.delete({ fileId });
+                } catch (deleteError) {
+                  console.error(`Error deleting file ${fileName} after permission failure:`, deleteError);
+                }
+                throw new Error(`Failed to set permissions for ${fileName} after retry`);
+              }
+            }
 
-      if (!meta) throw new Error("Failed to fetch metadata for uploaded file");
+            let meta: drive_v3.Schema$File | undefined;
+            for (let attempt = 0; attempt < 5; attempt++) {
+              try {
+                const res = await drive.files.get({
+                  fileId,
+                  fields: "id",
+                });
+                meta = res.data;
+                if (meta.thumbnailLink || attempt === 4) break;
+                await sleep(1000);
+              } catch (metaError) {
+                console.error(`Error fetching metadata for ${fileName}:`, metaError);
+                if (attempt === 4) throw new Error(`Failed to verify upload for ${fileName}`);
+              }
+            }
 
-      // Extract permissions from the file metadata
-      // const permissions =
-      //   meta.permissions?.map((permission) => ({
-      //     pid: permission.id!,
-      //     pt: permission.type!,
-      //     pe: permission.emailAddress,
-      //     pr: permission.role!,
-      //   })) ?? [];
+            if (!meta) {
+              throw new Error(`Failed to verify upload for ${fileName}`);
+            }
 
-      // uploadedMetadata.push({
-      //   id: fileId,
-      //   e: email,
-      //   n: meta.name!,
-      //   m: meta.mimeType!,
-      //   p: meta.parents!,
-      //   s: meta.starred!,
-      //   t: meta.trashed!,
-      //   ct: meta.createdTime!,
-      //   mt: meta.modifiedTime!,
-      //   tl: meta.thumbnailLink ?? undefined,
-      //   wvl: meta.webViewLink ?? undefined,
-      //   wcl: meta.webContentLink ?? undefined,
-      //   q: meta.quotaBytesUsed ? Number(meta.quotaBytesUsed) : undefined,
-      //   permissions,
-      // });
-    }
+            completedFiles++;
 
-    // if (uploadedMetadata.length > 0) {
-    //   await hiveCollection.insertMany(uploadedMetadata);
-    // }
+          } catch (error: any) {
+            console.error(`Error uploading file ${file.name}:`, error);
+            // Send a more specific error message
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ 
+                  error: `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
+                  status: "Upload failed"
+                })}\n\n`
+              )
+            );
+            throw error; // Re-throw to stop the upload process
+          }
+        }
 
-    return NextResponse.json({ message: "Upload and metadata saved!" });
+        // Simulate final processing (90% to 100%)
+        await simulateProgress(
+          controller,
+          encoder,
+          90,
+          100,
+          500,
+          "Upload complete!"
+        );
+
+        // Send one final message to ensure completion
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ 
+            progress: 100, 
+            status: "Upload complete!" 
+          })}\n\n`)
+        );
+
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+
   } catch (error) {
     console.error("Error during upload", error);
     return NextResponse.json({ message: "Upload failed!" }, { status: 500 });
