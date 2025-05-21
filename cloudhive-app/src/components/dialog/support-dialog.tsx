@@ -39,6 +39,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { IconExternalLink } from "@tabler/icons-react";
+import { FaInternetExplorer } from "react-icons/fa6";
+import { MdTravelExplore } from "react-icons/md";
 
 interface SupportDialogProps {
   open: boolean;
@@ -65,10 +67,10 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
                 href="https://github.com/aerick8602/CloudHive"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md text-xs hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors ml-1"
+                className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md text-xs hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors ml-1"
               >
                 <FileText className="w-3 h-3" />
-                <span>Docs</span>
+                <span>Project Info</span>
               </a>
             </span>
           </DialogDescription>
@@ -84,107 +86,105 @@ export function SupportDialog({ open, onOpenChange }: SupportDialogProps) {
                 variant="secondary"
                 className="bg-gradient-to-r from-indigo-100 to-purple-200 dark:from-indigo-900/50 dark:to-purple-800/50 text-indigo-700 dark:text-indigo-300 border-0"
               >
-                <Layers className="w-3 h-3 " />
+                <Layers className="w-3 h-3 mr-1" />
                 Multi-Cloud Support
               </Badge>
+
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-blue-100 to-cyan-200 dark:from-blue-900/50 dark:to-cyan-800/50 text-blue-700 dark:text-blue-300 border-0"
+                className="bg-gradient-to-r from-lime-100 to-green-200 dark:from-lime-900/50 dark:to-green-800/50 text-lime-700 dark:text-lime-300 border-0"
               >
-                <Upload className="w-3 h-3 " />
+                <Upload className="w-3 h-3 mr-1" />
                 Effortless Uploads
               </Badge>
 
-           
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-pink-100 to-fuchsia-200 dark:from-pink-900/50 dark:to-fuchsia-800/50 text-pink-700 dark:text-pink-300 border-0"
+              >
+                <Share2 className="w-3 h-3" />
+                Easy Sharing
+              </Badge>
 
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-violet-100 to-purple-200 dark:from-violet-900/50 dark:to-purple-800/50 text-violet-700 dark:text-violet-300 border-0"
+                className="bg-gradient-to-r from-sky-100 to-cyan-200 dark:from-sky-900/50 dark:to-cyan-800/50 text-sky-700 dark:text-sky-300 border-0"
               >
-                <Share2 className="w-3 h-3 " />
-                Easy Sharing
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-gradient-to-r from-sky-100 to-blue-200 dark:from-sky-900/50 dark:to-blue-800/50 text-sky-700 dark:text-sky-300 border-0"
-              >
-                <Cloud className="w-3 h-3 " />
+                <Cloud className="w-3 h-3" />
                 Backup
               </Badge>
 
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-amber-100 to-orange-200 dark:from-amber-900/50 dark:to-orange-800/50 text-amber-700 dark:text-amber-300 border-0"
+                className="bg-gradient-to-r from-amber-100 to-yellow-200 dark:from-amber-900/50 dark:to-yellow-800/50 text-amber-700 dark:text-amber-300 border-0"
               >
-                <Lock className="w-3 h-3 " />
+                <Lock className="w-3 h-3" />
                 2FA Protection
               </Badge>
+
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-teal-100 to-emerald-200 dark:from-teal-900/50 dark:to-emerald-800/50 text-teal-700 dark:text-teal-300 border-0"
+                className="bg-gradient-to-r from-violet-100 to-rose-200 dark:from-violet-900/50 dark:to-rose-800/50 text-violet-700 dark:text-violet-300 border-0"
               >
-                <Shield className="w-3 h-3 " />
-                Secure Storage
+                <Filter className="w-3 h-3" />
+                Smart Filters
               </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-gradient-to-r from-yellow-100 to-amber-200 dark:from-green-900/50 dark:to-amber-800/50 text-yellow-700 dark:text-green-300 border-0"
-              >
-                <Zap className="w-3 h-3 " />
-                Smart Sync
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-gradient-to-r from-pink-100 to-rose-200 dark:from-pink-900/50 dark:to-rose-800/50 text-pink-700 dark:text-pink-300 border-0"
-              >
-                <Heart className="w-3 h-3 " />
-                Favorites
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-gradient-to-r from-cyan-100 to-blue-200 dark:from-cyan-900/50 dark:to-blue-800/50 text-cyan-700 dark:text-cyan-300 border-0"
-              >
-                <Search className="w-3 h-3 " />
-                Advanced Search
-              </Badge>
-              
-              <Badge
-                variant="secondary"
-                className="bg-gradient-to-r from-rose-100 to-red-200 dark:from-rose-900/50 dark:to-red-800/50 text-rose-700 dark:text-rose-300 border-0"
-              >
-                <Lock className="w-3 h-3 " />
-                Access Control
-              </Badge>
+
               <Badge
                 variant="secondary"
                 className="bg-gradient-to-r from-gray-100 to-slate-200 dark:from-gray-900/50 dark:to-slate-800/50 text-gray-700 dark:text-gray-300 border-0"
               >
-                <Trash2 className="w-3 h-3 " />
+                <Trash2 className="w-3 h-3" />
                 Unified Bin
               </Badge>
+
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-indigo-100 to-violet-200 dark:from-indigo-900/50 dark:to-violet-800/50 text-indigo-700 dark:text-indigo-300 border-0"
+                className="bg-gradient-to-r from-red-100 to-pink-200 dark:from-red-900/50 dark:to-pink-800/50 text-red-700 dark:text-red-300 border-0"
               >
-                <Filter className="w-3 h-3 " />
-                Smart Filters
+                <Heart className="w-3 h-3 mr-1" />
+                Favorites
               </Badge>
 
-             
               <Badge
                 variant="secondary"
-                className="bg-gradient-to-r from-emerald-100 to-green-200 dark:from-emerald-900/50 dark:to-green-800/50 text-emerald-700 dark:text-emerald-300 border-0"
+                className="bg-gradient-to-r from-cyan-100 to-blue-200 dark:from-cyan-900/50 dark:to-blue-800/50 text-cyan-700 dark:text-cyan-300 border-0"
               >
-                <Eye className="w-3 h-3 " />
+                <Search className="w-3 h-3 mr-1" />
+                Global Search
+              </Badge>
+
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-rose-100 to-red-200 dark:from-rose-900/50 dark:to-red-800/50 text-rose-700 dark:text-rose-300 border-0"
+              >
+                <Lock className="w-3 h-3 mr-1" />
+                Advanced Access Control
+              </Badge>
+
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-yellow-100 to-orange-200 dark:from-yellow-900/50 dark:to-orange-800/50 text-yellow-700 dark:text-yellow-300 border-0"
+              >
+                <Zap className="w-3 h-3 -ml-1" />
+                Fast Sync
+              </Badge>
+
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-teal-100 to-emerald-200 dark:from-teal-900/50 dark:to-emerald-800/50 text-teal-700 dark:text-teal-300 border-0"
+              >
+                <Shield className="w-3 h-3 -ml-1" />
+                Secure Storage
+              </Badge>
+
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-green-100 to-emerald-200 dark:from-green-900/50 dark:to-emerald-800/50 text-green-700 dark:text-emerald-300 border-0"
+              >
+                <Eye className="w-3 h-3 -ml-1" />
                 Quick Preview
               </Badge>
-
-
-              
-              
-              
-
-             
             </div>
           </div>
 

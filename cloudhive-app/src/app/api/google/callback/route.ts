@@ -69,14 +69,14 @@ export async function GET(req: NextRequest) {
 
         console.log("Database connected");
 
-        const drive = google.drive({ version: "v3", auth: oauth2Client });
-        const about = await drive.about.get({ fields: "storageQuota" });
-        const storageQuota = about.data.storageQuota;
+        // const drive = google.drive({ version: "v3", auth: oauth2Client });
+        // const about = await drive.about.get({ fields: "storageQuota" });
+        // const storageQuota = about.data.storageQuota;
 
-        const totalQuota = storageQuota?.limit ? Number(storageQuota.limit) : 0;
-        const usedQuota = storageQuota?.usage ? Number(storageQuota.usage) : 0;
+        // const totalQuota = storageQuota?.limit ? Number(storageQuota.limit) : 0;
+        // const usedQuota = storageQuota?.usage ? Number(storageQuota.usage) : 0;
 
-        console.log("Storage quota fetched:", { totalQuota, usedQuota });
+        // console.log("Storage quota fetched:", { totalQuota, usedQuota });
 
         let account = await accountsCollection.findOne({ e: email });
 
@@ -153,7 +153,7 @@ export async function GET(req: NextRequest) {
                   Date.now() +
                     (typedTokens.refresh_token_expires_in ?? 0) * 1000
                 ),
-                q: { l: totalQuota, u: usedQuota },
+                // q: { l: totalQuota, u: usedQuota },
                 sync: convertMillisToIST(Date.now()),
                 c: true,
                 a: true,
@@ -172,7 +172,7 @@ export async function GET(req: NextRequest) {
             rtv: convertMillisToIST(
               Date.now() + (typedTokens.refresh_token_expires_in ?? 0) * 1000
             ),
-            q: { l: totalQuota, u: usedQuota },
+            // q: { l: totalQuota, u: usedQuota },
             sync: convertMillisToIST(Date.now()),
             uids: [state],
             c: true,
