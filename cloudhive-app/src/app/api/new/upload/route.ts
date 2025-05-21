@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { createOAuthClient } from "@/lib/google/google.client";
 import { Readable } from "stream";
-import { connectToDatabase } from "@/lib/db/mongo.config";
 import { drive_v3 } from "googleapis";
-// import { Hive, FileData } from "@/interface";
 
 interface FileData {
   path: string;
@@ -15,7 +13,18 @@ interface FileData {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Helper function to simulate progress
+const getProgressRange = (
+  completed: number,
+  total: number,
+  base: number,
+  range: number
+): [number, number] => {
+  const increment = range / total;
+  const start = base + completed * increment;
+  const end = base + (completed + 1) * increment;
+  return [Math.min(start, 99), Math.min(end, 100)];
+};
+
 async function simulateProgress(
   controller: ReadableStreamDefaultController,
   encoder: TextEncoder,
@@ -24,17 +33,19 @@ async function simulateProgress(
   duration: number,
   status: string
 ) {
-  const steps = 10; // Number of steps in the simulation
+  const steps = 10;
   const stepDuration = duration / steps;
   const progressIncrement = (endProgress - startProgress) / steps;
 
   for (let i = 0; i < steps; i++) {
-    const currentProgress = Math.round(startProgress + (progressIncrement * i));
+    const currentProgress = Math.round(startProgress + progressIncrement * i);
     controller.enqueue(
-      encoder.encode(`data: ${JSON.stringify({ 
-        progress: currentProgress, 
-        status 
-      })}\n\n`)
+      encoder.encode(
+        `data: ${JSON.stringify({
+          progress: currentProgress,
+          status,
+        })}\n\n`
+      )
     );
     await sleep(stepDuration);
   }
@@ -45,7 +56,7 @@ export async function POST(request: Request) {
     const { files, email, isFolder, currentParentId, userAppEmail } =
       await request.json();
 
-    if (!files || !email || !isFolder === undefined || !userAppEmail) {
+    if (!files || !email || isFolder === undefined || !userAppEmail) {
       return NextResponse.json(
         { message: "Missing required fields." },
         { status: 400 }
@@ -58,17 +69,15 @@ export async function POST(request: Request) {
         const totalFiles = (files as FileData[]).length;
         let completedFiles = 0;
 
-        // Initial preparation stage (0-10%)
         await simulateProgress(
           controller,
           encoder,
           0,
           10,
           800,
-          `Preparing to upload ${totalFiles} file${totalFiles > 1 ? 's' : ''}...`
+          `Preparing to upload ${totalFiles} file${totalFiles > 1 ? "s" : ""}...`
         );
 
-        // OAuth connection stage (10-20%)
         await simulateProgress(
           controller,
           encoder,
@@ -80,13 +89,8 @@ export async function POST(request: Request) {
 
         const drive = await createOAuthClient(email);
         const folderIds = new Map<string, string>();
-        folderIds.set("", "root");
+        folderIds.set("", currentParentId || "root");
 
-        if (currentParentId) {
-          folderIds.set("", currentParentId);
-        }
-
-        // Recursive folder creation utility
         const getOrCreateFolder = async (path: string): Promise<string> => {
           if (folderIds.has(path)) return folderIds.get(path)!;
 
@@ -95,12 +99,13 @@ export async function POST(request: Request) {
           const folderName = parts[parts.length - 1];
           const parentId = await getOrCreateFolder(parentPath);
 
-          // Update status for folder creation
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ 
-              progress: 20, 
-              status: `Creating folder structure...`
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                progress: 20,
+                status: `Creating folder structure...`,
+              })}\n\n`
+            )
           );
 
           const res = await drive.files.create({
@@ -115,12 +120,13 @@ export async function POST(request: Request) {
           const folderId = res.data.id!;
           folderIds.set(path, folderId);
 
-          // Update status for permission setting
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ 
-              progress: 22, 
-              status: `Setting folder permissions...`
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                progress: 22,
+                status: `Setting folder permissions...`,
+              })}\n\n`
+            )
           );
 
           await drive.permissions.create({
@@ -136,7 +142,6 @@ export async function POST(request: Request) {
           return folderId;
         };
 
-        // Folder structure creation stage (20-30%)
         if (isFolder) {
           await simulateProgress(
             controller,
@@ -154,14 +159,13 @@ export async function POST(request: Request) {
             const parts = path.split("/");
             const fileName = parts[parts.length - 1];
             const folderPath = isFolder ? parts.slice(0, -1).join("/") : "";
-            
+
             const parentId = await getOrCreateFolder(folderPath);
 
-            // Calculate progress range for this file (30-95%)
-            const startProgress = isFolder ? 30 + (completedFiles * (55 / totalFiles)) : (completedFiles * (65 / totalFiles));
-            const endProgress = isFolder ? 30 + ((completedFiles + 1) * (55 / totalFiles)) : ((completedFiles + 1) * (65 / totalFiles));
+            const [startProgress, endProgress] = isFolder
+              ? getProgressRange(completedFiles, totalFiles, 30, 55)
+              : getProgressRange(completedFiles, totalFiles, 20, 75);
 
-            // Upload stage - show current file name in both status and progress
             await simulateProgress(
               controller,
               encoder,
@@ -190,18 +194,21 @@ export async function POST(request: Request) {
             });
 
             if (!initialRes.data.id) {
-              throw new Error(`Failed to upload ${fileName}: No file ID returned`);
+              throw new Error(
+                `Failed to upload ${fileName}: No file ID returned`
+              );
             }
 
             completedFiles++;
-
           } catch (error: any) {
             console.error(`Error uploading file ${file.name}:`, error);
             controller.enqueue(
               encoder.encode(
-                `data: ${JSON.stringify({ 
-                  error: `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
-                  status: "Upload failed"
+                `data: ${JSON.stringify({
+                  error: `Failed to upload ${file.name}: ${
+                    error?.message || "Unknown error"
+                  }`,
+                  status: "Upload failed",
                 })}\n\n`
               )
             );
@@ -209,12 +216,13 @@ export async function POST(request: Request) {
           }
         }
 
-        // Final completion
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ 
-            progress: 100, 
-            status: "Upload complete!" 
-          })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({
+              progress: 100,
+              status: "Upload complete!",
+            })}\n\n`
+          )
         );
 
         controller.close();
@@ -228,7 +236,6 @@ export async function POST(request: Request) {
         "Connection": "keep-alive",
       },
     });
-
   } catch (error) {
     console.error("Error during upload", error);
     return NextResponse.json({ message: "Upload failed!" }, { status: 500 });
