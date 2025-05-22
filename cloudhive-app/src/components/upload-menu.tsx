@@ -118,11 +118,8 @@ export function UploadMenu({
             />,
             {
               duration: Infinity,
-              className:
-                "bg-black/80 dark:bg-white/80 backdrop-blur-sm [&>button]:absolute [&>button]:right-2 [&>button]:top-2",
-              style: {
-                background: "inherit",
-              },
+              // duration: 5000,
+              unstyled: true,
               // closeButton: true,
             }
           );
@@ -173,15 +170,13 @@ export function UploadMenu({
                         totalFiles={totalFiles}
                         fileText={fileText}
                         status={data.status}
+                        onClose={() => toast.dismiss(toastId)}
                       />,
                       {
                         id: toastId,
                         duration: Infinity,
-                        className:
-                          "bg-black/80 dark:bg-white/80 backdrop-blur-sm [&>button]:absolute [&>button]:right-2 [&>button]:top-2",
-                        style: {
-                          background: "inherit",
-                        },
+                        // duration: 5000,
+                        unstyled: true,
                         // closeButton: true,
                       }
                     );
@@ -239,11 +234,7 @@ export function UploadMenu({
             progress={uploadProgress}
           />,
           {
-            className:
-              "bg-black/80 dark:bg-white/80 backdrop-blur-sm [&>button]:absolute [&>button]:right-2 [&>button]:top-2",
-            style: {
-              background: "inherit",
-            },
+            unstyled: true,
             duration: 2000,
             // closeButton: true,
           }

@@ -163,8 +163,8 @@ export async function POST(request: Request) {
             const parentId = await getOrCreateFolder(folderPath);
 
             const [startProgress, endProgress] = isFolder
-              ? getProgressRange(completedFiles, totalFiles, 30, 55)
-              : getProgressRange(completedFiles, totalFiles, 20, 75);
+              ? getProgressRange(completedFiles, totalFiles, 30, 45)
+              : getProgressRange(completedFiles, totalFiles, 20, 55);
 
             await simulateProgress(
               controller,
@@ -233,7 +233,7 @@ export async function POST(request: Request) {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
       },
     });
   } catch (error) {
