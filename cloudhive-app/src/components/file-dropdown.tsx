@@ -81,19 +81,21 @@ export function FileDropdown({
 
         if (updateFields.starred !== undefined) {
           message = updateFields.starred
-            ? "Added to favorites ⭐"
-            : "Removed from favorites ⭐";
+            ? "File added to Favorites"
+            : "File removed from Favorites";
         } else if (updateFields.trashed !== undefined) {
           message = updateFields.trashed
-            ? "Sent to Trash 🗑️"
-            : "Restored from Trash";
+            ? "File moved to Trash"
+            : "File restored from Trash";
         } else if (updateFields.name !== undefined) {
-          message = "Name updated ✏️";
+          message = "File name updated successfully";
         } else if (updateFields.shared !== undefined) {
-          message = updateFields.shared ? "File shared 🔗" : "Sharing removed";
+          message = updateFields.shared
+            ? "File shared with others"
+            : "File sharing permissions removed";
         }
 
-        toast.info(message, {
+        toast.success(message, {
           action: undoCallback
             ? {
                 label: "Undo",
@@ -211,13 +213,14 @@ export function FileDropdown({
             <>
               {file.mimeType === "application/vnd.google-apps.folder" ? (
                 <DropdownMenuItem
-                  onClick={() => onFolderClick?.(file.id, file.email, file.name)}
+                  onClick={() =>
+                    onFolderClick?.(file.id, file.email, file.name)
+                  }
                   className="gap-2"
                 >
                   <MdOpenWith className="size-4" />
                   Open
                 </DropdownMenuItem>
-                
               ) : (
                 <>
                   <DropdownMenuSub>
@@ -225,9 +228,8 @@ export function FileDropdown({
                       <MdOpenWith className="size-4" />
                       Open
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent
-              className="md:min-w-56 rounded-lg">
-                    <DropdownMenuItem
+                    <DropdownMenuSubContent className="md:min-w-56 rounded-lg">
+                      <DropdownMenuItem
                         onClick={() => setShowPreview?.(true)}
                         className="gap-2"
                       >
@@ -249,18 +251,12 @@ export function FileDropdown({
                         Open in New Tab
                         {/* <DropdownMenuShortcut>⌘O</DropdownMenuShortcut> */}
                       </DropdownMenuItem>
-                
-                     
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
-               
                 </>
               )}
-<DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleDownload}
-                className="gap-2"
-              >
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleDownload} className="gap-2">
                 <Download className="size-4" />
                 Download
               </DropdownMenuItem>

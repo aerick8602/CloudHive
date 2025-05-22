@@ -40,7 +40,7 @@ export function UploadToast({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
-      className="relative flex w-[326px] md:w-[350px] md:w-[320px]   p-4 rounded-xl border border-border bg-background shadow-xl"
+      className="relative flex w-[355px]   p-4 rounded-xl border border-border bg-background shadow-xl"
     >
       {/* Close Button */}
       <motion.button
@@ -123,7 +123,7 @@ export function UploadErrorToast({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
-      className="relative flex w-[33px] md:w-[350px] md:w-[320px]   p-4 rounded-xl border border-border bg-background shadow-xl"
+      className="relative flex w-[355px]    p-4 rounded-xl border border-border bg-background shadow-xl"
     >
       {/* Close Button */}
       <motion.button
