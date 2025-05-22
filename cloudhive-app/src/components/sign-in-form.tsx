@@ -72,7 +72,7 @@ export function SignInForm({
       });
 
       if (response.ok) {
-        toast.success("Signed in successfully !!", {
+        toast.success("Signed in successfully.", {
           id: redirectingToastId,
           position: "top-right",
         });
@@ -113,7 +113,7 @@ export function SignInForm({
       });
 
       if (response.ok) {
-        toast.success("Signed in successfully !!", {
+        toast.success("Signed in successfully.", {
           id: redirectingToastId,
           position: "top-right",
         });

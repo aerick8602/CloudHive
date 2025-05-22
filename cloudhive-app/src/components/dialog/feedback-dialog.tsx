@@ -34,13 +34,23 @@ export function FeedbackDialog({
 
     setIsSubmitting(true);
 
-    // Simulate API call with setTimeout
-    setTimeout(() => {
-      toast.success("Thank you for your feedback !!");
+    try {
+      const res = await fetch("/api/send-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedback, userEmail }),
+      });
+
+      if (!res.ok) throw new Error("Failed to send feedback");
+
+      toast.success("Thank you for your feedback.");
       setFeedback("");
       onOpenChange(false);
+    } catch (err) {
+      toast.error("Failed to send feedback. Please try again.");
+    } finally {
       setIsSubmitting(false);
-    }, 2500);
+    }
   };
 
   return (

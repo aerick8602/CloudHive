@@ -13,7 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"; // Updated import
 import { Button } from "@/components/ui/button";
-import { IconAdjustmentsHorizontal, IconTrash, IconCheck, IconX } from "@tabler/icons-react";
+import {
+  IconAdjustmentsHorizontal,
+  IconTrash,
+  IconCheck,
+  IconX,
+} from "@tabler/icons-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,12 +39,12 @@ import {
 
 import { swrConfig } from "@/hooks/use-swr";
 
-export function TrashContent({ 
-  accounts, 
+export function TrashContent({
+  accounts,
   uid,
-  searchQuery 
-}: { 
-  accounts: any[]; 
+  searchQuery,
+}: {
+  accounts: any[];
   uid: string;
   searchQuery: string;
 }) {
@@ -55,8 +60,8 @@ export function TrashContent({
     currentFolderId === "root" && !activeEmail
       ? `/api/file/all/${uid}?trashed=true`
       : activeEmail
-      ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
-      : null;
+        ? `/api/file/${activeEmail}?parentId=${currentFolderId}&trashed=false`
+        : null;
 
   const { data, error, isLoading, mutate } = useSWR(queryKey, fetcher, {
     ...swrConfig,
@@ -178,10 +183,11 @@ export function TrashContent({
 
     const matchesTime = filterFilesByTime(file);
 
-    const matchesSearch = searchQuery === "" || 
+    const matchesSearch =
+      searchQuery === "" ||
       file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (file.mimeType === "application/vnd.google-apps.folder" && 
-       file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      (file.mimeType === "application/vnd.google-apps.folder" &&
+        file.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return matchesAccount && matchesType && matchesTime && matchesSearch;
   });
@@ -190,43 +196,42 @@ export function TrashContent({
 
   const handleEmptyBin = async () => {
     if (isDeleting) return; // Prevent multiple clicks
-    
+
     setIsDeleting(true);
     try {
       // Get all files with their emails and IDs
-      const filesToDelete = files.map(file => ({
+      const filesToDelete = files.map((file) => ({
         id: file.id,
-        email: file.email
+        email: file.email,
       }));
-      
+
       // Delete all files in parallel using their respective emails
-      const deletePromises = filesToDelete.map(({ id, email }) => 
+      const deletePromises = filesToDelete.map(({ id, email }) =>
         fetch(`/api/file/${email}/update/${id}`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ permanentlyDelete: true })
+          body: JSON.stringify({ permanentlyDelete: true }),
         })
       );
-      
+
       await Promise.all(deletePromises);
-      
+
       // Show success message
-      toast.success("All items have been permanently deleted", {
+      toast.warning("All items have been permanently deleted.", {
         duration: 3000,
       });
-      
+
       // Refresh the data using mutate
       await mutate();
-      
+
       // Reset current folder to root and clear breadcrumb
       setCurrentFolderId("root");
       setActiveEmail(null);
       setBreadcrumb([]);
-      
     } catch (error) {
-      console.error('Error emptying bin:', error);
+      console.error("Error emptying bin:", error);
       // Show error message
       toast.error("Failed to empty bin. Please try again.", {
         duration: 3000,
@@ -277,8 +282,7 @@ export function TrashContent({
         <div className="flex items-center gap-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button 
-       
+              <Button
                 size="lg"
                 className="flex items-center gap-2"
                 disabled={files.length === 0 || isDeleting}
@@ -291,12 +295,15 @@ export function TrashContent({
               <AlertDialogHeader>
                 <AlertDialogTitle>Empty Bin</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to permanently delete all items in the trash? This action cannot be undone.
+                  Are you sure you want to permanently delete all items in the
+                  trash? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="flex-col sm:flex-row !justify-between">
-                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                <AlertDialogAction 
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
                   onClick={handleEmptyBin}
                   disabled={isDeleting}
                   className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"

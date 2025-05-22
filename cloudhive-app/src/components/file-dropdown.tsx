@@ -81,17 +81,17 @@ export function FileDropdown({
 
         if (updateFields.starred !== undefined) {
           message = updateFields.starred
-            ? "File added to Favorites"
-            : "File removed from Favorites";
+            ? "File added to Favorites."
+            : "File removed from Favorites.";
         } else if (updateFields.trashed !== undefined) {
           message = updateFields.trashed
-            ? "File moved to Trash"
-            : "File restored from Trash";
+            ? "File moved to Trash."
+            : "File restored from Trash.";
         } else if (updateFields.name !== undefined) {
-          message = "File name updated successfully";
+          message = "File name updated successfully.";
         } else if (updateFields.shared !== undefined) {
           message = updateFields.shared
-            ? "File shared with others"
+            ? "File shared with others."
             : "File sharing permissions removed";
         }
 

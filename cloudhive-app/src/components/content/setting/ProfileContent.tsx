@@ -84,7 +84,7 @@ export default function ProfileContent() {
         }
       }
 
-      toast.success("Profile updated successfully !!");
+      toast.success("Profile updated successfully.");
       router.refresh();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -96,15 +96,18 @@ export default function ProfileContent() {
 
   const handleDeleteAccount = async () => {
     if (!user?.email || !deletePassword) return;
-    
+
     setIsDeleting(true);
     setPasswordError(null);
 
     try {
       // First re-authenticate
-      const credential = EmailAuthProvider.credential(user.email, deletePassword);
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        deletePassword
+      );
       await reauthenticateWithCredential(user, credential);
-      
+
       // Then delete the account
       const success = await deleteUser();
       if (success) {
@@ -116,10 +119,11 @@ export default function ProfileContent() {
       }
     } catch (error: any) {
       console.error("Error deleting account:", error);
-      const errorMessage = error.code === "auth/wrong-password" 
-        ? "Incorrect password. Please try again." 
-        : "Failed to delete account. Please try again.";
-      
+      const errorMessage =
+        error.code === "auth/wrong-password"
+          ? "Incorrect password. Please try again."
+          : "Failed to delete account. Please try again.";
+
       setPasswordError(errorMessage);
       // toast.error(errorMessage, {
       //   position: "top-right"
@@ -264,7 +268,7 @@ export default function ProfileContent() {
                           servers.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <div >
+                      <div>
                         <div className="space-y-2">
                           <label
                             htmlFor="delete-password"
@@ -284,12 +288,14 @@ export default function ProfileContent() {
                             placeholder="Enter your password"
                           />
                           {passwordError && (
-                            <p className="text-sm text-red-500">{passwordError}</p>
+                            <p className="text-sm text-red-500">
+                              {passwordError}
+                            </p>
                           )}
                         </div>
                       </div>
                       <AlertDialogFooter className="flex-col sm:flex-row !justify-between">
-                        <AlertDialogCancel 
+                        <AlertDialogCancel
                           onClick={() => {
                             setDeletePassword("");
                             setPasswordError(null);
