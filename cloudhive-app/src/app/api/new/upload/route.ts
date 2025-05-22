@@ -17,7 +17,7 @@ const getProgressRange = (
   return [Math.min(start, 99), Math.min(end, 100)];
 };
 
-async function simulateProgress(
+async function simulateFixedProgress(
   controller: ReadableStreamDefaultController,
   encoder: TextEncoder,
   startProgress: number,
@@ -36,6 +36,36 @@ async function simulateProgress(
         `data: ${JSON.stringify({
           progress: currentProgress,
           status,
+        })}\n\n`
+      )
+    );
+    await sleep(stepDuration);
+  }
+}
+
+async function simulateUploadProgress(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  startProgress: number,
+  endProgress: number,
+  fileSize: number, // in bytes
+  fileName: string
+) {
+  const totalMB = fileSize / (1024 * 1024); // Convert bytes to MB
+  const speedMBps = 1.5 + Math.random() * 1.5; // Random speed between 1.5–3 MB/s
+  const duration = Math.max(500, (totalMB / speedMBps) * 1000); // Minimum 500ms
+
+  const steps = 10;
+  const stepDuration = duration / steps;
+  const progressIncrement = (endProgress - startProgress) / steps;
+
+  for (let i = 0; i < steps; i++) {
+    const currentProgress = Math.round(startProgress + progressIncrement * i);
+    controller.enqueue(
+      encoder.encode(
+        `data: ${JSON.stringify({
+          progress: currentProgress,
+          status: `Uploading ${fileName}...`,
         })}\n\n`
       )
     );
@@ -76,7 +106,7 @@ export async function POST(request: Request) {
       async start(controller) {
         let completedFiles = 0;
 
-        await simulateProgress(
+        await simulateFixedProgress(
           controller,
           encoder,
           0,
@@ -85,7 +115,7 @@ export async function POST(request: Request) {
           `Preparing to upload ${totalFiles} file${totalFiles > 1 ? "s" : ""}...`
         );
 
-        await simulateProgress(
+        await simulateFixedProgress(
           controller,
           encoder,
           10,
@@ -106,11 +136,11 @@ export async function POST(request: Request) {
           const folderName = parts[parts.length - 1];
           const parentId = await getOrCreateFolder(parentPath);
 
+          // Only show a status, don't reset progress
           controller.enqueue(
             encoder.encode(
               `data: ${JSON.stringify({
-                progress: 20,
-                status: `Creating folder structure...`,
+                status: `Creating folder "${folderName}"...`,
               })}\n\n`
             )
           );
@@ -126,22 +156,11 @@ export async function POST(request: Request) {
 
           const folderId = res.data.id!;
           folderIds.set(path, folderId);
-
-          await drive.permissions.create({
-            fileId: folderId,
-            requestBody: {
-              type: "user",
-              role: "writer",
-              emailAddress: userAppEmail,
-            },
-            sendNotificationEmail: false,
-          });
-
           return folderId;
         };
 
         if (isFolder) {
-          await simulateProgress(
+          await simulateFixedProgress(
             controller,
             encoder,
             20,
@@ -163,16 +182,15 @@ export async function POST(request: Request) {
               ? getProgressRange(completedFiles, totalFiles, 30, 45)
               : getProgressRange(completedFiles, totalFiles, 20, 55);
 
-            await simulateProgress(
+            await simulateUploadProgress(
               controller,
               encoder,
               startProgress,
               endProgress,
-              1000,
-              `Uploading ${fileName}`
+              file.size,
+              fileName
             );
 
-            // Convert browser File to Node.js Readable stream
             const fileStream = Readable.fromWeb(file.stream() as any);
 
             const initialRes = await drive.files.create({
