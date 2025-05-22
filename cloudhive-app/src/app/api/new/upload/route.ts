@@ -3,14 +3,6 @@ import { createOAuthClient } from "@/lib/google/google.client";
 import { Readable } from "stream";
 import { drive_v3 } from "googleapis";
 
-interface FileData {
-  path: string;
-  name: string;
-  size: number;
-  type: string;
-  file: string;
-}
-
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getProgressRange = (
@@ -53,10 +45,26 @@ async function simulateProgress(
 
 export async function POST(request: Request) {
   try {
-    const { files, email, isFolder, currentParentId, userAppEmail } =
-      await request.json();
+    const formData = await request.formData();
 
-    if (!files || !email || isFolder === undefined || !userAppEmail) {
+    // Extract all files and their paths
+    const files: { file: File; path: string }[] = [];
+    let index = 0;
+    while (formData.has(`file-${index}`)) {
+      const file = formData.get(`file-${index}`) as File;
+      const path = formData.get(`path-${index}`) as string;
+      files.push({ file, path });
+      index++;
+    }
+
+    const isFolder = formData.get("isFolder") === "true";
+    const email = formData.get("email") as string;
+    const currentParentId = formData.get("currentParentId") as string | null;
+    const userAppEmail = formData.get("userAppEmail") as string;
+    const totalFiles =
+      parseInt(formData.get("totalFiles") as string) || files.length;
+
+    if (!files.length || !email || !userAppEmail) {
       return NextResponse.json(
         { message: "Missing required fields." },
         { status: 400 }
@@ -66,7 +74,6 @@ export async function POST(request: Request) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        const totalFiles = (files as FileData[]).length;
         let completedFiles = 0;
 
         await simulateProgress(
@@ -120,15 +127,6 @@ export async function POST(request: Request) {
           const folderId = res.data.id!;
           folderIds.set(path, folderId);
 
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                progress: 22,
-                status: `Setting folder permissions...`,
-              })}\n\n`
-            )
-          );
-
           await drive.permissions.create({
             fileId: folderId,
             requestBody: {
@@ -153,9 +151,8 @@ export async function POST(request: Request) {
           );
         }
 
-        for (const file of files as FileData[]) {
+        for (const { file, path } of files) {
           try {
-            const path = file.path;
             const parts = path.split("/");
             const fileName = parts[parts.length - 1];
             const folderPath = isFolder ? parts.slice(0, -1).join("/") : "";
@@ -175,11 +172,8 @@ export async function POST(request: Request) {
               `Uploading ${fileName}`
             );
 
-            const base64Data = file.file.split(",")[1];
-            const buffer = Buffer.from(base64Data, "base64");
-            const fileStream = new Readable();
-            fileStream.push(buffer);
-            fileStream.push(null);
+            // Convert browser File to Node.js Readable stream
+            const fileStream = Readable.fromWeb(file.stream() as any);
 
             const initialRes = await drive.files.create({
               requestBody: {
@@ -201,13 +195,11 @@ export async function POST(request: Request) {
 
             completedFiles++;
           } catch (error: any) {
-            console.error(`Error uploading file ${file.name}:`, error);
+            console.error(`Error uploading file ${path}:`, error);
             controller.enqueue(
               encoder.encode(
                 `data: ${JSON.stringify({
-                  error: `Failed to upload ${file.name}: ${
-                    error?.message || "Unknown error"
-                  }`,
+                  error: `Failed to upload ${path}: ${error?.message || "Unknown error"}`,
                   status: "Upload failed",
                 })}\n\n`
               )

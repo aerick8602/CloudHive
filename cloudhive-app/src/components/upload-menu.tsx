@@ -24,40 +24,6 @@ import { clientAuth } from "@/lib/firebase/firebase-client";
 import { NewFolderDialog } from "./dialog/new-folder";
 import { UploadToast, UploadErrorToast } from "./upload-toast";
 
-interface FileData {
-  path: string;
-  name: string;
-  size: number;
-  type: string;
-  file: string;
-}
-
-async function prepareUploadData(
-  files: FileList | null,
-  isFolder: boolean = false
-): Promise<FileData[]> {
-  const fileData: FileData[] = [];
-  if (files) {
-    const fileArray = Array.from(files);
-    for (const file of fileArray) {
-      const path = isFolder ? file.webkitRelativePath : file.name;
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-      fileData.push({
-        path,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        file: base64,
-      });
-    }
-  }
-  return fileData;
-}
-
 interface UploadMenuProps {
   currentActiveAccount: string | undefined;
   currentParentId: string | undefined;
@@ -84,6 +50,24 @@ export function UploadMenu({
   const folderInputRef = React.useRef<HTMLInputElement | null>(null);
   const [user] = useAuthState(clientAuth);
   const [openNewFolderDialog, setOpenNewFolderDialog] = React.useState(false);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  // Add beforeunload event listener
+  React.useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isUploading) {
+        e.preventDefault();
+        e.returnValue =
+          "You have an ongoing upload. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isUploading]);
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -91,7 +75,7 @@ export function UploadMenu({
   ) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles || selectedFiles.length === 0) {
-      return; // Exit early if no files are selected
+      return;
     }
 
     setFiles(selectedFiles);
@@ -101,14 +85,38 @@ export function UploadMenu({
     const totalFiles = selectedFiles.length;
     const fileText = totalFiles === 1 ? "file" : "files";
 
-    // Show initial loading toast
+    // Create abort controller for this upload
+    abortControllerRef.current = new AbortController();
+
     const promise = new Promise((resolve, reject) => {
       const handleUpload = async () => {
         let toastId: string | number = "";
         try {
-          const fileData = await prepareUploadData(selectedFiles, isFolder);
+          const formData = new FormData();
+          Array.from(selectedFiles).forEach((file, index) => {
+            const path = isFolder ? file.webkitRelativePath : file.name;
+            formData.append(`file-${index}`, file);
+            formData.append(`path-${index}`, path);
+          });
 
-          // Create initial toast and store its ID
+          // Add metadata
+          formData.append("isFolder", String(isFolder));
+          formData.append(
+            "email",
+            currentParentId ? folderEmail : currentActiveAccount!
+          );
+          if (currentParentId)
+            formData.append("currentParentId", currentParentId);
+          formData.append("userAppEmail", user!.email!);
+          formData.append("totalFiles", String(totalFiles));
+
+          // Set timeout for upload (5 minutes)
+          const timeoutId = setTimeout(() => {
+            abortControllerRef.current?.abort();
+            reject(new Error("Upload timed out"));
+          }, 300000);
+
+          // Initial toast
           toastId = toast(
             <UploadToast
               progress={0}
@@ -116,25 +124,17 @@ export function UploadMenu({
               fileText={fileText}
               status="Preparing files..."
             />,
-            {
-              duration: Infinity,
-              // duration: 5000,
-              unstyled: true,
-              // closeButton: true,
-            }
+            { duration: Infinity, unstyled: true }
           );
 
           const response = await fetch("/api/new/upload", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              files: fileData,
-              isFolder,
-              email: currentParentId ? folderEmail : currentActiveAccount,
-              currentParentId: currentParentId,
-              userAppEmail: user!.email!,
-            }),
+            body: formData,
+            signal: abortControllerRef.current?.signal,
+            keepalive: true,
           });
+
+          clearTimeout(timeoutId);
 
           if (!response.ok) {
             throw new Error("Upload failed");
@@ -163,7 +163,6 @@ export function UploadMenu({
                   const data = JSON.parse(line.slice(6));
                   if (data.progress !== undefined) {
                     setUploadProgress(data.progress);
-                    // Update the existing toast with new progress
                     toast(
                       <UploadToast
                         progress={data.progress}
@@ -172,13 +171,7 @@ export function UploadMenu({
                         status={data.status}
                         onClose={() => toast.dismiss(toastId)}
                       />,
-                      {
-                        id: toastId,
-                        duration: Infinity,
-                        // duration: 5000,
-                        unstyled: true,
-                        // closeButton: true,
-                      }
+                      { id: toastId, duration: Infinity, unstyled: true }
                     );
                   }
                   if (data.error) {
@@ -194,9 +187,7 @@ export function UploadMenu({
             }
           }
 
-          // Only resolve if no errors occurred
           if (!hasError) {
-            // Mutate all relevant queries to refresh the data
             if (currentParentId === "root" || !currentParentId) {
               mutate(`/api/file/all/${user!.uid}?trashed=false`);
             } else {
@@ -207,24 +198,20 @@ export function UploadMenu({
             resolve("Upload complete!");
           }
         } catch (error) {
-          // Dismiss the previous toast before showing error
-          if (toastId) {
-            toast.dismiss(toastId);
-          }
+          if (toastId) toast.dismiss(toastId);
           reject(error);
         } finally {
           setIsUploading(false);
           setFiles(null);
           setUploadProgress(0);
+          abortControllerRef.current = null;
         }
       };
 
       handleUpload();
     });
 
-    // Handle error case
     promise.catch((error) => {
-      // Only show error toast if it's a real error
       if (error.message !== "Upload complete!") {
         toast.dismiss();
         toast(
@@ -233,11 +220,7 @@ export function UploadMenu({
             fileText={fileText}
             progress={uploadProgress}
           />,
-          {
-            unstyled: true,
-            duration: 2000,
-            // closeButton: true,
-          }
+          { unstyled: true, duration: 2000 }
         );
       }
     });
@@ -266,19 +249,13 @@ export function UploadMenu({
         }),
       });
       if (res.ok) {
-        console.log("Folder created!");
-        // Mutate all relevant queries to refresh the data
         if (currentParentId === "root" || !currentParentId) {
-          // If in root, refresh all files
           mutate(`/api/file/all/${user!.uid}?trashed=false`);
         } else {
-          // If in a specific folder, refresh that folder's contents
           mutate(
             `/api/file/${currentActiveAccount}?parentId=${currentParentId}&trashed=false`
           );
         }
-      } else {
-        console.error("Folder creation failed.");
       }
     } catch (err) {
       console.error("Error creating folder:", err);
@@ -288,6 +265,15 @@ export function UploadMenu({
       setFolderName("Untitled Folder");
     }
   };
+
+  // Cancel upload when component unmounts
+  React.useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -388,7 +374,6 @@ export function UploadMenu({
         </SidebarMenuItem>
       </SidebarMenu>
 
-      {/* Hidden input fields */}
       <input
         type="file"
         className="hidden"
@@ -409,7 +394,6 @@ export function UploadMenu({
         onChange={(e) => handleFileChange(e, true)}
       />
 
-      {/* New Folder Dialog */}
       <NewFolderDialog
         open={openNewFolderDialog}
         onOpenChange={setOpenNewFolderDialog}
