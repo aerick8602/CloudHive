@@ -10,10 +10,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { contentMap } from "@/utils/content";
 import { fetcher } from "@/utils/apis/fetch";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { logoutUser } from "@/utils/apis/post";
 import { clientAuth } from "@/lib/firebase/firebase-client";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -29,6 +29,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UploadErrorToast, UploadToast } from "./upload-toast";
+import { toast } from "sonner";
 
 interface CloudHiveProps {
   initialAccounts: AccountProps[];
@@ -50,6 +52,127 @@ export default function CloudHive({
   const [folderEmail, setFolderEmail] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("Drive");
   const [user] = useAuthState(clientAuth);
+
+  // Upload state lifted to parent
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const handleUpload = async (
+    files: FileList,
+    isFolder: boolean,
+    currentParentId?: string
+  ) => {
+    if (!files || files.length === 0 || !currentActiveAccount) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const totalFiles = files.length;
+    const fileText = totalFiles === 1 ? "file" : "files";
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file, index) => {
+        const path = isFolder ? file.webkitRelativePath : file.name;
+        formData.append(`file-${index}`, file);
+        formData.append(`path-${index}`, path);
+      });
+
+      formData.append("isFolder", String(isFolder));
+      formData.append(
+        "email",
+        currentParentId ? folderEmail : currentActiveAccount
+      );
+      if (currentParentId) formData.append("currentParentId", currentParentId);
+      formData.append("userAppEmail", user!.email!);
+      formData.append("totalFiles", String(totalFiles));
+
+      const toastId = toast(
+        <UploadToast
+          progress={0}
+          totalFiles={totalFiles}
+          fileText={fileText}
+          status="Preparing files..."
+        />,
+        { duration: Infinity, unstyled: true }
+      );
+
+      const response = await fetch("/api/new/upload", {
+        method: "POST",
+        body: formData,
+        signal: abortControllerRef.current?.signal,
+        keepalive: true,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = JSON.parse(line.slice(6));
+            if (data.progress !== undefined) {
+              setUploadProgress(data.progress);
+              toast(
+                <UploadToast
+                  progress={data.progress}
+                  totalFiles={totalFiles}
+                  fileText={fileText}
+                  status={data.status}
+                  onClose={() => toast.dismiss(toastId)}
+                />,
+                { id: toastId, duration: Infinity, unstyled: true }
+              );
+            }
+            if (data.error) throw new Error(data.error);
+          }
+        }
+      }
+
+      // Refresh data
+      if (currentParentId === "root" || !currentParentId) {
+        mutate(`/api/file/all/${user!.uid}?trashed=false`);
+      } else {
+        mutate(
+          `/api/file/${currentActiveAccount}?parentId=${currentParentId}&trashed=false`
+        );
+      }
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "name" in error &&
+        (error as { name?: string }).name !== "AbortError"
+      ) {
+        toast(
+          <UploadErrorToast
+            totalFiles={totalFiles}
+            fileText={fileText}
+            progress={uploadProgress}
+          />,
+          { unstyled: true, duration: 2000 }
+        );
+      }
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      abortControllerRef.current = null;
+    }
+  };
 
   useEffect(() => {
     async function fetchAccountsAndOauth() {
@@ -141,6 +264,10 @@ export default function CloudHive({
         setActiveTab={setActiveTab}
         folderEmail={folderEmail}
         setFolderEmail={setFolderEmail}
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
+        uploadProgress={uploadProgress}
+        onFileUpload={handleUpload}
       />
       <SidebarInset className="h-[calc(100vh-1rem)]">
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 justify-between">
@@ -150,8 +277,8 @@ export default function CloudHive({
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <SearchForm 
-              className="w-full sm:ml-auto sm:w-auto" 
+            <SearchForm
+              className="w-full sm:ml-auto sm:w-auto"
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
             />
@@ -160,10 +287,12 @@ export default function CloudHive({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link
-                    href="/about"
-                  >
-                    <Button variant="outline" size="icon" className="cursor-pointer">
+                  <Link href="/about">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="cursor-pointer"
+                    >
                       <QuestionMarkCircledIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
                     </Button>
                   </Link>

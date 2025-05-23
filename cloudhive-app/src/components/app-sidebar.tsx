@@ -28,6 +28,10 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   oauthUrl: string | undefined;
   folderEmail: string;
   setFolderEmail: (email: string) => void;
+  isUploading: boolean;
+  uploadProgress: number;
+  onFileUpload: (files: FileList, isFolder: boolean, parentId?: string) => void;
+  setIsUploading: (isUploading: boolean) => void;
 }
 
 export function AppSidebar({
@@ -39,6 +43,10 @@ export function AppSidebar({
   oauthUrl,
   folderEmail,
   setFolderEmail,
+  isUploading,
+  uploadProgress,
+  onFileUpload,
+  setIsUploading,
   ...props
 }: AppSidebarProps) {
   return (
@@ -56,6 +64,10 @@ export function AppSidebar({
           currentActiveAccount={currentActiveAccount}
           folderEmail={folderEmail}
           setFolderEmail={setFolderEmail}
+          isUploading={isUploading}
+          uploadProgress={uploadProgress}
+          onFileUpload={onFileUpload}
+          setIsUploading={setIsUploading}
         ></UploadMenu>
       </SidebarHeader>
       <SidebarContent>

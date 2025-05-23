@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     // Send email
     await transporter.sendMail({
-      from: `"CloudHive Feedback" <${process.env.EMAIL_USER}>`,
+      from: `"CloudHive" <${process.env.EMAIL_USER}>`,
       to: "katiyarayush02@gmail.com",
       replyTo: userEmail || process.env.EMAIL_USER,
       subject: "🌟 New Feedback from CloudHive",

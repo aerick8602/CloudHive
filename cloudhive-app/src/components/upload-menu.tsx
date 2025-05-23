@@ -29,6 +29,10 @@ interface UploadMenuProps {
   currentParentId: string | undefined;
   folderEmail: string;
   setFolderEmail: (email: string) => void;
+  isUploading: boolean;
+  uploadProgress: number;
+  onFileUpload: (files: FileList, isFolder: boolean, parentId?: string) => void;
+  setIsUploading: (isUploading: boolean) => void;
 }
 
 function formatProgress(progress: number) {
@@ -40,11 +44,15 @@ export function UploadMenu({
   folderEmail,
   setFolderEmail,
   currentParentId = undefined,
+  isUploading,
+  uploadProgress,
+  onFileUpload,
+  setIsUploading,
 }: UploadMenuProps) {
   const { isMobile } = useSidebar();
   const [folderName, setFolderName] = React.useState("Untitled Folder");
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [uploadProgress, setUploadProgress] = React.useState(0);
+  // const [isUploading, setIsUploading] = React.useState(false);
+  // const [uploadProgress, setUploadProgress] = React.useState(0);
   const [files, setFiles] = React.useState<FileList | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const folderInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -79,8 +87,8 @@ export function UploadMenu({
     }
 
     setFiles(selectedFiles);
-    setIsUploading(true);
-    setUploadProgress(0);
+    // setIsUploading(true);
+    // setUploadProgress(0);
 
     const totalFiles = selectedFiles.length;
     const fileText = totalFiles === 1 ? "file" : "files";
@@ -89,126 +97,127 @@ export function UploadMenu({
     abortControllerRef.current = new AbortController();
 
     const promise = new Promise((resolve, reject) => {
-      const handleUpload = async () => {
-        let toastId: string | number = "";
-        try {
-          const formData = new FormData();
-          Array.from(selectedFiles).forEach((file, index) => {
-            const path = isFolder ? file.webkitRelativePath : file.name;
-            formData.append(`file-${index}`, file);
-            formData.append(`path-${index}`, path);
-          });
+      onFileUpload(selectedFiles, isFolder, currentParentId);
+      // const handleUpload = async () => {
+      //   let toastId: string | number = "";
+      //   try {
+      //     const formData = new FormData();
+      //     Array.from(selectedFiles).forEach((file, index) => {
+      //       const path = isFolder ? file.webkitRelativePath : file.name;
+      //       formData.append(`file-${index}`, file);
+      //       formData.append(`path-${index}`, path);
+      //     });
 
-          // Add metadata
-          formData.append("isFolder", String(isFolder));
-          formData.append(
-            "email",
-            currentParentId ? folderEmail : currentActiveAccount!
-          );
-          if (currentParentId)
-            formData.append("currentParentId", currentParentId);
-          formData.append("userAppEmail", user!.email!);
-          formData.append("totalFiles", String(totalFiles));
+      //     // Add metadata
+      //     formData.append("isFolder", String(isFolder));
+      //     formData.append(
+      //       "email",
+      //       currentParentId ? folderEmail : currentActiveAccount!
+      //     );
+      //     if (currentParentId)
+      //       formData.append("currentParentId", currentParentId);
+      //     formData.append("userAppEmail", user!.email!);
+      //     formData.append("totalFiles", String(totalFiles));
 
-          // Set timeout for upload (5 minutes)
-          const timeoutId = setTimeout(() => {
-            abortControllerRef.current?.abort();
-            reject(new Error("Upload timed out"));
-          }, 300000);
+      //     // Set timeout for upload (5 minutes)
+      //     const timeoutId = setTimeout(() => {
+      //       abortControllerRef.current?.abort();
+      //       reject(new Error("Upload timed out"));
+      //     }, 300000);
 
-          // Initial toast
-          toastId = toast(
-            <UploadToast
-              progress={0}
-              totalFiles={totalFiles}
-              fileText={fileText}
-              status="Preparing files..."
-            />,
-            { duration: Infinity, unstyled: true }
-          );
+      //     // Initial toast
+      //     toastId = toast(
+      //       <UploadToast
+      //         progress={0}
+      //         totalFiles={totalFiles}
+      //         fileText={fileText}
+      //         status="Preparing files..."
+      //       />,
+      //       { duration: Infinity, unstyled: true }
+      //     );
 
-          const response = await fetch("/api/new/upload", {
-            method: "POST",
-            body: formData,
-            signal: abortControllerRef.current?.signal,
-            keepalive: true,
-          });
+      //     const response = await fetch("/api/new/upload", {
+      //       method: "POST",
+      //       body: formData,
+      //       signal: abortControllerRef.current?.signal,
+      //       keepalive: true,
+      //     });
 
-          clearTimeout(timeoutId);
+      //     clearTimeout(timeoutId);
 
-          if (!response.ok) {
-            throw new Error("Upload failed");
-          }
+      //     if (!response.ok) {
+      //       throw new Error("Upload failed");
+      //     }
 
-          const reader = response.body?.getReader();
-          if (!reader) {
-            throw new Error("No response body");
-          }
+      //     const reader = response.body?.getReader();
+      //     if (!reader) {
+      //       throw new Error("No response body");
+      //     }
 
-          const decoder = new TextDecoder();
-          let buffer = "";
-          let hasError = false;
+      //     const decoder = new TextDecoder();
+      //     let buffer = "";
+      //     let hasError = false;
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+      //     while (true) {
+      //       const { done, value } = await reader.read();
+      //       if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n\n");
-            buffer = lines.pop() || "";
+      //       buffer += decoder.decode(value, { stream: true });
+      //       const lines = buffer.split("\n\n");
+      //       buffer = lines.pop() || "";
 
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                try {
-                  const data = JSON.parse(line.slice(6));
-                  if (data.progress !== undefined) {
-                    setUploadProgress(data.progress);
-                    toast(
-                      <UploadToast
-                        progress={data.progress}
-                        totalFiles={totalFiles}
-                        fileText={fileText}
-                        status={data.status}
-                        onClose={() => toast.dismiss(toastId)}
-                      />,
-                      { id: toastId, duration: Infinity, unstyled: true }
-                    );
-                  }
-                  if (data.error) {
-                    hasError = true;
-                    reject(new Error(data.error));
-                  }
-                } catch (e) {
-                  console.error("Error parsing SSE data:", e);
-                  hasError = true;
-                  reject(e);
-                }
-              }
-            }
-          }
+      //       for (const line of lines) {
+      //         if (line.startsWith("data: ")) {
+      //           try {
+      //             const data = JSON.parse(line.slice(6));
+      //             if (data.progress !== undefined) {
+      //               setUploadProgress(data.progress);
+      //               toast(
+      //                 <UploadToast
+      //                   progress={data.progress}
+      //                   totalFiles={totalFiles}
+      //                   fileText={fileText}
+      //                   status={data.status}
+      //                   onClose={() => toast.dismiss(toastId)}
+      //                 />,
+      //                 { id: toastId, duration: Infinity, unstyled: true }
+      //               );
+      //             }
+      //             if (data.error) {
+      //               hasError = true;
+      //               reject(new Error(data.error));
+      //             }
+      //           } catch (e) {
+      //             console.error("Error parsing SSE data:", e);
+      //             hasError = true;
+      //             reject(e);
+      //           }
+      //         }
+      //       }
+      //     }
 
-          if (!hasError) {
-            if (currentParentId === "root" || !currentParentId) {
-              mutate(`/api/file/all/${user!.uid}?trashed=false`);
-            } else {
-              mutate(
-                `/api/file/${currentActiveAccount}?parentId=${currentParentId}&trashed=false`
-              );
-            }
-            resolve("Upload complete!");
-          }
-        } catch (error) {
-          if (toastId) toast.dismiss(toastId);
-          reject(error);
-        } finally {
-          setIsUploading(false);
-          setFiles(null);
-          setUploadProgress(0);
-          abortControllerRef.current = null;
-        }
-      };
+      //     if (!hasError) {
+      //       if (currentParentId === "root" || !currentParentId) {
+      //         mutate(`/api/file/all/${user!.uid}?trashed=false`);
+      //       } else {
+      //         mutate(
+      //           `/api/file/${currentActiveAccount}?parentId=${currentParentId}&trashed=false`
+      //         );
+      //       }
+      //       resolve("Upload complete!");
+      //     }
+      //   } catch (error) {
+      //     if (toastId) toast.dismiss(toastId);
+      //     reject(error);
+      //   } finally {
+      //     setIsUploading(false);
+      //     setFiles(null);
+      //     setUploadProgress(0);
+      //     abortControllerRef.current = null;
+      //   }
+      // };
 
-      handleUpload();
+      // handleUpload();
     });
 
     promise.catch((error) => {
