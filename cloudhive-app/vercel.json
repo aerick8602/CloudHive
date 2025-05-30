@@ -2,7 +2,8 @@
   "crons": [
     {
       "path": "/api/cron/check-tokens",
-      "schedule": "0 0 * * *"
+
+      "schedule": "15 16 * * *"
     }
   ],
   "headers": [
@@ -16,4 +17,4 @@
       ]
     }
   ]
-} 
+}
