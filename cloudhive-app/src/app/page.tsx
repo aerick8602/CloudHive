@@ -7,6 +7,8 @@ import MaintenanceError from "./errors/maintenance-error";
 import GeneralError from "./errors/general-error";
 import axios from "axios";
 import { Account } from "@/interface";
+import { convertISTToMillis } from "@/utils/time";
+import { toggleAccountValidityById } from "@/lib/auth";
 
 const CACHE_EXPIRES_IN = Number(process.env.CACHE_TTL!);
 
@@ -95,9 +97,17 @@ export default async function Home() {
 
     console.log("🔍 Parsed Cached Accounts:", parsedAccounts);
 
-    const accounts = parsedAccounts.filter(
-      (acc: Partial<Account>) => acc.a && acc.c
-    );
+    // const accounts = parsedAccounts.filter(
+    //   (acc: Partial<Account>) => acc.a && acc.c
+    // );
+
+    const accounts = parsedAccounts.filter((acc: Partial<Account>) => {
+      const hasTokens = acc.a && acc.c;
+      const rtvIsValid =
+        Date.now() >= convertISTToMillis(acc.rtv!) - 60 * 60 * 1000;
+      if (!rtvIsValid) toggleAccountValidityById(acc._id!);
+      return hasTokens && rtvIsValid;
+    });
 
     console.log("🔍 Connected  Accounts:", accounts);
     const oauthUrl = cachedOauthUrl || "";

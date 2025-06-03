@@ -23,6 +23,7 @@ export async function GET(
       c: account.c,
       e: account.e,
       _id: account._id.toString(),
+      rtv: account.rtv,
     }));
 
     // console.log("Accounts found:", accountsList);

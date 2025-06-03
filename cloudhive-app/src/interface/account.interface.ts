@@ -1,4 +1,5 @@
 export interface Account {
+  _id?: string;
   e: string; // email
   c: boolean; // connected status
   a: boolean; // active status
