@@ -3,7 +3,7 @@
     {
       "path": "/api/cron/check-tokens",
 
-      "schedule": "15 16 * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "headers": [
