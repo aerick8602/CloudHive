@@ -39,16 +39,13 @@ export const PasswordResetDialog = ({
     };
     try {
       await sendPasswordResetEmail(clientAuth, email, actionCodeSettings);
-      toast.success(
-        "A reset link has been sent to your registered email.",
-        {
-          position: "top-right",
-        }
-      );
+      toast.success("A reset link has been sent to your registered email.", {
+        position: "top-right",
+      });
       onOpenChange(false);
     } catch (err: any) {
       toast.error("Failed to send reset email.", {
-        position: defaultEmail?"bottom-right":"top-right",
+        position: defaultEmail ? "bottom-right" : "top-right",
       });
     }
   };
@@ -59,7 +56,7 @@ export const PasswordResetDialog = ({
         <DialogHeader>
           <DialogTitle>Reset Password</DialogTitle>
           <DialogDescription>
-            {defaultEmail 
+            {defaultEmail
               ? "A password reset link will be sent to your email address."
               : "Please enter the email linked to your account to reset your password."}
           </DialogDescription>

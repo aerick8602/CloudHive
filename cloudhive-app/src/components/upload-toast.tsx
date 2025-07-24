@@ -203,7 +203,7 @@ export function UploadToast({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
-      className="relative flex max-w-[90vw] w-full max-w-md p-4 rounded-xl border border-border bg-background shadow-xl mx-auto"
+      className="relative flex w-full max-w-[90vw] mx-auto md:w-[357px] p-4 rounded-xl border border-border bg-background shadow-xl"
     >
       {/* Close Button */}
       <motion.button
@@ -286,7 +286,7 @@ export function UploadErrorToast({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
-      className="relative flex max-w-[90vw] w-full max-w-md p-4 rounded-xl border border-border bg-background shadow-xl mx-auto"
+      className="relative flex w-full max-w-[90vw] mx-auto md:w-[357px] p-4 rounded-xl border border-border bg-background shadow-xl"
     >
       {/* Close Button */}
       <motion.button
